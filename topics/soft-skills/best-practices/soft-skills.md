@@ -11,3 +11,6 @@
 - Improve the demo by making it more interesting
 - Find a good professional presentation template instead using the company
 - Add listening to radio during traveling in hobbies
+
+
+>presentation - break after 2 session, change seats of each other after break

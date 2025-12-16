@@ -1,5 +1,9 @@
 # Technical
 
+## Games
+
+- The curse of cheats in game which spoils the fun and running the experience
+
 - Trajectory over raw speed. It's not just about doing a lot; it's about doing meaningful things that steer things forward.
 
 poor people watch lot of tv, eat fast food, buy things which are sale (we should only buy stock which are on sale), they are in sports watching (not themself as atheletes), don't shower ofetn as rich people do, blame others for their misfortunes, tend to have more kids and earlier in their life, do not do regular checks with their doctor, spend money before they get it, surround themself with poor people, belive that others should help them reach the top
