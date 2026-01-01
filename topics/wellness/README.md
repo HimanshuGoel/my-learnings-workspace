@@ -1,3 +1,0 @@
-# Wellness
-
-To be created...

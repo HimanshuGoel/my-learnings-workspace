@@ -1,3 +1,0 @@
-# User Manual
-
-To be created...

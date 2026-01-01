@@ -1,3 +1,0 @@
-# TypeScript - JavaScript
-
-To be created...

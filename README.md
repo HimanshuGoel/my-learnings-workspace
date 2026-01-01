@@ -6,7 +6,6 @@ A personal knowledge hub to document my weekly learnings - including notes from 
 
 If you have any feedback or questions, feel free to email <himanshu.goel.mca@gmail.com>. If you encounter any problems, please create a [GitHub Issue](https://github.com/HimanshuGoel/my-learnings-app/issues/new/choose) within this repository.
 
-
 # Tasks
 
 Do progress on theoretical learning through youtube subscribed channels, pluralsight courses, browser rearrange bookmarks or open-source projects
@@ -82,3 +81,27 @@ Do progress on theoretical learning through youtube subscribed channels, plurals
 - Fix build failure on github
 
 - Update resume with latest information
+
+Add .diff to the end of any PR URL and copy&paste into a LLM
+
+You can get an instant feedback on any GitHub PR.
+
+No Copilot Enterprise. No browser extensions. No special tooling.
+
+That’s it.
+
+Example
+PR Link: <https://github.com/RahulPrabha/oldmanrahul.com/pull/11>
+Add .diff to the end: <https://github.com/RahulPrabha/oldmanrahul.com/pull/11.diff>
+Copy the raw diff
+Paste it into Claude, ChatGPT, or any LLM (Maybe add a short instuction like: please review.)
+
+>india is still a golden bird for religious fraudsters.
+
+>drink triphala tea
+
+>jyatadi oil for pain and wounds, cuts
+
+>bresol, chitrak haritaki for sinus and nose block, running noise
+
+>our "default settings" for how fast we live and consume the world around us are too high and that lowering those speeds can greatly enhance experience, understanding, and fulfillment.

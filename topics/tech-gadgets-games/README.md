@@ -1,3 +1,0 @@
-# Technical
-
-To be created...

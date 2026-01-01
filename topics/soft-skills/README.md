@@ -1,3 +1,0 @@
-# Soft Skills
-
-To be created...
