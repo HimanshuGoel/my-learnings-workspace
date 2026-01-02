@@ -1,5 +1,8 @@
 # Tasks
 
+Wealthier Germans will generally be fitter and healthier, from a better diet and lower alcohol consumption. Upper-class people in Germany will make a greater effort to eat fresh fruit and vegetables, and to appreciate the cuisines of other cultures. The condition of their teeth will be unobjectionable, with no severe decay, etc.
+If you are doing innovative work, bring new business to company by your ideas, have excellent team leaders, strong management qualities, if you can build new teams with mentoring them then in such cases you are beneficial to company and then age is no limit for working even after 60.
+
 Do progress on theoretical learning through youtube subscribed channels, pluralsight courses, browser rearrange bookmarks or open-source projects
 
 ## Project Improvements - My Full-stack Learning App
@@ -99,3 +102,7 @@ Paste it into Claude, ChatGPT, or any LLM (Maybe add a short instuction like: pl
 >our "default settings" for how fast we live and consume the world around us are too high and that lowering those speeds can greatly enhance experience, understanding, and fulfillment.
 
 - Core skills in 2025 - analytical thinking, resilience, flexibility and agility, leadership and social influence, creative thinking, motiviation and self-awareness
+
+>Frameworks are just tools to get things done. What matters more in the long run are core fundamentals — such as strong JavaScript understanding and deep knowledge of how browsers work. Your value as a frontend engineer comes from your ability to choose the right tools and use them wisely, not just from knowing a particular framework thoroughly.
+
+>the henry.codes suggests building your own personal site with basic HTML and publishing content you own, not just feeds for algorithms. This Rediscovery of the Web’s original spirit is presented as a way to “win the war for the soul of the internet.”

@@ -1,17 +1,23 @@
 # Angular React
 
-- React specific learnings
-  - angular-react-part-46.docx
-  - angular-react-part-47.docx
+Misc.
 
-- Key topics
-  - React JS/Hooks/Redux
-  - WCAG
-  - Micofrontends
-  - Node.js
-  - Webpack/Vite
-  - HTML5/CSS3
-  - Jest, React Testing Library
-  - Storybook/Mui
-  - NPM/Yarn
-  - Keycloak theming
+- React specific learnings starts from document - angular-react-part-46.docx
+
+Key topics
+
+- HTML
+- CSS
+- React
+- Redux
+- Accessibility
+- Micro Frontends
+- Vite
+- Webpack
+- Jest
+- React Testing Library
+- Mui
+- Storybook
+- NPM
+- Yarn
+- Keycloak theming
