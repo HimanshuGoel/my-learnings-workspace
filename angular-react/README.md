@@ -1,4 +1,4 @@
-# Angular React
+# Angular - React
 
 Misc.
 
@@ -10,14 +10,19 @@ Key topics
 - CSS
 - React
 - Redux
+- Security
 - Accessibility
+- User Experience
 - Micro Frontends
-- Vite
-- Webpack
-- Jest
-- React Testing Library
 - Mui
 - Storybook
+- Jest
+- React Testing Library
+- Cypress
+- Git
 - NPM
 - Yarn
-- Keycloak theming
+- Vite
+- Webpack
+- Keycloak Theming
+- Markdown

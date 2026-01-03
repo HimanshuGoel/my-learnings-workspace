@@ -1,0 +1,3 @@
+# Wellness - Philosophy
+
+To be created...

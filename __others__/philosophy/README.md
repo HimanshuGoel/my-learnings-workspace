@@ -1,3 +1,0 @@
-# Philosophy
-
-To be created...

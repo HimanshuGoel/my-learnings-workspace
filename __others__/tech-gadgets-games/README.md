@@ -1,3 +1,3 @@
-# Technical
+# Tech - Gadgets - Games
 
 To be created...

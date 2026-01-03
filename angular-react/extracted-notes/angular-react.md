@@ -5310,3 +5310,7 @@ To be created...
 To be created...
 
 >Angular and React are adopting more similar concepts, such as a focus on predictable reactivity, improved ergonomics, and smaller bundles.'The similarities are more about outcomes (e.g., smoother reactivity) than philosophy. Both Angular and React are focusing on better performance, clearer reactivity models, and ergonomic APIs because these qualities are broadly desired in modern UI development. This trend reflects the broader evolution of web frameworks toward leaner runtimes and more predictable state handling.
+
+- Frameworks are just tools to get things done. What matters more in the long run are core fundamentals — such as strong JavaScript understanding and deep knowledge of how browsers work. Your value as a frontend engineer comes from your ability to choose the right tools and use them wisely, not just from knowing a particular framework thoroughly.
+
+- Core skills in 2025 - analytical thinking, resilience, flexibility and agility, leadership and social influence, creative thinking, motivation and self-awareness
