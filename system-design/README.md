@@ -1,3 +1,3 @@
 # System Design
 
-To be created...
+This folder contains system design notes and learnings collected over time. It helps in understanding how to design scalable, reliable, and maintainable systems for real-world applications.

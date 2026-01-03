@@ -1,6 +1,6 @@
 # My Learnings App
 
-A personal knowledge hub to document my weekly learnings - including notes from tutorials, research, best practices, and summarized insights.
+A personal knowledge hub to document my weekly learnings - including notes from tutorials, research, best practices and summarized insights.
 
 ## Any Feedback
 

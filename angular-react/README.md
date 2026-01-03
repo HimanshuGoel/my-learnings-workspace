@@ -1,10 +1,8 @@
 # Angular - React
 
-Misc.
+This folder contains notes, patterns and learnings for Angular and React development. It helps in understanding core concepts, best practices, and real-world usage for building modern web applications.
 
-- React specific learnings starts from document - angular-react-part-46.docx
-
-Key topics
+## Key topics
 
 - HTML
 - CSS
@@ -26,3 +24,7 @@ Key topics
 - Webpack
 - Keycloak Theming
 - Markdown
+
+## Miscellaneous
+
+- React specific learnings starts from document - angular-react-part-46.docx
