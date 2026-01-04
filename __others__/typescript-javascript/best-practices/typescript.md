@@ -2,32 +2,35 @@
 
 ## Table of Contents
 
-- [Overview](#overview)
-- [Browser](#browser)
-- [Types](#types)
-- [Functions](#functions)
-- [Object](#object)
-- [Loops](#loops)
-- [Patterns](#patterns)
-- [Async and Events](#async-and-events)
-- [Events](#events)
-- [jQuery](#jquery)
-- [Hoisting](#hoisting)
-- [Symbols](#symbols)
-- [Maps and Sets](#maps-and-sets)
-- [Recursion](#recursion)
-- [Closure](#closure)
-- [Modules](#modules)
-- [JSON](#json)
-- [Web-workers](#web-workers)
-- [Linting](#linting)
-- [Regex](#regex)
-- [AJAX](#ajax)
-- [Error Handling](#error-handling)
-- [Polyfills](#polyfills)
-- [Compilers](#compilers)
-- [Data Structure](#data-structure)
-- [Problem Solving](#problem-solving)
+- [Extracted Notes - TypeScript](#extracted-notes---typescript)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+  - [Browser](#browser)
+  - [Types](#types)
+  - [Functions](#functions)
+  - [Object](#object)
+  - [Loops](#loops)
+  - [Patterns](#patterns)
+  - [Async and Events](#async-and-events)
+  - [Events](#events)
+  - [jQuery](#jquery)
+  - [Hoisting](#hoisting)
+  - [Symbols](#symbols)
+  - [Maps and Sets](#maps-and-sets)
+  - [Recursion](#recursion)
+  - [Closure](#closure)
+  - [Modules](#modules)
+  - [JSON](#json)
+  - [Web-workers](#web-workers)
+  - [Linting](#linting)
+  - [Regex](#regex)
+  - [AJAX](#ajax)
+  - [Error Handling](#error-handling)
+  - [Polyfills](#polyfills)
+  - [Compilers](#compilers)
+  - [Data Structure](#data-structure)
+  - [Problem Solving](#problem-solving)
+  - [Misc](#misc)
 
 ## Overview
 
@@ -1169,6 +1172,4 @@ To be created...
 
 - Originally there were two kinds of JS library – libraries that added a global object, e.g. jQuery, another one is libraries that extended built-in objects, e.g. Prototype. Both approaches have significant downsides as extending built-in objects in unwise in case the object changes. Global objects are convenient, but can easily be overwritten. Instead of these both approach, we should use modular-based coding which is much safer paradigm that eliminates the worst aspects of working with globals and brings many other benefits.
 
---------- page 28
-
-- TypeScript - For larger codebases, or ones maintained over time (with many people working on them), TypeScript still likely delivers good returns (maintainability, avoidance of bugs, easier refactoring). But for smaller tools / experiments / prototypes, the pay-off may not justify the extra work. Also, there’s mental overhead: developers have to think about types, strictness, compile errors, etc., which sometimes distracts from iterating ideas quickly.
+- For larger codebases, or ones maintained over time (with many people working on them), TypeScript still likely delivers good returns (maintainability, avoidance of bugs, easier refactoring). But for smaller tools / experiments / prototypes, the pay-off may not justify the extra work. Also, there’s mental overhead: developers have to think about types, strictness, compile errors, etc., which sometimes distracts from iterating ideas quickly.

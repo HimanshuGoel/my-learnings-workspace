@@ -2,28 +2,30 @@
 
 ## Table of Contents
 
-- [Java](#java)
-- [REST](#rest)
-- [Middleware](#middleware)
-- [HATEOAS](#hateoas)
-- [Architecture](#architecture)
-- [NPM](#npm)
-- [Express](#express)
-- [Async/Await](#asyncawait)
-- [Event Emitters](#event-emitters)
-- [Authentication/Authorization](#authenticationauthorization)
-- [Folder Structure](#folder-structure)
-- [Mongoose](#mongoose)
-- [CORS](#cors)
-- [Deployment](#deployment)
-- [Streams](#streams)
-- [Gulp](#gulp)
-- [Overview](#overview)
-- [HTTPS](#https)
-- [Distributed APIs](#distributed-apis)
-- [Security](#security)
-- [Unit Tests](#unit-tests)
-- [Modules](#modules)
+- [Extracted Notes - Node.js](#extracted-notes---nodejs)
+  - [Table of Contents](#table-of-contents)
+  - [Java](#java)
+  - [REST](#rest)
+  - [Middleware](#middleware)
+  - [HATEOAS](#hateoas)
+  - [Architecture](#architecture)
+  - [NPM](#npm)
+  - [Express](#express)
+  - [Async/Await](#asyncawait)
+  - [Event Emitters](#event-emitters)
+  - [Authentication/Authorization](#authenticationauthorization)
+  - [Folder Structure](#folder-structure)
+  - [Mongoose](#mongoose)
+  - [CORS](#cors)
+  - [Deployment](#deployment)
+  - [Streams](#streams)
+  - [Gulp](#gulp)
+  - [Overview](#overview)
+  - [HTTPS](#https)
+  - [Distributed APIs](#distributed-apis)
+  - [Security](#security)
+  - [Unit Tests](#unit-tests)
+  - [Modules](#modules)
 
 ## Java
 
@@ -383,170 +385,3 @@
 - Require() Vs. Import statements –
 
   ![node-js-require-vs-import-statements](./images/node-js-require-vs-import-statements.png)
-
-----------
-
-Here’s a version of the best practices from Sean Goedecke’s “Good API Design” article with practical examples for each:
-
----
-
-## 🔑 Core Principles
-
-### 1. **Prioritize Stability: Don’t Break Users**
-
-**Best Practice:** Once released, avoid breaking changes. Additive changes are okay.
-**Example:**
-
-- **Good:** Adding a new optional field `middleName` to a `User` object.
-
-```json
-{
-  "firstName": "John",
-  "lastName": "Doe",
-  "middleName": "Patrick"  // new, optional
-}
-```
-
-- **Bad:** Renaming `lastName` to `surname`—existing clients will break.
-
----
-
-### 2. **Version Only When Necessary**
-
-**Best Practice:** Avoid excessive versioning. Make additive changes first.
-**Example:**
-
-- **Good:** Add a new optional endpoint `/users/{id}/details` instead of creating `/v2/users/{id}`.
-- **Bad:** Increment the API version for every minor change.
-
----
-
-### 3. **Design for Familiarity**
-
-**Best Practice:** Keep endpoints, naming, and behavior intuitive.
-**Example:**
-
-- **Good:** `/users/{id}/orders` clearly returns a user’s orders.
-- **Bad:** `/getUserOrdersList?id={id}` is verbose and inconsistent.
-
----
-
-## 🛠️ Design Practices
-
-### 4. **Use Simple Authentication**
-
-**Best Practice:** Use easy-to-understand authentication methods.
-**Example:**
-
-- API key in header:
-
-```http
-GET /users/123
-Authorization: ApiKey abc123
-```
-
----
-
-### 5. **Support Idempotency**
-
-**Best Practice:** Ensure retries do not duplicate actions.
-**Example:**
-
-- Payment endpoint with idempotency key:
-
-```http
-POST /payments
-Idempotency-Key: abc-123
-{
-  "amount": 100,
-  "currency": "USD"
-}
-```
-
----
-
-### 6. **Rate Limiting & Safety**
-
-**Best Practice:** Protect API and inform users about limits.
-**Example:**
-
-- Headers returned by server:
-
-```
-X-RateLimit-Limit: 1000
-X-RateLimit-Remaining: 750
-Retry-After: 60
-```
-
----
-
-### 7. **Paginate Large Data**
-
-**Best Practice:** Use cursor-based pagination for large lists.
-**Example:**
-
-```http
-GET /users?cursor=eyJpZCI6MTAwfQ
-```
-
-- Returns next page cursor in response for efficient navigation.
-
----
-
-### 8. **Make Expensive Fields Optional**
-
-**Best Practice:** Avoid sending heavy data unless requested.
-**Example:**
-
-```http
-GET /users?include=profilePicture,activityLog
-```
-
-- By default, `profilePicture` and `activityLog` are excluded.
-
----
-
-## 🧠 Developer Experience
-
-### 9. **Aim for Boring APIs**
-
-**Best Practice:** Keep behavior predictable; avoid surprises.
-**Example:**
-
-- `GET /orders/{id}` always returns a 200 with order JSON or 404 if not found.
-- Avoid returning mixed formats like HTML for errors.
-
----
-
-### 10. **Reflect Product Design in API**
-
-**Best Practice:** A clean API mirrors well-structured underlying data.
-**Example:**
-
-- A social network’s API:
-
-```
-/users
-/users/{id}/posts
-/users/{id}/followers
-```
-
-- Matches the product model of users and relationships.
-
----
-
-If you want, I can **create a visual cheat sheet** with all these 10 best practices + examples that can be shared with your team—it’ll be much easier to follow. Do you want me to do that?
-
-# Interview
-
-# Interview Questions - Node.js
-
-- What is REST?
-
-- PUT vs. PATCH - PUT verb replaces an item but PATCH only changes a piece.
-
-- CORS
-
-- Middleware
-
-- HATEOAS

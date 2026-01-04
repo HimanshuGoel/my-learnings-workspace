@@ -24,6 +24,9 @@ This folder contains notes, patterns and learnings for Angular and React develop
 - Webpack
 - Keycloak Theming
 - Markdown
+- Confluence
+- JSON
+- YAML
 
 ## Miscellaneous
 

@@ -2441,7 +2441,7 @@ If you'd like a visual cheat sheet summarizing these best practices, feel free t
 
 ![alt text](image.png)
 
------------
+---
 
 Here’s a **best practices guide for UI flows that convert**, with **practical examples** for each principle from Ryan Almeida’s article:
 
@@ -2993,7 +2993,7 @@ linkedSignal(() => {
   return product?.defaultQuantity ?? 1;
 })
 
---------------
+---
 
 # Best Practices
 
