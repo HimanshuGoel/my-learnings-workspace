@@ -4,6 +4,8 @@
 
 ### Food
 
+- avoid putting sizzling hot things in mouth, big no for tea and soft drinks, didn't built habit of putting pins to remove lodged food, never use my front teeth as a lid opener
+
 - Wealthier Germans will generally be fitter and healthier, from a better diet and lower alcohol consumption. Upper-class people in Germany will make a greater effort to eat fresh fruit and vegetables, and to appreciate the cuisines of other cultures. The condition of their teeth will be unobjectionable, with no severe decay, etc.
 
 - Things should not eat when on vacation - Raw or undercooked foods, Dairy / soft cheeses / unpasteurized milk and related dairy-based items, Possibly desserts or items with unfamiliar or uncommon ingredients. Try to avoid risky choices: pick places with good reviews, clean kitchens, local busy eateries over tourist traps, well-cooked food, etc.
@@ -38,6 +40,12 @@
 
 ### Socializing
 
+- always keep your illness a secret
+
+- don't tell anyone directly how much you earn or how much money you have
+
+- don't wait for the ambulance, use the car instead to go hospital when someone is sick
+
 - The worst thing that can happen to any parent is to lose a child. To even think you lost a child is enough to send any man or woman to an early grave. You cannot rest. You cannot calm down. You cannot find peace until you know where your child is, whether your child is an infant or an adult, it doesn’t matter. If you do ever feel like disappearing from the world, at least let your family know where you are, don’t leave them in the dark — it could quite literally kill your parents, not to know if you’re safe.
 
 - Any loan provider asking for money before disbursing a loan is fraudulent. Banks and NBFCs deduct processing fees from the sanctioned amount rather than requiring upfront payments.
@@ -57,7 +65,15 @@
 
 ## Philosophy
 
-> Slo trip is not recommended irrespective of age, country.
+- Whatever you will give to wife, she will return 10x time of it.
+
+- Those who would give up essential liberty to purchase a little temporary safety deserve neither liberty nor safety
+
+- Poor people watch lot of tv, eat fast food, buy things which are sale (we should only buy stock which are on sale), they are in sports watching (not themselves as athletes), don't shower often as rich people do, blame others for their misfortunes, tend to have more kids and earlier in their life, do not do regular checks with their doctor, spend money before they get it, surround themselves with poor people, believe that others should help them reach the top
+
+- What a nice saying in the movie 'THE TOWN' - No matter how much you change.....you still have to pay the price for the things you've done. So l got a long road. But l know I'll see you again....This side or the other.
+
+- Solo trip is not recommended irrespective of age, country.
 
 - Jealousy is better but not hatred.
 

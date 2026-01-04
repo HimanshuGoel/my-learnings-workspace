@@ -220,9 +220,9 @@
 
 - Array is a contiguous series or span of memory divided into equal size slots where each slot is indexed by a number; very fast, very efficient. One advantage is that we don't need to provide length or type when creating an array. We don't have to worry about out of bound array, as it is not an actual array but an hash table, so every value is in bounds, in first version of javascript they forget to add the concept of array.
 
-Timestamps - A timestamp represents the time elapsed since January 1st, 1970, at midnight (UTC). This is also called the Unix Epoch. It's measured in milliseconds (1 second = 1000 milliseconds). Timestamps are absolute values, meaning they're great for calculations like finding time differences. Timestamps are super handy because they're precise and easy to work with, especially for: Generating unique IDs, Setting expiration times (like cookies), Calculating differences between dates.
+- Timestamps - A timestamp represents the time elapsed since January 1st, 1970, at midnight (UTC). This is also called the Unix Epoch. It's measured in milliseconds (1 second = 1000 milliseconds). Timestamps are absolute values, meaning they're great for calculations like finding time differences. Timestamps are super handy because they're precise and easy to work with, especially for: Generating unique IDs, Setting expiration times (like cookies), Calculating differences between dates.
 
-Timestamps are simple numbers that represent milliseconds since 1970. Use them for unique IDs, date calculations, or expiration logic. JavaScript provides multiple methods to work with timestamps. Absolute values make timestamps great for finding differences between times.
+- Timestamps are simple numbers that represent milliseconds since 1970. Use them for unique IDs, date calculations, or expiration logic. JavaScript provides multiple methods to work with timestamps. Absolute values make timestamps great for finding differences between times.
 
 ## Functions
 

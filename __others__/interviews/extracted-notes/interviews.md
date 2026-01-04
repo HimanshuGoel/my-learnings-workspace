@@ -29,5 +29,18 @@
   - When you are learning a new technology, what process do you use to bring yourself up to speed
   - What do you do when you see a colleague is approaching a problem the wrong way? let them do it and learn, or...?
   - Do you read books? what are the last three books you have read?
+  - What no one teaches about being a software developer in a real company
+  - Frontend vs Backend vs Full-stack vs DevOps – what should you choose?
+  - How I would become a software architect in 3 years (if I were in college again)
+  - How to use AI (ChatGPT/GitHub Copilot) as a dev, not as a cheater
+  - System Design for Beginners (using real-life examples)
+  - How AI is changing software development
+  - Rate this website’s UX (live user experience roast)
+  - Life of a Software Engineer (Reality vs College Life)
+  - How Real Projects Are Built in Industry
+  - Gen Z vs Millennials in tech: who wins and why?
+  - Why design is more powerful than code
+  - Ugly vs Beautiful websites – can you spot the difference?
+  - Why frontend is now more complex than backend
 
 - Illegal questions – age, religion, arrested, married, children, weight, personal finances, alcoholic, health, nationality, disabilities, military discharge.

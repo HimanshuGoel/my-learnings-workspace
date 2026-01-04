@@ -5305,12 +5305,40 @@ To be created...
   let userId = 1; // Sequential ID (Not recommended)
   ```
 
-## Wellness
-
-To be created...
-
->Angular and React are adopting more similar concepts, such as a focus on predictable reactivity, improved ergonomics, and smaller bundles.'The similarities are more about outcomes (e.g., smoother reactivity) than philosophy. Both Angular and React are focusing on better performance, clearer reactivity models, and ergonomic APIs because these qualities are broadly desired in modern UI development. This trend reflects the broader evolution of web frameworks toward leaner runtimes and more predictable state handling.
+- Angular and React are adopting more similar concepts, such as a focus on predictable reactivity, improved ergonomics, and smaller bundles.'The similarities are more about outcomes (e.g., smoother reactivity) than philosophy. Both Angular and React are focusing on better performance, clearer reactivity models, and ergonomic APIs because these qualities are broadly desired in modern UI development. This trend reflects the broader evolution of web frameworks toward leaner runtimes and more predictable state handling.
 
 - Frameworks are just tools to get things done. What matters more in the long run are core fundamentals — such as strong JavaScript understanding and deep knowledge of how browsers work. Your value as a frontend engineer comes from your ability to choose the right tools and use them wisely, not just from knowing a particular framework thoroughly.
 
 - Core skills in 2025 - analytical thinking, resilience, flexibility and agility, leadership and social influence, creative thinking, motivation and self-awareness
+
+- A good programmer is someone who always looks both ways before crossing a one-way street. ~Doug Linder
+
+- Never disrupt user habits unless absolutely necessary, that's a core UX principle There is a reason BMW, Audi, VW etc make successful cars. They do incremental changes, and ensure that when you sit in your new BMW there is enough familiarity with your current one. The same for mobile phones.
+
+- Cursor IDE is the digital lash I wield, to drive these agents ever forward.
+
+- Project mindset - no custom domain, no project requirement documents, no version, world's peace/good, lack of perspective, giving for free no subscription
+
+- Product mindset - how should i charge, plan of action, features, serving your paid users
+
+- Superior stack syndrome
+
+- Good engineers with good connections can always find a job. The key is to be good at your craft and not work in a silo.
+
+- The 'sweet spot' for employers is narrowing: they want mid-career people (early 30s) who are cheaper than veterans, but already productive. Meanwhile younger candidates are seen as too costly to train and older ones as too expensive or hard to re-skill. The rise of automation and AI is further changing expectations: tasks entry-level people used to do are now being displaced or redefined.
+
+- What senior reviewers focus on
+  - Understanding the why behind changes: check the ticket or requirement first to see the intent, not just the code diffs.
+  - Functionality & correctness: Does the code meet its purpose? Does it properly handle edge cases, error conditions, and unexpected inputs?
+  - Readability and maintainability: Clear naming, modular functions, avoiding complexity. If someone else is handed this code next month, can they understand and build on it?
+  - Performance & scalability: Are there obvious performance pitfalls (e.g., nested loops, repeated database calls) or maintainability issues that will cause trouble as code evolves?
+  - Security & best practices: Are secrets hardcoded? Is input validated? Is the code aligned with organizational or language style guides?
+  - Test coverage & quality: Are there appropriate tests (unit/integration)? Do tests cover edge cases, not just happy paths?
+  - Collaboration mindset: Provide actionable feedback (not just “bad code”), highlight good things, maintain respectful tone. Code review is about improving the team’s output, not just pointing out flaws.
+
+- Common mistakes or pitfalls senior reviewers avoid
+  - Focusing only on nit-picky style issues and missing the broader problem (architecture, maintainability).
+  - Making the review personal (“you did this wrong”) rather than focusing on the code and the change. (As one source puts it: “Critique the code, not the author.”)
+  - Software Engineering Stack Exchange
+  - Overwhelming the author with too many comments at once, especially minor things overshadowing bigger issues. Good reviewers prioritise what matters most.
+  - Skipping reading the context of the change (why, how, what assumptions) and just reviewing the diff superficially.
