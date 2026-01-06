@@ -2,6 +2,8 @@
 
 ## Wellness
 
+- To avoid snoring - sleep on your side, not on your back, light dinner, avoid very oily or heavy food at night, keep nose clear (steam inhalation, saline spray), elevate your head slightly using a higher pillow, maintain healthy weight (even small reduction helps), do breathing exercises / pranayama, keep a fixed sleep schedule, stay hydrated (dry throat increases snoring)
+
 ### Food
 
 - avoid putting sizzling hot things in mouth, big no for tea and soft drinks, didn't built habit of putting pins to remove lodged food, never use my front teeth as a lid opener
@@ -64,6 +66,10 @@
   - Cars, Yachts, McMansions, and other symbols of wealth. Not usually. Couldn’t care less about displaying wealth. Family car might very well be a quality 8 year old car or SUV. Prefer to invest rather than spend their money. If personally active in sports, then the sport will likely involve small balls (golf/tennis) and not big balls (football/basketball/bowling), and/or considerable money to participate (alpine skiing, horses or sailing)
 
 ## Philosophy
+
+- An educated population can articulate frustrations more clearly, push back against poor leadership, and challenge narratives, which means anger isn’t just emotional but also informed and intentional.
+
+- Lucky = doing things * telling people
 
 - Whatever you will give to wife, she will return 10x time of it.
 
