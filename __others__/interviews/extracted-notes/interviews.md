@@ -6,6 +6,8 @@
 
 ### Interview
 
+- Applying to job in future - customize your resume based on opening before applying (jobalytics.com), don't apply easy apply as it is graveyard as no reply from HR.
+
 - A good interview is like a good and informal chat between passionate developers. it is an exchange of information: a good debate about techniques, tools, challenges, and approaches to software development.
 
 - As an interviewer we also need to sell the opportunity like the projects, team, company, perks, contribution impact, preparation, promptness, attitude and vibe, our stories.

@@ -2,18 +2,13 @@
 
 This folder contains notes, patterns and learnings for Angular and React development. It helps in understanding core concepts, best practices, and real-world usage for building modern web applications.
 
-## Key topics
+## Key Topics
 
 - HTML
 - CSS
 - React
 - Redux
-- Security
-- Accessibility
-- User Experience
-- Micro Frontends
 - Mui
-- Storybook
 - Jest
 - React Testing Library
 - Cypress
@@ -22,12 +17,18 @@ This folder contains notes, patterns and learnings for Angular and React develop
 - Yarn
 - Vite
 - Webpack
-- Keycloak Theming
-- Markdown
-- Confluence
+- Browser
 - JSON
 - YAML
+- Markdown
+- Confluence
+- Security
+- Storybook
+- Accessibility
+- User Experience
+- Micro-frontends
+- Keycloak Theming
 
-## Miscellaneous
+## Miscellaneous Notes
 
-- React specific learnings starts from document - angular-react-part-46.docx
+- React specific learnings starts from document - `angular-react-part-46.docx`

@@ -93,3 +93,5 @@
 - Formally, animations control the viewer. But in games, the viewer controls the animation. That's the kind of lens you look through when animating for games.
 
 - If you primarily enjoy competitive esports titles like Valorant and CS intel processors may offer slight advantages due to their superior single-thread performance. For modern AAA titles like Cyberpunk 2077 and Starfield, AMD processors with 3D V Cache technology offer compelling advantages.
+
+- Accessibility settings in game to be as standard as a pause menu: re-mappable controls, subtitles, color-blind modes, cognitive aids, the works. Granny's 2026 AI rule: use it to kill crunch not art. Let AI handle bug triage and asset variants so humans can focus on craft, weird ideas, and making NPCs that don't walk into walls during emotional cut scenes.

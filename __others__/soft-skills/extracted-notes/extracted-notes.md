@@ -1,5 +1,7 @@
 # Soft Skills
 
+- Many engineers succeed at amazon with normal hours by focusing on - clear goals, high-impact tasks, strong written communication, saying no to unaligned work
+
 - Science to learn faster with different teaching methods - first principles learning, second-order thinking, mental models learning, feynman technique (teach to learn), inversion thinking, socratic questioning (question everything), analogy/transfer learning (giving relative examples), learning by building (constructionist learning), discovery-based / exploration learning (research based), deliberate practice (doing something daily deliberately with reward system), problem-based learning, spiral learning, meta-learning (learning how to learn)
 
 ## Writing

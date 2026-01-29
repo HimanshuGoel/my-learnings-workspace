@@ -2,7 +2,17 @@
 
 ## Wellness
 
+- Give choices to your child like if child doesn't want to drink milk, then give them milk for sure but give choices in which cup (red or blue) he wants to drink it.
+
+- In India people don't eat healthy food, they eat food to fill the stomach.
+
+- What is the secret of a good life - Strong, warm, and supportive relationships — with family, friends, and community. People with close connections tend to be happier and live healthier lives. Money and career achievements are less important for lasting happiness than how connected we feel to others. People who are socially engaged and supported generally experience better physical and mental health as they age. What counts isn’t how many people you know, but how deep and supportive your relationships are. Close bonds with a few people are better for wellbeing than many superficial connections.
+
 - To avoid snoring - sleep on your side, not on your back, light dinner, avoid very oily or heavy food at night, keep nose clear (steam inhalation, saline spray), elevate your head slightly using a higher pillow, maintain healthy weight (even small reduction helps), do breathing exercises / pranayama, keep a fixed sleep schedule, stay hydrated (dry throat increases snoring)
+
+- In private school they had a nicer place, better behaved kids, better food, and they were ahead academically. they are just better at teaching, likely because the kids are more willing to learn, and fewer distractions.
+
+- Instead of taking retirement, my suggestion would be take up a more relaxed work like Freelancing, consulting, teaching or a job that is less demanding on your time per week. A job that offers a better work life balance.
 
 ### Food
 
@@ -67,9 +77,11 @@
 
 ## Philosophy
 
+- Liking songs from your old era is a metaphor for which suggests that as you grow older and gain life experience, your understanding of emotions deepens, so songs from your younger days start to resonate more because you now truly understand their lyrics and feelings, reflecting your own experiences and a more mature perspective on life. In short, it suggests that life experience teaches you emotional understanding, and that’s when familiar old songs start feeling wiser—almost like life lessons set to music.
+
 - An educated population can articulate frustrations more clearly, push back against poor leadership, and challenge narratives, which means anger isn’t just emotional but also informed and intentional.
 
-- Lucky = doing things * telling people
+- Lucky = doing things \* telling people
 
 - Whatever you will give to wife, she will return 10x time of it.
 
@@ -292,7 +304,6 @@
 - To be honest, the 'Good way' to immortality is not 'Reversing' or Reverting such damages, instead, is having 'Good copies' of bodies & genetic combinations, ready for 'patching'.
 
 - For fulfilling life - I've said many times, "I'm not the smartest guy in the room but if I develop a routine I can accomplish anything." And that's paid off big time in life.
-
   1. Marriage. Ok, that doesn't sound romantic. My wife and I, purposely, catch up every day. While we walk and have dinner together. Oh, and other things. And that's paid off big time in romance.
   2. Family. While our kids were growing up I rarely watched TV. Instead, we talked over dinner and enjoyed family activities. And that's paid off big time in our relationships.
   3. Food. I know what works in my body so I eat the same diet every day. Boring? I find feeling crappy boring. And that's paid off big time in health.
