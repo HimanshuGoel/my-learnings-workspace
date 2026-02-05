@@ -1,0 +1,31 @@
+SDE-2 at Airtel Digital | Full-Stack Developer (Java + Angular) | Building Scalable Systems in Fintech
+
+👋 I’m a Full-Stack Software Engineer with 4+ years of experience building stable, high-impact systems in the fintech and core banking space.
+
+I’ve worked on critical billing and pricing platforms used by European banks, with hands-on experience across backend (Java, Spring Boot), frontend (Angular), and infrastructure (CI/CD, Docker, Kubernetes). I care about writing clean, scalable code, building reliable systems, and making sure what I build actually works — in production, under pressure.
+
+I thrive in cross-functional teams, enjoy solving complex problems, and take pride in seeing projects through from idea to delivery.
+
+Always open to interesting conversations, product ideas, and opportunities to build meaningful systems.
+
+Sopra Banking Software
+Sopra Banking Software
+Full-time · 4 yrs 3 mosFull-time · 4 yrs 3 mos
+Senior Software Development Engineer
+Senior Software Development Engineer
+Jan 2024 - Oct 2025 · 1 yr 10 mosJan 2024 to Oct 2025 · 1 yr 10 mos
+India · HybridIndia · Hybrid
+Played a pivotal role in enhancing the pricing and billing components of the digital core banking platform, delivering high-quality features through robust REST API integrations and ensuring seamless connectivity between the frontend and backend.
+Improved the application’s reliability and performance by implementing key non-functional requirements such as log tracing, idempotency, multi tenancy etc.
+Achieved 90 percent test coverage and improved application reliability by developing Cypress test scripts, resulting in a 30 percent reduction in bugs and significantly enhancing overall application quality.
+Played a key role in onboarding and mentoring new team members, facilitating a smooth transition by providing comprehensive training and guidance, which accelerated their productivity and ensured steady project momentum.
+
+
+Software Engineer
+Software Engineer
+Feb 2022 - Dec 2023 · 1 yr 11 mosFeb 2022 to Dec 2023 · 1 yr 11 mos
+Noida, Uttar Pradesh, India · HybridNoida, Uttar Pradesh, India · Hybrid
+Developed comprehensive project documentation hosted on a Hugo NGINX server, creating a valuable resource for new team members that streamlined onboarding and reduced training time by providing clear, accessible project insights.
+Developed robust import/export functionality for component configurations, streamlining deployment and management processes.
+Developed and deployed Docker containers for database services, enabling efficient local development and testing.
+Led the migration of the application from France to India, optimizing performance and reliability.
