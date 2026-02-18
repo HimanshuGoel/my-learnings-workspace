@@ -7,3 +7,7 @@
 - In MS Word we can point to a company file or PPT and can tell to write a blog by referring those documents.
 - Ask the Copilot to prepare for me for the the today's meeting by generating relative content for those meetings.
 - To improve the prompt we should refer the Microsoft Prompt Gallery - <https://m365.cloud.microsoft/chat?fromcode=cmmqidzluiz&auth=2>
+
+## Microsoft Github Copilot
+
+- Add Github Copilot to CLI command of VS Code and then in VS Code CLI command, type this to explain some command like `gh copilot explain "npm start"`.
