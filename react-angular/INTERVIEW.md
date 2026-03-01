@@ -1,6 +1,6 @@
 # Interview
 
-## Topics
+## React
 
 - Context API - consumer, provider, global state, avoid prop drilling, usage (theme, auth, settings), context re-render (useMemo, useReducer, context splitting)
 
@@ -90,7 +90,7 @@
 
 - What common test breakages occur in Angular upgrades? (Good answer: TestBed changes, async vs fakeAsync issues, zone stabilization)
 
-- What breaks in Jasmine tests during upgrade? (Strong answer: fakeAsync timing issues, fixture.detectChanges behavior, Dependency & Ecosystem Changes (Real Migration Pain), Angular 9 → 19 involves: Node version jumps, TypeScript jumps, ESLint replacing TSLint, RxJS version upgrades, Zone.js updates, High-Value “Real Experience Detector” Questions)
+- What breaks in Jasmine tests during upgrade? (Strong answer: fakeAsync timing issues, fixture.detectChanges behavior, Dependency & Ecosystem Changes (Real Migration Pain), Angular 9 → 19 involves: Node version jumps, TypeScript jumps, ESLint replacing TSLint, RxJS version upgrades, Zone.js updates, High-Value "Real Experience Detector" Questions)
 
 - Unit Tests Start Failing Randomly. Error: 1 timer(s) still in the queue. Expected undefined to be truthy. (Cause - zone.js timing changes + async behavior updates., Strong candidate mentions: fakeAsync adjustments, flush(), async test stabilization)
 
@@ -108,4 +108,4 @@
 
 - How did you render 100k rows without UI freeze? (Strong - CDK Virtual Scroll, trackBy, pagination strategy, Red flag - Backend-only solution)
 
-- Give an example of a “weird” bug you debugged in Angular and how.
+- Give an example of a "weird" bug you debugged in Angular and how.
