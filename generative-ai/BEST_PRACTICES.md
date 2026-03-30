@@ -4,6 +4,12 @@
 
 - Don't use ChatGPT to "generate apps." Use it to think better. Explaining tradeoffs. Reviewing architectural ideas. Stress testing decisions. Drafting docs and explanations. It's like rubber‑duck debugging, except the duck answers back. Plus is worth it if you ask good questions. Useless if you don't. Write your problem clearly. Half the solution appears before the answer does.
 
+- A high-quality prompt should include:
+  - The Role: Define Claude’s persona (e.g., "expert frontend developer and accessibility specialist").
+  - The Task: Be specific about what is being built (e.g., "Create a responsive pricing card").
+  - The Constraints: Provide strict rules (e.g., "Use Tailwind CSS, use hex code #4F46E5, and no external dependencies").
+  - The Edge Cases: Explicitly ask for details like hover states or loading indicators.
+
 ## Sample Prompts - Microsoft Copilot
 
 - In MS Teams we can ask Copilot to recap the meeting or who are in the calls with their roles and titles.
@@ -67,10 +73,14 @@
 
 - Draft a troubleshooting section for a technical audience. the topic is troubleshooting a printer error. use a neutral tone. do not invent features or behavior. assume the reader is a hardware engineer.
 
-## Sample Prompts - Claude
+- Help me think though what should be included in a good onboarding plan for a new hire. Don't write the plan yet. Just outline the key components.
 
-- A high-quality prompt should include:
-  - The Role: Define Claude’s persona (e.g., "expert frontend developer and accessibility specialist").
-  - The Task: Be specific about what is being built (e.g., "Create a responsive pricing card").
-  - The Constraints: Provide strict rules (e.g., "Use Tailwind CSS, use hex code #4F46E5, and no external dependencies").
-  - The Edge Cases: Explicitly ask for details like hover states or loading indicators.
+- Rewrite this email using a professional but friendly tone, written at an 8th grade reading level and avoid passive voice, include three bullet points, don't use jargon, don't sound automated and include a clear call to action.
+
+- Rewrite this email to clear and professional. the goal is to ask for status update without sounding pushy. keep it concise.
+
+- To avoid hallucination write prompt like are there credible studies suggesting multitasking improves cognitive performance? if so, summarize them and note any limitations.
+
+## Sample Prompts - Interviewee
+
+Act as a expert technical interviewer specializing in senior-level cybersecurity roles. create one strong hybrid behavioral-scenario interview question focused on risk prioritization, stakeholder management under high pressure, and continuous learnability (ability to learn from past experiences, reflect on outcomes and apply lessons to improve future decisions). - start with a behavioral opener: 'tell me about a time when you had to...
