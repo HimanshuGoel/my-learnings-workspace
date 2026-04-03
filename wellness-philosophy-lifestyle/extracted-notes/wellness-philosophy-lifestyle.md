@@ -1,5 +1,7 @@
 # Wellness Philosophy Lifestyle
 
+## Wellness
+
 ## Philosophy
 
 - People who hate their mother land can never be my friends.

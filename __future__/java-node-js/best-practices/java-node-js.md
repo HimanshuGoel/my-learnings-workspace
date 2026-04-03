@@ -22,7 +22,7 @@
 
 - Design for Familiarity - Keep endpoints, naming, and behavior intuitive.
 
-**Good:** `/users/{id}/orders` clearly returns a user’s orders.
+**Good:** `/users/{id}/orders` clearly returns a user's orders.
 
 **Bad:** `/getUserOrdersList?id={id}` is verbose and inconsistent.
 

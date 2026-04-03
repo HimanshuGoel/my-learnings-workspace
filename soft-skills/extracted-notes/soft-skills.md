@@ -1,6 +1,6 @@
 # Soft Skills
 
-- Managers mentally bucket employees into - (low noise, low ambition), (high noise, emotional), (strategic, growth-oriented).
+## Meetings
 
 - Running meeting as a work session - ensure you have working items for the meeting, work on the items live in the meeting, send out a meeting summary + recording with what was accomplished.
 
@@ -9,6 +9,8 @@
 ## Carrier
 
 - Skill depth + adaptability is best thing you can do for your secure carrier.
+
+- Managers mentally bucket employees into - (low noise, low ambition), (high noise, emotional), (strategic, growth-oriented).
 
 ## Writing
 

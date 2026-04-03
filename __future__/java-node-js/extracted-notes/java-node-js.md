@@ -33,7 +33,7 @@
 
 ## REST
 
-- REST means representational state transfer (ReST). If we are storing information about the request or about the client, then we are not writing a truly a restful service. We also need to tell the client of caching, means caching timeout so that next time client doesn't to call server to fetch data. One more constraint is the uniform interface, we need to deal with resources those are nouns not actions so don’t name authorize or login but like books and authors. HTTP verbs defines actions, also use PUT for update the object.
+- REST means representational state transfer (ReST). If we are storing information about the request or about the client, then we are not writing a truly a restful service. We also need to tell the client of caching, means caching timeout so that next time client doesn't to call server to fetch data. One more constraint is the uniform interface, we need to deal with resources those are nouns not actions so don't name authorize or login but like books and authors. HTTP verbs defines actions, also use PUT for update the object.
 
 - Updating data - PUT verb replaces and item but PATCH only changes a piece.
 
@@ -69,13 +69,13 @@
 
   ![node-js-express-static](./images/node-js-express-static.png)
 
-- Always send back the data which has been created or modified on POST request itself so that we don’t have to call it back by using another REST service.
+- Always send back the data which has been created or modified on POST request itself so that we don't have to call it back by using another REST service.
 
 - While using PUT request to update the object, use assign / extend function like below -
 
   ![node-js-update-data-put-request](./images/node-js-update-data-put-request.png)
 
-- If we are building API for our application then don’t return all other unnecessary details from API, but if we are building API as a service then we can return all the information.
+- If we are building API for our application then don't return all other unnecessary details from API, but if we are building API as a service then we can return all the information.
 
 - Parsing URLs and query strings – components of a parsed URL. Use url.parse for parsing an URL and other helper methods -
 
@@ -85,7 +85,7 @@
 
 - In case of wrong entity/data send from frontend and it fails the validation of server, then we should return 422 – Unprocessable entity status code. We should not send status 200 if the data is not valid.
 
-- In case of cookie scenario, if server sends a cookie to the browser, then for further requests the browser automatically sends the cookie to the server for that same domain, so we don’t to write any specific code in client side unlike token approach in auth header. If our token contains sensitive information then we should use JSON web encryption (JWE).
+- In case of cookie scenario, if server sends a cookie to the browser, then for further requests the browser automatically sends the cookie to the server for that same domain, so we don't to write any specific code in client side unlike token approach in auth header. If our token contains sensitive information then we should use JSON web encryption (JWE).
 
 - Sample REST API
 
@@ -99,7 +99,7 @@
 
 - Common formats of data - JSON, XML, JSONP, RSS, ATOM
 
-- Association – design API’s like “api/regions/africa/sites/123/locations/1” but it still be okay “api/sites?country=usa” if it going too deeply nested
+- Association – design API's like “api/regions/africa/sites/123/locations/1” but it still be okay “api/sites?country=usa” if it going too deeply nested
 
 - The response code status 304 means it is served from cache and not modified.
 
@@ -143,7 +143,7 @@
 
 - Node is generally deployed on Linux machines in production.
 
-- Execution of javascript on the server is not done by Node, but it is done with a virtual machine, VM like V8 or Chakra. Node is just the coordinator, it is the one who instructs a VM like V8 to execute our javascript. So Node.js is a wrapper around a VM like V8. V8 will tell the results to Node and Node will tell this result to us. Node comes with built-in modules providing rich features through easy-to-use asynchronous API’s. this works great because V8 itself is single threaded, this is also true for browser.
+- Execution of javascript on the server is not done by Node, but it is done with a virtual machine, VM like V8 or Chakra. Node is just the coordinator, it is the one who instructs a VM like V8 to execute our javascript. So Node.js is a wrapper around a VM like V8. V8 will tell the results to Node and Node will tell this result to us. Node comes with built-in modules providing rich features through easy-to-use asynchronous API's. this works great because V8 itself is single threaded, this is also true for browser.
 
   ![node-js-event-loop](./images/node-js-event-loop.png)
 
@@ -159,15 +159,15 @@
 
   ![node-js-javascript-event-loop](./images/node-js-javascript-event-loop.png)
 
-- Chrome’s V8 often called an engine, is a package deal containing an interpreter, compiler, runtime implementation compatible with the runtime interface demanded by the ECMA standard JavaScript conventions.
+- Chrome's V8 often called an engine, is a package deal containing an interpreter, compiler, runtime implementation compatible with the runtime interface demanded by the ECMA standard JavaScript conventions.
 
-- Nodejs is not a framework(or a language) but a JavaScript runtime built on Chrome’s V8 JavaScript engine. It extends the power of handling file and network I/O with a preference for asynchronous patterns after including everything that is Javascript.
+- Nodejs is not a framework(or a language) but a JavaScript runtime built on Chrome's V8 JavaScript engine. It extends the power of handling file and network I/O with a preference for asynchronous patterns after including everything that is Javascript.
 
-- Node.js expands the JavaScript language by providing a larger set of runtime environment primitives — those which are outside the scope of ECMA’s standards. These include things like file handling, network I/O, etc. Javascript does not come equipped with these because for security reasons, javascript originally did not include file I/O for use in the browser. And, it did not need to do networking tasks, because the browser does them.
+- Node.js expands the JavaScript language by providing a larger set of runtime environment primitives — those which are outside the scope of ECMA's standards. These include things like file handling, network I/O, etc. Javascript does not come equipped with these because for security reasons, javascript originally did not include file I/O for use in the browser. And, it did not need to do networking tasks, because the browser does them.
 
 - Node.js is Single-threaded( actually hybrid, more on this later) and Asynchronous. JavaScript executes all operations on a single thread, but using a few smart data structures, gives us the illusion of multi-threading. There is an event queue that uses a queue data structure that is responsible for sending new functions to the track for processing.
 
-- You can take any number of examples like the `setTimeout` method, Axios methods, or any other method that run asynchronously. let’s take the setTimeout operation and look into its lifecycle. When a `setTimeout` is called, it is processed in the stack and then sent to the corresponding API which waits till the specified time to send this operation back in for processing.
+- You can take any number of examples like the `setTimeout` method, Axios methods, or any other method that run asynchronously. let's take the setTimeout operation and look into its lifecycle. When a `setTimeout` is called, it is processed in the stack and then sent to the corresponding API which waits till the specified time to send this operation back in for processing.
 
 - nextTick and setImmediate – these are like timers. In Nodejs 0 milliseconds will be default to 1 milliseconds.
 
@@ -179,7 +179,7 @@
 
 - So, How does Nodejs handle multiple requests concurrently despite being Single-threaded? - There is one process, multiple threads, but only one thread dedicated to parsing and executing javascript code. the other threads are started from C++ bindings called from the JS.
 
-- Node isn’t the best choice for applications that mostly deal with CPU-intensive computing(but worker threads are a choice here). On the other hand, it excels at handling multiple I/O requests.
+- Node isn't the best choice for applications that mostly deal with CPU-intensive computing(but worker threads are a choice here). On the other hand, it excels at handling multiple I/O requests.
 
 - Think of NodeJS as a waiter taking the customer's orders while the I/O chefs prepare them in the kitchen. Other systems have multiple chefs, who take a customer's order, prepare the meal, clear the table and only then attend to the next customer.
 
@@ -189,7 +189,7 @@
 
   ![node-js-sample-architecture](./images/node-js-sample-architecture.png)
 
-- Node js shines in I/O intensive uses that is in network applications. In order for event loop to function properly, our code can’t spend too much time doing anything of its own, this includes works that requires heavy use of CPU.
+- Node js shines in I/O intensive uses that is in network applications. In order for event loop to function properly, our code can't spend too much time doing anything of its own, this includes works that requires heavy use of CPU.
 
 - In node js event loop at a time only one function will be executing, all the async request like network, file i/o or timer is listened by the event loop for a callback function.
 
@@ -201,13 +201,13 @@
 
 - Node JS server can simultaneously handle uploading of two files, one of main reason of Node JS creation is to handle the file upload. Other web apps try to load entire file into memory before writing it to the disk which can cause all sorts of issue at server side, also tricky to provide the progress of file uploads, but in Node JS we can do it very simply.
 
-- Node offers async API’s that we can use and not worry about threads, to do things in parallel without needing to deal with threads this is the biggest benefits of using a runtime like node. We can also create addons using C++.
+- Node offers async API's that we can use and not worry about threads, to do things in parallel without needing to deal with threads this is the biggest benefits of using a runtime like node. We can also create addons using C++.
 
 - Node has a reliable module dependency manager usually referred to as CommonJS. This is basically the “require” function in Node combined with the “module” object.
 
 - Node.js is like the kitchen itself, it allows you to execute lines in our recipes by using built-in modules like our oven and sink.
 
-- Worker threads helps us to write CPU intensive tasks by running events in parallel. It will create a new thread by making main thread available for new user request. This is similar to web workers. Using worker thread is like creating a new event loop. We can pass messages between main and worker thread. Worker threads should be used only with CPU intensive tasks. For IO bound code like disk access or network calls, it is more efficient to use the async API’s.
+- Worker threads helps us to write CPU intensive tasks by running events in parallel. It will create a new thread by making main thread available for new user request. This is similar to web workers. Using worker thread is like creating a new event loop. We can pass messages between main and worker thread. Worker threads should be used only with CPU intensive tasks. For IO bound code like disk access or network calls, it is more efficient to use the async API's.
 
   ![node-js-worker-threads](./images/node-js-worker-threads.png)
 
@@ -229,11 +229,11 @@
 
 - NPM is not really part of node, it is just come packaged with node since it is the default and most popular package manager.
 
-- NPM is basically the world’s largest of free and reusable code.
+- NPM is basically the world's largest of free and reusable code.
 
 - Pruning – to remove unused package from the project, it gives extraneous error if package is installed but not mentioned in package.json file. We can use npm prune, npm prune grunt it will match the installed the package with package.json file and remove the non-specified ones. We can use npm prune –production to remove dev dependencies package before going to production.
 
-- Lifecycle scripts – pre-start, start and test. Custom scripts – debug, predebug-compile, debug-compile, pre-build, build, etc. If we are running lifecycle script then we don’t have to specify ‘run’ while running that script like “npm start”.
+- Lifecycle scripts – pre-start, start and test. Custom scripts – debug, predebug-compile, debug-compile, pre-build, build, etc. If we are running lifecycle script then we don't have to specify 'run' while running that script like “npm start”.
 
 - Using Glob we can specify which files should be compiled. It lets us specify a file named pattern for the compiler to match. `.` Is for the current directory, `**` for the searching recursively inside the child directories.
 
@@ -284,13 +284,13 @@
 
 - Using passport for user authentication and authorization, this is a default option for express library, and a simple way to implement. It manages user object in the session. It also deals with dropping it in a cookie, and pulling it out of a cookie and applying it to the session. We also need to use cookie-parser and express-session package for this
 
-- Authentication - There are many ways to protect our API like JSON Web Tokens (JWT) is popular one. It is a token approach due to this we don’t need to keep track of who is signed in with a session store or have cookies. The JWT will be sent on every request because REST is stateless and we not know of the previous request. The token has to be stored on the client at the is requesting resources.
+- Authentication - There are many ways to protect our API like JSON Web Tokens (JWT) is popular one. It is a token approach due to this we don't need to keep track of who is signed in with a session store or have cookies. The JWT will be sent on every request because REST is stateless and we not know of the previous request. The token has to be stored on the client at the is requesting resources.
 
 - Factors we can use for two-factor authentication - something you know (password), something you have (badge, id card, token), something you are (biometric)
 
 - Authentication types for APIs – Cookies, Basic Auth, Token Auth and OAuth.
 
-- OAuth - It uses trusted third-party to identify users. So the application which uses OAuth, never gets the credentials. User authenticates with third party and use token to confirm identity, it is safer for the application (don’t have to dealt with the user credential and authentication) and the user.
+- OAuth - It uses trusted third-party to identify users. So the application which uses OAuth, never gets the credentials. User authenticates with third party and use token to confirm identity, it is safer for the application (don't have to dealt with the user credential and authentication) and the user.
 
   ![node-js-how-oauth-works](./images/node-js-how-oauth-works.png)
 
@@ -302,7 +302,7 @@
 
 ## Mongoose
 
-- Mongoose is an ORM for MongoDB. We don’t have to deal with MongoDB directly, mongoose is going to do that for us.
+- Mongoose is an ORM for MongoDB. We don't have to deal with MongoDB directly, mongoose is going to do that for us.
 
 - Mongoose, like express, has support for middleware. Middleware is perfect for validating, changing, notifying, input sanitization etc. we will use middleware to hash our passwords before a user is created. Middleware will attach to lifecycle events around our documents like before save, before validations, after save, etc.
 
@@ -312,7 +312,7 @@
 
 ## CORS
 
-- Understanding CORS – if we are on localhost:4500, and we are trying to get access a route on localhost:3000, the browsers aren’t going to let me in due to security concern. To work around this we need to enable CORS on our server. By this the browser makes two requests, the first request is called pre-flight check by using verbs OPTIONS to check if it is allowed to make request to that server, server responds like yes or no like 200.
+- Understanding CORS – if we are on localhost:4500, and we are trying to get access a route on localhost:3000, the browsers aren't going to let me in due to security concern. To work around this we need to enable CORS on our server. By this the browser makes two requests, the first request is called pre-flight check by using verbs OPTIONS to check if it is allowed to make request to that server, server responds like yes or no like 200.
 
 ## Deployment
 
@@ -332,15 +332,15 @@
 
 - Node works well on windows, but it is much safer option to host production Node applications on Linux platform, many other production tools are more stable on Linux.
 
-- Shared state and sticky load balancing – due to load balancing we had problem of thread safety which is sharing data between threads or worker processes. So, with a cluster setup we can no longer cache things in memory because every worker process has its own memory space, so if we cache something in one worker’s memory, other worker’s will not have access to it. If we need cache thing with a cluster setup, we have to use a separate entity and read write to that entity’s API from all workers, this entity can be a database server or in-memory cache service like Redis.
+- Shared state and sticky load balancing – due to load balancing we had problem of thread safety which is sharing data between threads or worker processes. So, with a cluster setup we can no longer cache things in memory because every worker process has its own memory space, so if we cache something in one worker's memory, other worker's will not have access to it. If we need cache thing with a cluster setup, we have to use a separate entity and read write to that entity's API from all workers, this entity can be a database server or in-memory cache service like Redis.
 
-- In cluster setup stateful communication also become a problem. Since the communication is not guaranteed to be with the same worker, creating a stateful channel on any one worker is not an option, like problem in authentication to one worker and next time sending its request to another worker which doesn’t know its authentication status. This problem can be solved by simply share the state across the many workers we have by storing these session’s information in a shared database or a Redis node, or better way is using sticky load balancing in this we send the same user request to same worker process but by this we don’t really get the full benefits of load balancing for authenticated users -
+- In cluster setup stateful communication also become a problem. Since the communication is not guaranteed to be with the same worker, creating a stateful channel on any one worker is not an option, like problem in authentication to one worker and next time sending its request to another worker which doesn't know its authentication status. This problem can be solved by simply share the state across the many workers we have by storing these session's information in a shared database or a Redis node, or better way is using sticky load balancing in this we send the same user request to same worker process but by this we don't really get the full benefits of load balancing for authenticated users -
 
   ![node-js-state-share](./images/node-js-state-share.png)
 
 ## Streams
 
-- Working with big amounts of data in node js means working with streams. Streams are simple collection of data that might not be available all at once and don’t have to fit in memory. Types of streams – readable, writable, duplex, transform.
+- Working with big amounts of data in node js means working with streams. Streams are simple collection of data that might not be available all at once and don't have to fit in memory. Types of streams – readable, writable, duplex, transform.
 
 - Duplex and transform streams – with duplex streams we can implement both a readable and writeable stream with the same object. It is like if we are inheriting from both interfaces. In transform stream its output is computed from its input like converting small caps into upper case or file conversion into different format.
 

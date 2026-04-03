@@ -37,7 +37,7 @@
   - How to use AI (ChatGPT/GitHub Copilot) as a dev, not as a cheater
   - System Design for Beginners (using real-life examples)
   - How AI is changing software development
-  - Rate this website’s UX (live user experience roast)
+  - Rate this website's UX (live user experience roast)
   - Life of a Software Engineer (Reality vs College Life)
   - How Real Projects Are Built in Industry
   - Gen Z vs Millennials in tech: who wins and why?
@@ -46,3 +46,5 @@
   - Why frontend is now more complex than backend
 
 - Illegal questions – age, religion, arrested, married, children, weight, personal finances, alcoholic, health, nationality, disabilities, military discharge.
+
+- The New Filter: Hiring has shifted toward system design, product thinking, and AI orchestration. Developers who only know "how to code" but don't understand the business value or how to integrate AI are being phased out. Average developers who relied on "job hopping" every two years are finding it harder to move, as companies prioritize long-term retention of engineers who deeply understand their proprietary systems. Become "Product-First": Understand the why behind the code, not just the how. Master AI Tools: Don't fight AI; become the person who directs it.

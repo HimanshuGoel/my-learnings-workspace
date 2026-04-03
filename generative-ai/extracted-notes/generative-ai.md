@@ -1,6 +1,6 @@
 # Generative AI
 
-- AI behaves like a mid-level dev with amazing memory but weak system intuition. It knows patterns: "Zod schema error", "Next.js loading.tsx", "Suspense query fix". But it doesn’t understand: Why your architecture exists, Long-term trade-offs, Enterprise constraints.
+- AI behaves like a mid-level dev with amazing memory but weak system intuition. It knows patterns: "Zod schema error", "Next.js loading.tsx", "Suspense query fix". But it doesn't understand: Why your architecture exists, Long-term trade-offs, Enterprise constraints.
 
 - People who combine coding knowledge with other skills (AI, product thinking, systems design) will stay relevant. Coding is becoming a thinking skill, not just a typing skill.
 
@@ -21,3 +21,32 @@
 - The uncomfortable part is that for every one person who becomes ten times more productive, there are nine people who are no longer needed.
 
 - Stick with JSON for: Traditional REST/GraphQL APIs, mobile/web app configurations, and systems where strict machine-to-machine deterministic behavior is required. Switch to TOON (or similar) for: AI prompt engineering, RAG (Retrieval-Augmented Generation) datasets, and when asking an LLM to output structured data for internal processing.
+
+## Kiro
+
+- A very practical workflow, This gives you Speed + safety balance -
+  - Use ChatGPT to Understand problem, explore approaches
+  - Use GitHub Copilot to Implement fast
+  - Use Kiro to Validate + safely fix critical issues
+
+- Kiro is excellent for stabilizing systems, but for greenfield projects we should first optimize for speed, then gradually introduce Kiro where correctness becomes critical.
+
+- Better model: Prompt → Requirements → Design → Tasks → Code.
+  - PO → defines business intent
+  - Architect → defines boundaries + constraints
+  - AI (Kiro) → generates controlled implementation
+  - Engineers → validate, refine, integrate
+
+- Introduce "Human checkpoints". Follow this flow: Spec → (Review) → Design → (Review) → Tasks → (Review) → Code
+
+- Use "Steering files" early by creating .kiro/steering/: coding standards, API patterns, naming conventions, security rules
+
+- Love the separation of modes - Vibe for ideation, Spec for clarity, and Agent Hooks for ongoing maintenance. The spec driven approach feels like a natural evolution beyond the typical AI prototype tools.
+
+- Kiro's approach changes AI-powered development from vibe coding to a real, durable, collaboration between the programmer and the AI development agent.
+
+- Tech Design-first works especially well when you have a pre-defined architecture, when you're prototyping to see if something is feasible, or when you're working with strict non-functional requirements that constrain your design choices. It's ideal when the technical approach is the starting point, not the destination. Developers who used Specs to successfully fix bugs shared two characteristics. First, they defined the detailed scenario that caused the error, not just the error message itself. Second, they explicitly stated what should not be modified. This is how experienced developers think about bugfixes, they fix what's broken but don't touch anything else.
+
+- What makes this work well is the unique way Kiro does testing. Kiro generates property-based tests (PBTs) for all three categories. Tests that verify the current implementation has the bug. Tests that verify your fix resolves it. And tests that verify unchanged behavior continues working exactly as before. Without these PBTs, it's difficult to check if the agent actually fixed the bug for a comprehensive set of conditions, and that the changes were indeed surgical.
+
+- Kiro and Cursor represent the frontier of this movement, but they take dramatically different approaches to AI-assisted development. With property-aware code evolution, you and Kiro work from the same contract. Kiro drafts the boundary and the hypothesis. You can push back, redraw, tighten the scope, or ask for a different approach. By the time code is written, you've both agreed on what changes and what doesn't. For now, remember: the next time you file a bug, you're drawing a boundary. Draw it with Kiro, and the properties keep the fix on the right side.

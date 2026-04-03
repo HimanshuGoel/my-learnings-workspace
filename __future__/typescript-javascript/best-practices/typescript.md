@@ -226,7 +226,7 @@
 
 ## Functions
 
-- The pop, push and shift method will automatically modify the array’s length as they don’t assign the undefined to the deleted array element.
+- The pop, push and shift method will automatically modify the array's length as they don't assign the undefined to the deleted array element.
 
 - Arrow function have lexical binding scope, it means they get bind to the scope where they are defined, not where there are run.
 
@@ -766,7 +766,7 @@
 
 ## Closure
 
-- Closures are very useful in creating function ‘construction zones’, a closure can make the creation of very similar functions ultra-efficient. We should aware that bound variables won’t be evident in the stored function, examining the contents of our new variables doesn’t reveal closures. Closure functions can even modify bound variable in the background.
+- Closures are very useful in creating function 'construction zones', a closure can make the creation of very similar functions ultra-efficient. We should aware that bound variables won't be evident in the stored function, examining the contents of our new variables doesn't reveal closures. Closure functions can even modify bound variable in the background.
 
 - A closure wraps up an entire environment, binding necessary variable from other scope. It is unlike a function's local variables as they aren't available once the function's scope is closed. Closures are very useful in creating function 'construction zones', a closure can make the creation of very similar functions ultra-efficient. We should aware that bound variables won't be evident in the stored function, examining the contents of our new variables doesn't reveal closures.
 
@@ -942,7 +942,7 @@
 
 - Queue using linked list implementation – in this we will add last and remove first, not add first and remove last due to enumeration order. Add last/remove first allow list enumeration to “just work”. Queue allows to take incoming data and store it in a way that allows us to process it later, but in the order, it showed up, which is a sort of fairness.
 
-- Handling growth of an array – we also need to copy from 0 to head – 1 in case of non-empty values. Arrays has benefits over linked list approach like data locality and performance gains, reducing the overall number of allocations and incredibly fast enqueue and dequeue times when there isn’t an allocation being performed.
+- Handling growth of an array – we also need to copy from 0 to head – 1 in case of non-empty values. Arrays has benefits over linked list approach like data locality and performance gains, reducing the overall number of allocations and incredibly fast enqueue and dequeue times when there isn't an allocation being performed.
 
 - Priority queue – highest priority items dequeued first, not first in and first out. Only enqueue operation need to be change in implementation others operations will be same.
 
@@ -952,7 +952,7 @@
 
 - Binary search tree – sorted hierarchy of data. Small values on left and larger values are on right. Left most node contains the smallest value and right most node contains the largest value.
 
-- Finding data – searching. Data ordering requirements make the binary search tree a really efficient structure for searching for data, as we don’t need to traverse all node to search the data.
+- Finding data – searching. Data ordering requirements make the binary search tree a really efficient structure for searching for data, as we don't need to traverse all node to search the data.
 
 - Traversals – to enumerate in well-defined order they are pre-order, in-order and post-order. Pre-order and post-order are used in mathematical expression evaluation, and evaluation of run time behaviour in a language like compilers use trees, dependency graph for which depends upon which operation.
 
@@ -984,7 +984,7 @@
 
 ![ds-selection-sort2](./images/ds-selection-sort2.png)
 
-- Merge sort – it is a divide and conquer algorithm. They array is recursively split in half, and splitting continues until the array is in groups of 1, it is reconstructed in the sort order. Each reconstructed array is merged with the other half. Worst, average and best cases performance is O (n log n), data splitting means that the algorithm can be made parallel, that’s why it is appropriate for large datasets. Space required is O(n), merge can be, but is often not, performed in-place. These extra allocations increase the memory footprint required to sort data.
+- Merge sort – it is a divide and conquer algorithm. They array is recursively split in half, and splitting continues until the array is in groups of 1, it is reconstructed in the sort order. Each reconstructed array is merged with the other half. Worst, average and best cases performance is O (n log n), data splitting means that the algorithm can be made parallel, that's why it is appropriate for large datasets. Space required is O(n), merge can be, but is often not, performed in-place. These extra allocations increase the memory footprint required to sort data.
 
 ![ds-merge-sort](./images/ds-merge-sort.png)
 
@@ -1008,7 +1008,7 @@
 
 - Balancing is done using node rotation. Rotation changes the physical structure of the tree within the constraints of the binary tree, smaller values on the left and larger or equal on the right. Rotation algorithms are right rotation, left rotation, right-left rotation, left-right rotation.
 
-- AVL tree vs. Binary tree visualization – AVL tree won’t get much height and depth unlike binary tree. For bad 100 number, the binary tree will become the linked list like linear structure. Also, it is shows the difference between balanced tree and unbalanced trees.
+- AVL tree vs. Binary tree visualization – AVL tree won't get much height and depth unlike binary tree. For bad 100 number, the binary tree will become the linked list like linear structure. Also, it is shows the difference between balanced tree and unbalanced trees.
 
 ![ds-avl-tree-visualization](./images/ds-avl-tree-visualization.png)
 
@@ -1030,7 +1030,7 @@
 
 - Ways of measuring performance – timing with stopwatch (but it depends on hardware, programming language, environment, etc.), counting instructions executed by machine, looking at execution curve, best case, worst case, average case.
 
-- Asymptotic performance – In Asymptotic Analysis, we evaluate the performance of an algorithm in terms of input size (we don’t measure the actual running time). We calculate, how does the time (or space) taken by an algorithm increases with the input size.
+- Asymptotic performance – In Asymptotic Analysis, we evaluate the performance of an algorithm in terms of input size (we don't measure the actual running time). We calculate, how does the time (or space) taken by an algorithm increases with the input size.
 
 - Big Theta – it can be used to express the complexity of a program.
 
@@ -1046,7 +1046,7 @@
 
 - Hash table – two flavours – first is a container that store the values that are added directly, just like arrays and linked lists, this container is often called a set or a hash set. The other flavour is a container that maps a setup of keys to a set of values, this is referred to as a map or a dictionary. Search operation is much faster in hash table.
 
-- By hash table we can quickly lookup the name of a certain user id and this makes hash tables ideal data structure for caches, fast insertion, fast lookup and fast deletion, but elements order as per we receive them can’t be possible in hash table unlike arrays.
+- By hash table we can quickly lookup the name of a certain user id and this makes hash tables ideal data structure for caches, fast insertion, fast lookup and fast deletion, but elements order as per we receive them can't be possible in hash table unlike arrays.
 
 ![ds-common-big-o-examples](./images/ds-common-big-o-examples.png)
 
@@ -1078,7 +1078,7 @@
 
 ![ds-p-vs-np2](./images/ds-p-vs-np2.png)
 
-- NP hard – at least as hard as NP complete, they don’t need to be decision problem, and they do not need to be verifiable in polynomial time like knapsack problem, halting problem, traveling salesman problem.
+- NP hard – at least as hard as NP complete, they don't need to be decision problem, and they do not need to be verifiable in polynomial time like knapsack problem, halting problem, traveling salesman problem.
 
 ![ds-np-hard](./images/ds-np-hard.png)
 
@@ -1110,7 +1110,7 @@
 
 - One of the problems with a hash structure is when we run into collisions when putting data into the hash. Collisions slow down the performance of the hash, which kind of defeats one of the main points of using the hash. We can reduce has collisions by increasing the has capacity or improve the hashCode() method quality to improve the uniqueness of hash value.
 
-- The binary tree doesn’t need to always have two nodes per parent. the tree additions are based on comparisons rather than keeping the tree balanced. Because the tree data is dispersed based on comparison, it makes adding and finding the data quite efficient, so don’t have to traversed all the elements like array list due to which the Big O notation would be logarithmic which is one of the best access performance we can get out of a data structure. But implementing a tree data structure is a bit of complex in code.
+- The binary tree doesn't need to always have two nodes per parent. the tree additions are based on comparisons rather than keeping the tree balanced. Because the tree data is dispersed based on comparison, it makes adding and finding the data quite efficient, so don't have to traversed all the elements like array list due to which the Big O notation would be logarithmic which is one of the best access performance we can get out of a data structure. But implementing a tree data structure is a bit of complex in code.
 
 - Safely Using Arrays - Arrays are used in examples like storing share prices of a company in different points of time, use arrays of pixels to store and process images. Arrays properties – contiguous memory locations as it is a very cache friendly data structure, same element type cannot have mixed up type of elements in a same array, direct fast element access by index, indexes are zero-based.
 
@@ -1122,7 +1122,7 @@
 
 - Stack overflow – if internal array to store stack values gets full, then push operation will cause it outside of stack area which is not owned by stack. In this case, we should throw an exception from code.
 
-- Arrays vs. linked lists – memory layout – direct fast element access by index not possible in linked list we have to traverse all the elements, also it is not cache friendly as it is not having continuous memory allocations. Linked list is good for inserting new item as all don’t have to shift. So, no reallocation overhead. The nodes of the linked list are stored in sparse memory locations. They are scattered all over computer’s memory.
+- Arrays vs. linked lists – memory layout – direct fast element access by index not possible in linked list we have to traverse all the elements, also it is not cache friendly as it is not having continuous memory allocations. Linked list is good for inserting new item as all don't have to shift. So, no reallocation overhead. The nodes of the linked list are stored in sparse memory locations. They are scattered all over computer's memory.
 
 ![ds-array-vs-linked-list](./images/ds-array-vs-linked-list.png)
 
@@ -1172,7 +1172,7 @@ To be created...
 
 - Originally there were two kinds of JS library – libraries that added a global object, e.g. jQuery, another one is libraries that extended built-in objects, e.g. Prototype. Both approaches have significant downsides as extending built-in objects in unwise in case the object changes. Global objects are convenient, but can easily be overwritten. Instead of these both approach, we should use modular-based coding which is much safer paradigm that eliminates the worst aspects of working with globals and brings many other benefits.
 
-- For larger codebases, or ones maintained over time (with many people working on them), TypeScript still likely delivers good returns (maintainability, avoidance of bugs, easier refactoring). But for smaller tools / experiments / prototypes, the pay-off may not justify the extra work. Also, there’s mental overhead: developers have to think about types, strictness, compile errors, etc., which sometimes distracts from iterating ideas quickly.
+- For larger codebases, or ones maintained over time (with many people working on them), TypeScript still likely delivers good returns (maintainability, avoidance of bugs, easier refactoring). But for smaller tools / experiments / prototypes, the pay-off may not justify the extra work. Also, there's mental overhead: developers have to think about types, strictness, compile errors, etc., which sometimes distracts from iterating ideas quickly.
 
 
 
@@ -1183,7 +1183,7 @@ To be created...
 
 - Binding expression {{}}
 
-- Why You Should Use DTOs in Your Angular Frontend (Not Just Backend) - In backend development, using DTOs (Data Transfer Objects) to map database entities before sending them to clients is a common best practice to control and sanitize the data sent out. On the frontend (Angular), developers often skip DTOs — they take the JSON from an API, cast it to an interface that matches the response, and bind it directly in templates. This can create tight coupling between the UI and backend data shapes. If the backend renames fields (e.g., first_name → firstName) or changes structure, the frontend breaks in many places and requires widespread fixes. Without DTOs, your Angular code ends up tightly tied to backend details you don’t control, leading to fragile templates and harder maintenance.
+- Why You Should Use DTOs in Your Angular Frontend (Not Just Backend) - In backend development, using DTOs (Data Transfer Objects) to map database entities before sending them to clients is a common best practice to control and sanitize the data sent out. On the frontend (Angular), developers often skip DTOs — they take the JSON from an API, cast it to an interface that matches the response, and bind it directly in templates. This can create tight coupling between the UI and backend data shapes. If the backend renames fields (e.g., first_name → firstName) or changes structure, the frontend breaks in many places and requires widespread fixes. Without DTOs, your Angular code ends up tightly tied to backend details you don't control, leading to fragile templates and harder maintenance.
 
 - Modules provide some sort of container for the code that we write so that it will not leak-out to some other code.
 
@@ -1191,9 +1191,9 @@ To be created...
 
 - The ngCloak directive allows us to hide portions or all of our page and tell angular a chance to run to go though and parse the HTML and replace the directives or bindings with the actual values which it wants to display to avoid the flashes of unbound HTML on slower computer.
 
-- HTML doesn’t allow forms to be nested but using ngForm directive we can have nested forms to allow creating the smaller sections of the form.
+- HTML doesn't allow forms to be nested but using ngForm directive we can have nested forms to allow creating the smaller sections of the form.
 
-- $compile service – is used heavily internally by angular whenever a page is loaded it uses to look through the directive and process them. We can also generally used them inside directives. $compile return a ‘link’ function in which we passed the scope.
+- $compile service – is used heavily internally by angular whenever a page is loaded it uses to look through the directive and process them. We can also generally used them inside directives. $compile return a 'link' function in which we passed the scope.
 
 - Using $parse service – it is also similar with the $compile service and used by angular internally. It is used to evaluate and expression and turn that expression into function that can be evaluated against a given context.
 
@@ -1201,7 +1201,7 @@ To be created...
 
 - Keyboard shortcut: hold down mouse click on history button on browser to see history. Angular will take care of managing history in the browser as we are not actually loading pages but just loading the angular templates.
 
-- If we use ‘&’ means that we will execute this function into the parent scope instead in the isolate scope. ‘=’ means we are expecting an object. The ‘@’ sign indicates that we are going expect a string to be passed in, so we pass a string or an expression using evaluation {{}} operator.
+- If we use '&' means that we will execute this function into the parent scope instead in the isolate scope. '=' means we are expecting an object. The '@' sign indicates that we are going expect a string to be passed in, so we pass a string or an expression using evaluation {{}} operator.
 
 - Understanding Transclusion – it typically refers to taking a portion of a document and embedding it inside a document. In angular we take an HTML and embedded it inside a directive.
 
@@ -1213,7 +1213,7 @@ To be created...
 
 - We can return from the compile function a link function then that link function will be executed for each element. So compile function runs once and affects all the instances of the directive the same way then the link function runs individually for each directive. Most often when we create a directive we will not create a compile function, typically we can take care of kinds of things that we need to do using the linking function and the template to manipulate the HTML. The angular ng-repeat directive uses the compile function in order to do its work.
 
-- We can achieve the same functionality using link and inside it using compile but it will be expensive because compile will run many times as per ‘for’ loop value.
+- We can achieve the same functionality using link and inside it using compile but it will be expensive because compile will run many times as per 'for' loop value.
 
 - Previously Karma called testacular and it is independent of angular, it can used to test other javascript code as well.
 
@@ -1227,11 +1227,11 @@ To be created...
 
 - Angular use dirty checking as in javascript comparing two objects is very fast operation. Angular watch all events which can change the data like ng-click or service call then run digest cycle, do dirty check and re-render the page.
 
-- Because angular utilize the client side rendering technique, means most of our HTML isn’t sent directly with the page but instead it comes later on. Due to this most search engines almost see nothing of our site because without the javascript rendering the HTML our site has almost nothing to display. If SEO is important to you then need to use some technique like rely on google only, render portions of site of server, or use a pre-renderer.
+- Because angular utilize the client side rendering technique, means most of our HTML isn't sent directly with the page but instead it comes later on. Due to this most search engines almost see nothing of our site because without the javascript rendering the HTML our site has almost nothing to display. If SEO is important to you then need to use some technique like rely on google only, render portions of site of server, or use a pre-renderer.
 
-- React suffer from Frankenstein framework syndrome, means React by itself is really only a rendering engine, it doesn’t do other things like routing or server communication so we need to look around and piece together the different libraries and parts that we ne need to make a complete solution. So need a good architect person to decide which piece will work best. But angular is a complete solution.
+- React suffer from Frankenstein framework syndrome, means React by itself is really only a rendering engine, it doesn't do other things like routing or server communication so we need to look around and piece together the different libraries and parts that we ne need to make a complete solution. So need a good architect person to decide which piece will work best. But angular is a complete solution.
 
-- In angular 2 the angular team has completely revamped the framework to move it forward in a way that really wouldn’t be possible without major changes, due to this angular 2 doesn’t have backwards compatibility with angular 1 framework.
+- In angular 2 the angular team has completely revamped the framework to move it forward in a way that really wouldn't be possible without major changes, due to this angular 2 doesn't have backwards compatibility with angular 1 framework.
 
 - Angular 2 is created keeping performance in mind so it is much faster than angular 1 which is like 5 to 10 times faster. It has simplified the conceptual model and removed the idea of controllers and modules and simplified how services works and removed much of the configuration overhead. Angular 2 is designed to be more mobile friendly and web standards in mind.
 
@@ -1243,18 +1243,18 @@ To be created...
 
 - The $q service makes it easy to implement async patterns in our app. It is an object which represent the pending result of an async operation. It provides and API to work with promises and deferred objects that return promises to the calling code. when first client make request to server, the server will first create the deferred object using $q, which is used to communicate the status of the async work back to the client. This deferred object will immediately return a promise back to the client. Then client can use promise API to configure a callback function to execute when the work and the service is complete.
 
-- Client side routing doesn’t replace the server side routing. But while using client side routing the call to server is for getting the little bit of information rather than complete webpages and all of it related resources. SPA need client side routing as a means of referring to different locations with the SPA. There still be interaction with server but for partial data.
+- Client side routing doesn't replace the server side routing. But while using client side routing the call to server is for getting the little bit of information rather than complete webpages and all of it related resources. SPA need client side routing as a means of referring to different locations with the SPA. There still be interaction with server but for partial data.
 
 ![angular-js-server-side-routing](./images/angular-js-server-side-routing.png)
 ![angular-js-client-side-routing](./images/angular-js-client-side-routing.png)
 
 - Hashbang versus HTML5 Mode – this is the default mode. There will be “#” character after the domain name in the URL. All the text on URL after this character will be for client side routing and angular will handle it. The alternate to this mode is HTML mode
 
-- When angular is configured to run in HTML5 mode it attempts to use the browser’s HTML5 history API.
+- When angular is configured to run in HTML5 mode it attempts to use the browser's HTML5 history API.
 
 ![angular-js-hashbang-vs-html5mode](./images/angular-js-hashbang-vs-html5mode.png)
 
-- Jasmine is a behaviour driven development framework, it gives us mechanism to write and then execute the unit tests in javascript. The describe function provides the logical grouping of the multiple test cases, and the ‘it’ function state the name of the test cases.
+- Jasmine is a behaviour driven development framework, it gives us mechanism to write and then execute the unit tests in javascript. The describe function provides the logical grouping of the multiple test cases, and the 'it' function state the name of the test cases.
 
 - The main ability karma gives us to execute our unit tests via the command line, so instead of every time do switching between browser and text editor we can easily run it in the command line. Phantom JS will allow us to use the headless browser for even faster test feedback.
 
@@ -1270,17 +1270,17 @@ To be created...
 
 - Types of directives:
   - Component type – it represents some data and its associated HTML and related functionality, and always implemented as a custom element or also called widget. Like buttons
-  - Decorator type – most commonly used. It adds additional functionality to an existing tag or modifies that tag’s display. Like ng-click. These are always implemented as an attribute never have template.
+  - Decorator type – most commonly used. It adds additional functionality to an existing tag or modifies that tag's display. Like ng-click. These are always implemented as an attribute never have template.
   - Structural/Templating type – like ng-repeat. These type of directive manipulates the DOM structurally to produce a display.
 
 - Best Practice: do not use the replace attribute. And always prefix your directive name with some custom project specific text.
 
-- There are three ways by which we can set the relationship among the directive’s scope and containing controller scope, the default is or the directive to share the scope with the containing controller.
+- There are three ways by which we can set the relationship among the directive's scope and containing controller scope, the default is or the directive to share the scope with the containing controller.
   - Shared type
 
   - Inherited directive scope – if we create new item on the directive then it will be internal to that directive only. To implement this just create a scope property on directive and set it as true. Its parent and proto property will be containing controller scope. False value will be shared scope.
 
-  - Isolated scope – isolated scope can’t see everything on the parent scope, but it can see specific items that we make visible to the isolated scope. Its parent scope will still have the containing container but the proto property would not have the containing controller scope. By using this we will be able to create a directive that is truly reusable.
+  - Isolated scope – isolated scope can't see everything on the parent scope, but it can see specific items that we make visible to the isolated scope. Its parent scope will still have the containing container but the proto property would not have the containing controller scope. By using this we will be able to create a directive that is truly reusable.
 
 - We should break a component/directive into multiple small directives. It is just like not to putting all your code in main class but break into multiple classes as per object orientation.
 
@@ -1292,7 +1292,7 @@ To be created...
 
 - Bootstrap is a framework for prettifying the web pages, help you build responsive web applications means responsive to changes in layout, it scales to multiple form factors – phones, tablets, laptops and desktops and handle browser differences. It is developed by twitter.
 
-- For routing angular use fragment identifier because it gets processed on client side and doesn’t get submitted on server, so we assign a unique fragment identifier to each view. The ngRoute is based on fragment identifies while uiRouter is based on application states URL fragment identifier is optional in it. Nester routing can provide the navigation for a tab-based set of edit pages.
+- For routing angular use fragment identifier because it gets processed on client side and doesn't get submitted on server, so we assign a unique fragment identifier to each view. The ngRoute is based on fragment identifies while uiRouter is based on application states URL fragment identifier is optional in it. Nester routing can provide the navigation for a tab-based set of edit pages.
 
 - Controller should not have more than 5 collaborators means dependency. We can also use the facade class to arrogate the interaction with several collaborator sin to a single collaborator. Value provider can be used to create global data. Controller should be testable by following the guidelines like too many used collaborators will make it difficult, like manipulating the DOM or too many business logic, too much work it will be tough to test.
 
@@ -1300,7 +1300,7 @@ To be created...
 
 - For bootstrap logic which is required to start the app, should be in app.run().
 
-- We can organize our app using by feature or type. For large project ‘by feature’ would be better or mix with both types. The LIFT principle (locating our code is easy, identify code at a glance, flat structure as long as we can, try to stay DRY). Have below format while writing controller to have ‘above the fold’ concept, and should not have more than 3 level for folder, it should be flat.
+- We can organize our app using by feature or type. For large project 'by feature' would be better or mix with both types. The LIFT principle (locating our code is easy, identify code at a glance, flat structure as long as we can, try to stay DRY). Have below format while writing controller to have 'above the fold' concept, and should not have more than 3 level for folder, it should be flat.
 
 ![angular-js-lift-principle](./images/angular-js-lift-principle.png)
 
@@ -1312,7 +1312,7 @@ To be created...
 
 - Bower is a NPM for the web components, to get the dependency files.
 
-- Lifecycle - When the page loads it loads our static DOM. Angular JS is then loaded then we have our ‘on content ready’ event that’s fired. Which kicks off, that’s what Angular is listening for. That is the entry point. Then angular looks for the application within the HTML, so that is our ng-app. From there it goes through and compile all of our services, and controller and everything that we have declared on our model basically gets compiled. It then goes through the DOM and says what directives do I have, what are the angular js pieces within the HTML and generate the template. This is the compilation phase. Then it goes back through and it links it together says this template gets this scope, binds it together and we have our view.
+- Lifecycle - When the page loads it loads our static DOM. Angular JS is then loaded then we have our 'on content ready' event that's fired. Which kicks off, that's what Angular is listening for. That is the entry point. Then angular looks for the application within the HTML, so that is our ng-app. From there it goes through and compile all of our services, and controller and everything that we have declared on our model basically gets compiled. It then goes through the DOM and says what directives do I have, what are the angular js pieces within the HTML and generate the template. This is the compilation phase. Then it goes back through and it links it together says this template gets this scope, binds it together and we have our view.
 
 ![angular-js-lifecycle](./images/angular-js-lifecycle.png)
 
@@ -1320,7 +1320,7 @@ To be created...
 
 ![angular-js-digest-loop](./images/angular-js-digest-loop.png)
 
-- If we use factory then it works on revealing module pattern, and service is worked with ‘.’ dot syntax pattern, in this we are attaching methods and properties to a ‘this’ object. Prefer to use factory.
+- If we use factory then it works on revealing module pattern, and service is worked with '.' dot syntax pattern, in this we are attaching methods and properties to a 'this' object. Prefer to use factory.
 
 - Treating HTML as a DSL (domain specific language) – by using directive we can create HTML like DSL which will specify our page functionality.
 
@@ -1334,7 +1334,7 @@ To be created...
 
 - Cookies present problems today, because the browser sends a cookie on every request, even on requests that do not need a cookie to authenticate the user, and sometimes on requests that have been put together as part of a malicious cross-site request forgery, a CSRF. Cookies do not work well with web API that works on a different domain as they are limited to a specific domain. We have more control over token.
 
-- When we use an ng-repeat and you repeat over something like ‘star in stars’ collection from the scope, angular really wants to see distinct values inside of there, so distinct object references, or distinct number values, or distinct strings. So in case like we have an array with empty elements, in order to work with ng-repeat, we need to tell angular to track these elements by index, instead of the values that are inside of the elements.
+- When we use an ng-repeat and you repeat over something like 'star in stars' collection from the scope, angular really wants to see distinct values inside of there, so distinct object references, or distinct number values, or distinct strings. So in case like we have an array with empty elements, in order to work with ng-repeat, we need to tell angular to track these elements by index, instead of the values that are inside of the elements.
 
 - Creating stars ratings functionality:
 
@@ -1344,7 +1344,7 @@ To be created...
 
 - Forms are always start off simple, but then the business wants to add rounded corners and cute icons to make the form look friendly and inviting, and the real complexity starts when the business starts adding validation rules to a form.
 
-- Function binding to isolate scope: whenever we use the ‘&’ binding, we are essentially creating a proxy function on our isolated scope, when we invoke this proxy function, angular goes out and looks at the expression here and it figures out how to invoke that expression to get it to work. We have to understand that angular actually understands expressions like this at a very deep level. If we look thorough the angular source code, we will see lots of regular expression to parse things out, and angular even knows the name of this parameter that of this parameter that we want to pass to the method on objects. Angular understands that it needs a value to pass into this function. So when want to invoke these proxy function, we do not want to just pass parameters along, we to want to pass essentially, a hash that tells angular in the expression being used, if there is something with this name value, then pass along what is inside of this variable for that function argument. So we need to use an object literal syntax like below to get a parameter into an expression that is bound to a proxy function on our isolated scope.
+- Function binding to isolate scope: whenever we use the '&' binding, we are essentially creating a proxy function on our isolated scope, when we invoke this proxy function, angular goes out and looks at the expression here and it figures out how to invoke that expression to get it to work. We have to understand that angular actually understands expressions like this at a very deep level. If we look thorough the angular source code, we will see lots of regular expression to parse things out, and angular even knows the name of this parameter that of this parameter that we want to pass to the method on objects. Angular understands that it needs a value to pass into this function. So when want to invoke these proxy function, we do not want to just pass parameters along, we to want to pass essentially, a hash that tells angular in the expression being used, if there is something with this name value, then pass along what is inside of this variable for that function argument. So we need to use an object literal syntax like below to get a parameter into an expression that is bound to a proxy function on our isolated scope.
 
 - The first version of angular known as Angular JS. Angular 2.0 or above known as just Angular.
 
@@ -1408,7 +1408,7 @@ To be created...
 
 - Mutability – objects and arrays in JavaScript are mutable; they can change any time without changing their identity. By default, angular only runs a pipe when the identity of the source has changed. Using impure pipes, it runs on every cycle of the change detection engine, this method of executing the filtering or sorting code every time change detection runs is how angular JS filter worked. Pipes are no longer recommended as the way to filter and sort our data. We should do it ourselves using component so that we can filter and sort the data when source gets changed by ourselves.
 
-- We should not use global objects of third party services inside the application, if we do this then we won’t be able to use concepts ES6 modules, tree shaking, and also it is bad practice.
+- We should not use global objects of third party services inside the application, if we do this then we won't be able to use concepts ES6 modules, tree shaking, and also it is bad practice.
 
 - Angular dependency injection lookup – whenever we provide a class into providers, angular takes it and provide an instance for that class using constructor function. In angular 1 we use strings to register the dependencies, in angular 2 we are using classes or types, that is our keys or in other words our token.
 
@@ -1428,7 +1428,7 @@ To be created...
 
 - Tree shaking removes the properties and functions from production build code that is never called.
 
-- Enable production mode by calling enableProdMode(), the development runs an extra step though angular 2 change detection process. When it’s all done running change detection, it runs it one more time to make sure that nothing has changed. So, in production mode we want to disable this feature.
+- Enable production mode by calling enableProdMode(), the development runs an extra step though angular 2 change detection process. When it's all done running change detection, it runs it one more time to make sure that nothing has changed. So, in production mode we want to disable this feature.
 
 - Ahead of time compiler (AOT) benefits – in this precompiling our application like compiling template. We need to install compiler itself from platform-server. With AOT we cannot use full path but relative path. It provides faster rendering, fewer requests, detect template errors, better security.
 
@@ -1436,11 +1436,11 @@ To be created...
 
 ![angular-preload-all-modules](./images/angular-preload-all-modules.png)
 
-- If we set schemas: [NO_ERRORS_SCHEMA], it means we are testing shallow components, so angular won’t give error any error as it won’t render the child components. In provider if we use useClass or useValue then while doing dependency injection it will pass the instance of that class or value.
+- If we set schemas: [NO_ERRORS_SCHEMA], it means we are testing shallow components, so angular won't give error any error as it won't render the child components. In provider if we use useClass or useValue then while doing dependency injection it will pass the instance of that class or value.
 
 - For change detection angular is used zone library, zone listen all the asynchronous activity in a zone. It has a queue of asynchronous activity that it listens for and it waits until it finishes. So we can utilize this concepts using testbed to be able to know when these asynchronous activity is finished versus doing a “done” call-back as in traditional approach.
 
-- The nativeElement property exposes the regular old browser’s DOM API to work with template. There is an another property called debugElement() it is like nativeElement() and it has a way to access to root element of our template. It has some different set of functionalities that is very similar to nativeElement.
+- The nativeElement property exposes the regular old browser's DOM API to work with template. There is an another property called debugElement() it is like nativeElement() and it has a way to access to root element of our template. It has some different set of functionalities that is very similar to nativeElement.
 
 - To make the ngOnInit() method to get called as a lifecycle event we need to raise changeDetect() event. We can manually call ngOnInit() but it is not recommended approach.
 
@@ -1448,9 +1448,9 @@ To be created...
 
 - Fake Async in the tests – we need to wrap the test in fakeAsync method, it allows us to fake time. Using tick() method to fake time while using fakeAsync. Working with Async – it helps us to wait for while selecting any DOM to do test deep / child component as integrated test. We use a method fixture.whenStable() for this type of testing.
 
-- If we don’t know the actual tick times then use flush() it will make zone.js to run all the pending tasks in its queue.
+- If we don't know the actual tick times then use flush() it will make zone.js to run all the pending tasks in its queue.
 
-- Using the async helper function – it works with promises. Promises are also asynchronous. It also utilizes the same concept of zone.js. it is also a part of angular core testing module. It will ask our component to wait until it has stabilized. The component understands when it sees a promise inside of itself that hasn’t yet been stabilized until that promise resolves. But async() doesn’t deal well with setTimeouts.
+- Using the async helper function – it works with promises. Promises are also asynchronous. It also utilizes the same concept of zone.js. it is also a part of angular core testing module. It will ask our component to wait until it has stabilized. The component understands when it sees a promise inside of itself that hasn't yet been stabilized until that promise resolves. But async() doesn't deal well with setTimeouts.
 
 - fakeAsync can work with both a promise and a setTimeout and with all other asynchronous types of code. But async is only works well with promises. We should prefer using fakeAsync approach.
 
@@ -1472,7 +1472,7 @@ To be created...
 
 - Native element using cautions – it tight couple our back-end code with front-end presentation, it is unavailable in angular universal, and we cannot move any logic directly using nativeElement into a web worker. So, if we use it property then these problems will not arise. For this we should use Renderer2 class.
 
-- Building templates with ngTemplate – by default it’s just add an empty element as comment `<!---->` on DOM. We can also use it with ngIf-then-else condition:
+- Building templates with ngTemplate – by default it's just add an empty element as comment `<!---->` on DOM. We can also use it with ngIf-then-else condition:
 
 ![angular-ng-template](./images/angular-ng-template.png)
 
@@ -1494,11 +1494,11 @@ To be created...
 
 ![angular-avoid-switch-bloat](./images/angular-avoid-switch-bloat.png)
 
-- A pipe shouldn’t do a lot, for this a component will be a better choice. All built-in pipe are pure, except - splice, json, async
+- A pipe shouldn't do a lot, for this a component will be a better choice. All built-in pipe are pure, except - splice, json, async
 
-- A better ngFor while iterating collections using trackBy function so that while manipulating the collection angular don’t have to re-create it on the DOM
+- A better ngFor while iterating collections using trackBy function so that while manipulating the collection angular don't have to re-create it on the DOM
 
-- Angular lifecycle hooks – the blue blocks hooks don’t available in directives only in components:
+- Angular lifecycle hooks – the blue blocks hooks don't available in directives only in components:
 
 ![angular-lifecycle-hooks](./images/angular-lifecycle-hooks.png)
 
@@ -1506,7 +1506,7 @@ To be created...
 
 ![angular-lifecycle-hooks-playground2](./images/angular-lifecycle-hooks-playground2.png)
 
-- Angular treats the UI as a DMZ, accessible to anyone untrusted and un-trustable. Angular treats all values as untrusted by default. Angular only trusts template HTML, binding expressions, and attributes. It will sanitize or cleanse any content it doesn’t trust before adding it to the DOM. It will still display it like a script by converting first into simple string text so that browser doesn’t parse it.
+- Angular treats the UI as a DMZ, accessible to anyone untrusted and un-trustable. Angular treats all values as untrusted by default. Angular only trusts template HTML, binding expressions, and attributes. It will sanitize or cleanse any content it doesn't trust before adding it to the DOM. It will still display it like a script by converting first into simple string text so that browser doesn't parse it.
 
 - View child - it is like getElementById() method.
 
@@ -1526,7 +1526,7 @@ onOnInit() {
 
 ![angular-communication-approaches](./images/angular-communication-approaches.png)
 
-- Angular Material is a reference implementation of Google’s material design specification. It provides a set of reusables, well tested, and accessible UI components based on Material Design. It supports Asymmetric acceleration and deceleration which create more natural and delightful motion than symmetric motion:
+- Angular Material is a reference implementation of Google's material design specification. It provides a set of reusables, well tested, and accessible UI components based on Material Design. It supports Asymmetric acceleration and deceleration which create more natural and delightful motion than symmetric motion:
 
 ![angular-asymmetric-acceleration-and-deceleration](./images/angular-asymmetric-acceleration-and-deceleration.png)
 
@@ -1540,15 +1540,15 @@ onOnInit() {
 
 ![angular-jit-process](./images/angular-aot-process.png)
 
-- We get the below CORS error unless the URL’s match, including the ports themselves:
+- We get the below CORS error unless the URL's match, including the ports themselves:
 
 ![angular-cors-error](./images/angular-cors-error.png)
 
 - Pure and impure pipe performance – pipes are pure by default means they do not work with data mutation, they only get re-evaluated if the object reference got changes that the pipes is applied to. We can resolve this by making the pipe impure but it will impact the performance. Like even initial loading of page this sorting pipe will be called many times due to object changes
 
-- While doing interpolation we can’t use assignments, it only allows read-only data.
+- While doing interpolation we can't use assignments, it only allows read-only data.
 
-- If we don’t want to use brackets () for event binding then we can prefix it by “on”, like on-click.
+- If we don't want to use brackets () for event binding then we can prefix it by “on”, like on-click.
 
 - Content projection is same as transclusion in angular 1.x, now we use term ng-content tag for it
 
@@ -1572,7 +1572,7 @@ onOnInit() {
 
 - RxJS is a library for building asynchronous applications with observable sequences. It provides an API layer which abstraction different implementation of synchronous, async, single value or multiple value responses. RxJS is written in TypeScript.
 
-- Subscribe method returns a subscription object, by this object we can cancel the execution of the observable. When we cancel an observable by unsubscribing from it, we won’t get a completion message that can be handled by the completion handler we write, but tear down code will still runs when we unsubscribe to prevent the memory leaks in the code.
+- Subscribe method returns a subscription object, by this object we can cancel the execution of the observable. When we cancel an observable by unsubscribing from it, we won't get a completion message that can be handled by the completion handler we write, but tear down code will still runs when we unsubscribe to prevent the memory leaks in the code.
 
 - Subjects and multicast, they enable multiple observers to receive values from the single execution of an observable.
 
@@ -1580,7 +1580,7 @@ onOnInit() {
 
 - Subjects are similar to observables but have a few important additional features. Observables can only produce values for a single observer, so they are unicast. Since subject can produce the same value for multiple observers, they known as multicast.
 
-- Multi-casting operators – multicast() it takes subject as a parameter, it returns a connectableObservable type on which we need to call method connect(). The refCount() operator can be used with other multi-casting operators to automatically trigger execution of the source observable when the number of observers is greater than 0. The publish() operator is thin wrapper around multicast that doesn’t require us to pass it a subject. It will create one for us behind the scene. The share() operator is similar to using publish and refCount together.
+- Multi-casting operators – multicast() it takes subject as a parameter, it returns a connectableObservable type on which we need to call method connect(). The refCount() operator can be used with other multi-casting operators to automatically trigger execution of the source observable when the number of observers is greater than 0. The publish() operator is thin wrapper around multicast that doesn't require us to pass it a subject. It will create one for us behind the scene. The share() operator is similar to using publish and refCount together.
 
 - A scheduler controls when a subscription starts and when notifications are delivered. Observables can be configured with schedulers to control the execution context for the observable. Types – queueScheduler (for sync operations), asyncScheduler, asapScheduler (micro tasking).
 
@@ -1599,7 +1599,7 @@ onOnInit() {
 
 - Benefits of RxJS - It has a better asynchronous API, it has both readability and capability of handing multiple values. Callbacks, promises and async-await are only better for handing a single value.
 
-- Libraries are supplemental pieces of functionality, they help us solve specific problems, but don’t dictate the overall architecture of our app. Ideally, they avoid conflicts with other libraries and let us selectively use their features as we see fit. Examples are RxJS, lodash, jQuery. Framework on the other hand are much larger and prescriptive. We typically only use choose a single framework to use when starting work on a new application, however we might supplement that framework with several libraries to help us with specific problems we are trying to solve. Example – angular, react, Vue.
+- Libraries are supplemental pieces of functionality, they help us solve specific problems, but don't dictate the overall architecture of our app. Ideally, they avoid conflicts with other libraries and let us selectively use their features as we see fit. Examples are RxJS, lodash, jQuery. Framework on the other hand are much larger and prescriptive. We typically only use choose a single framework to use when starting work on a new application, however we might supplement that framework with several libraries to help us with specific problems we are trying to solve. Example – angular, react, Vue.
 
 - RXJS operators
 
@@ -1613,13 +1613,13 @@ onOnInit() {
 
 - Multi-casting - Taking values from source and sharing or passing them along to multiple subscribers, typically placing some type of control or limit on how the subscribers receive values or the values they receive.
 
-- Core and shared module – core or common module is designed for singleton type of services, which will be shared throughout the service like logging service, error service and data service. Service that are specific to a feature can go in the feature’s folder. Shared folder should contain reusable components, pipes and directives like calendar component, auto complete component. Shared module will be imported many times in different modules, but core module should be imported only one time into root module.
+- Core and shared module – core or common module is designed for singleton type of services, which will be shared throughout the service like logging service, error service and data service. Service that are specific to a feature can go in the feature's folder. Shared folder should contain reusable components, pipes and directives like calendar component, auto complete component. Shared module will be imported many times in different modules, but core module should be imported only one time into root module.
 
 ![angular-module-organization2](./images/angular-module-organization2.png)
 
-- Change detection strategies – in case of container presentation pattern, we don’t want the child component changing the state of the data at all, because that is the job of the parent or container component. When using OnPush detectors, then the framework will check an OnPush component when any of its input properties changes, when it fires and event, or when an observable fire an event.
+- Change detection strategies – in case of container presentation pattern, we don't want the child component changing the state of the data at all, because that is the job of the parent or container component. When using OnPush detectors, then the framework will check an OnPush component when any of its input properties changes, when it fires and event, or when an observable fire an event.
 
-- Reference vs. Value types – if our container component passing a value type it would update the child because change detection mechanism would catch, but when we do changes in some object property i.e. referenced type because object itself didn’t change and change detection won’t get fire, so to handle this we need to use cloning techniques.
+- Reference vs. Value types – if our container component passing a value type it would update the child because change detection mechanism would catch, but when we do changes in some object property i.e. referenced type because object itself didn't change and change detection won't get fire, so to handle this we need to use cloning techniques.
 
 - State management options – angular service, NgRx, ngrx-data, observable store, Akita, Ngxs, MobX
 
@@ -1643,13 +1643,13 @@ onOnInit() {
 
 - Effects are about controlling asynchronous operations and allow us to dispatch action based on this asynchronous operations.
 
-- NgRx is a library, it is not a framework or another platform. NgRx supercharges the redux pattern with RxJs.Redux pattern is a state management container, it came from React community. The reducer will take the slice of state from action and create a new state. We don’t put HTTP service in the reducer as HTTP service call is not a pure function, it is a side-effect as it can return anything. We use effect for this situation, this effect is listening for all actions that are being dispatched in our application.
+- NgRx is a library, it is not a framework or another platform. NgRx supercharges the redux pattern with RxJs.Redux pattern is a state management container, it came from React community. The reducer will take the slice of state from action and create a new state. We don't put HTTP service in the reducer as HTTP service call is not a pure function, it is a side-effect as it can return anything. We use effect for this situation, this effect is listening for all actions that are being dispatched in our application.
 
 - Redux attempts to make state mutations predictable by imposing certain restrictions on how and when updates can happen. Three core principles – single source of truth by one big store, state is read only, pure functions drive state changes
 
 - For communication between components, we need to action and selectors. As one component raise the action then reducer update the store and both components subscribe to that select which will make the components re-render.
 
-- Now we can use `changeDetectionStrategy` onPush, it will optimize our view performance. It means that the change detector’s mode will be initially set to CheckOnce. Any asynchronous API events like XHR or promise based events will not trigger change detection once we change to this strategy of OnPush and the components template will not get updated. In default strategy it will every time changes in our application as a result of any user events, timers, XHR requests, promises, etc change detection will run on all components.
+- Now we can use `changeDetectionStrategy` onPush, it will optimize our view performance. It means that the change detector's mode will be initially set to CheckOnce. Any asynchronous API events like XHR or promise based events will not trigger change detection once we change to this strategy of OnPush and the components template will not get updated. In default strategy it will every time changes in our application as a result of any user events, timers, XHR requests, promises, etc change detection will run on all components.
 
 ![angular-without-change-detection-on-push-approach](./images/angular-without-change-detection-on-push-approach.png)
 
@@ -1661,15 +1661,15 @@ onOnInit() {
 
 - Benefits of rendering the application on server-side using Angular universal – show the first page quickly, improve performance, facilitate web crawlers (SEO).
 
-- On console if we type ‘ng’ it will give us below methods –
+- On console if we type 'ng' it will give us below methods –
 
 ![angular-ng-console-functions](./images/angular-ng-console-functions.png)
 
 - Angular CLI Builders - Builder are wrongly given name, they just know that they are just given a set of options, run a function and return the results.
 
-- The term ‘state’ is kind of fancy term for saying the data in your application that changes like list of movies. A side-effect is a term that we use to describe code that has to talk to the outside world like making REST calls, handling a web socket connection or dealing with time, these side-effects generally triggered by like ‘search’ button call. The term state change is the act of after we subscribe and get the movie list result, we update that component is managing to the results that came back from the API request.
+- The term 'state' is kind of fancy term for saying the data in your application that changes like list of movies. A side-effect is a term that we use to describe code that has to talk to the outside world like making REST calls, handling a web socket connection or dealing with time, these side-effects generally triggered by like 'search' button call. The term state change is the act of after we subscribe and get the movie list result, we update that component is managing to the results that came back from the API request.
 
-- Selectors are consumers of action, but their responsibility is to help you bind your state to your components, it helps to bind state to our components. We have actions as some kind of indirection that allows a component to talk to the store without actually having to directly inject the store. Selectors are just functions. Selectors are like Global @input() for our application. Components don’t know how that state is derived or where that state comes from, their only responsibility is to subscribe to those selectors to be notified when that data changes, using async pipe in template which will automatically subscribe to that observable and then unsubscribe when the component is destroyed.
+- Selectors are consumers of action, but their responsibility is to help you bind your state to your components, it helps to bind state to our components. We have actions as some kind of indirection that allows a component to talk to the store without actually having to directly inject the store. Selectors are just functions. Selectors are like Global @input() for our application. Components don't know how that state is derived or where that state comes from, their only responsibility is to subscribe to those selectors to be notified when that data changes, using async pipe in template which will automatically subscribe to that observable and then unsubscribe when the component is destroyed.
 
 - Actions are unified interface to describe events, it just have data, no functionality, has a minimum a type property, strongly typed using classes and enums. This is the main communication layer between so many independent pieces of the application. It is how components are going to be describing events, and it is what reducers and effects are going to be using to trigger state changes and to trigger side effects. Unique events get unique actions, actions are grouped by their source, actions are never reused. Mention what caused it to happen, and who produced it.
 
@@ -1677,7 +1677,7 @@ onOnInit() {
 
 - If a user goes away from the desk for couple of hour, to avoid the stale data we can use web-sockets which will dispatch method in our backend that can notify clients when changes to our data model occur, and then using NgRx effects connect to that web socket and map notifications coming out of that web socket connection into actions that can then go update state by this we are always getting a live UI.
 
-- To implement session expire functionality that to show message like ‘this is going to expire after certain minutes of time’ we can do it by setting up an effect that on enter could run like every minute of five minute or every hour to re-trigger that HTTP request and rehydrate the store if we don’t want to go the web socket method.
+- To implement session expire functionality that to show message like 'this is going to expire after certain minutes of time' we can do it by setting up an effect that on enter could run like every minute of five minute or every hour to re-trigger that HTTP request and rehydrate the store if we don't want to go the web socket method.
 
 - To clear the data if user logs out, we can trigger the logout action and trigger state change that could pass undefined to our reducer and have them all clear.
 
@@ -1685,7 +1685,7 @@ onOnInit() {
 
 - Instead of having one heavy reducer function, we should have smaller reducer functions to update just slices of our state.
 
-- Actions are like gluten of the NgRx loaf. We use unified interface to describe events. The ‘type’ property is the name of that event and it needs to be unique across all the actions in our application.
+- Actions are like gluten of the NgRx loaf. We use unified interface to describe events. The 'type' property is the name of that event and it needs to be unique across all the actions in our application.
 
 - Selectors allows us to query our store for data, they are almost like our SQL statements from a database.
 
@@ -1701,13 +1701,13 @@ onOnInit() {
 
 - We can use interval operators in scenario where we want to refresh a page within some duration. Also instead using the web-sockets we can use this to rehydrate our models.
 
-- Monorepos – everything that belongs to a system should get in there and it should have one version for all of these libraries not different version for different libraries by this we won’t have version conflicts, no burden with distributing lists
+- Monorepos – everything that belongs to a system should get in there and it should have one version for all of these libraries not different version for different libraries by this we won't have version conflicts, no burden with distributing lists
 
 ![angular-monorepos](./images/angular-monorepos.png)
 
 - Earlier compiler used to build the packages also if someone changes something in a project file, but now ngcc compiler will compile the package separately to make the build process faster. No more JSON conversion of typescript components.
 
-- Faster tests – smarter recompilation model, earlier using view engine it will compile all of the components between every single test execution, but with Ivy unless we use some override method it won’t compile all of the components.
+- Faster tests – smarter recompilation model, earlier using view engine it will compile all of the components between every single test execution, but with Ivy unless we use some override method it won't compile all of the components.
 
 - HttpBackend will be last interceptor –
 
@@ -1717,7 +1717,7 @@ onOnInit() {
 
 - Types of errors – external (HttpErrorResponse), business side and internal (Javascript error).
 
-- When an Angular application is started, the main.ts file is loaded first, here we bootstrap the root module i.e. app.module.ts. In this module, we specify a component as the bootstrap component and tell angular to load this component and all its dependencies at start up and register it’s selector app-root. Now when browser loads the index.html file, it knows what is app-root and render all the contents of this component.
+- When an Angular application is started, the main.ts file is loaded first, here we bootstrap the root module i.e. app.module.ts. In this module, we specify a component as the bootstrap component and tell angular to load this component and all its dependencies at start up and register it's selector app-root. Now when browser loads the index.html file, it knows what is app-root and render all the contents of this component.
 
 - The Bazel compiler is a build system used for nearly all software build at Google. When you compile the code with Bazel Compiler, you will recompile the entire code base, it compiles only with necessary code. It uses advanced local and distributed caching, optimized dependency analysis and parallel execution. In short, it only rebuilds what is necessary.
 
@@ -1741,15 +1741,15 @@ onOnInit() {
 
 - By using `ng serve` it run the application locally in memory by using web pack server. This server is not ideal for the production.
 
-- Instead of using the nested subscriber we should use maps like switchMap, exhaustMap, mergeMap and concatMap they all internal use map operator it has a project function which will return whatever we return whichever we return from it. These above operators use flattening operators like mergeAll, concatAll, switchAll and exhaust so that they don’t return observable of observables but just a normal observable.
+- Instead of using the nested subscriber we should use maps like switchMap, exhaustMap, mergeMap and concatMap they all internal use map operator it has a project function which will return whatever we return whichever we return from it. These above operators use flattening operators like mergeAll, concatAll, switchAll and exhaust so that they don't return observable of observables but just a normal observable.
 
-- We shouldn’t mock which we don’t own. For the external libraries we should write an adaptor and while writing the external integration tests, use that adapter along with external library.
+- We shouldn't mock which we don't own. For the external libraries we should write an adaptor and while writing the external integration tests, use that adapter along with external library.
 
 - We can also store full page and resources locally by using application cache but it is deprecated now, we should now use the service workers and cache API to cache resources. The cache API is a cache object where request objects act as keys to their responses.
 
 - Service workers are scripts that run separately from our web page, intercept network request so web developers can treat the network as an enhancement and contains certain events such as fetch, push and sync. It basically works as a proxy between the network and the browser and a work when we are offline or in the background even when our site is closed, so we can trigger events when our site is closed as-well. Alternative is application cache but it is complicated and has strict rules, inefficient with versioning, cannot update small areas. Due to this the web workers have been introduced in combination with Cache API.
 
-- Service worker expands on web worker, this means that it has no access to the DOM, isn’t tied to a particular page and run on its own global script context, works only with HTTPS, run without a page and is event-driven, it also triggered again even when in inactive state.
+- Service worker expands on web worker, this means that it has no access to the DOM, isn't tied to a particular page and run on its own global script context, works only with HTTPS, run without a page and is event-driven, it also triggered again even when in inactive state.
 
 ![angular-service-worker-lifecycle](./images/angular-service-worker-lifecycle.png)
 
@@ -1761,7 +1761,7 @@ onOnInit() {
 
 - Attributes of progressive web app – responsive, work offline, native app-like feeling, fresh and safe, discoverable, re-engageable (push notification), installable, linkable (URL based).
 
-- Baseline requirement for progressive web apps – site is served over HTTPS, pages are responsive on tablets and mobile devices, metadata is provided for add to home screen, the start URL loads while offline, first load fast even on 3g, site works cross browser, page transition don’t feel like they block on the network, each page has a URL.
+- Baseline requirement for progressive web apps – site is served over HTTPS, pages are responsive on tablets and mobile devices, metadata is provided for add to home screen, the start URL loads while offline, first load fast even on 3g, site works cross browser, page transition don't feel like they block on the network, each page has a URL.
 
 - The smart component will pass the updated data towards the dumb components
 
@@ -1773,7 +1773,7 @@ onOnInit() {
 
 - Catch errors on observables with catchError – we can either throw an error or return a new observable based on some condition. We can also return the EMPTY observable.
 
-- Difference between [] and {{}} bindings - We can’t mix [] and {{}} together on the same attribute. Angular will complain.. Property bindings are actually manipulating the DOM and they get to preserve data types. Curly brace binding is string interpolation of the HTML and always results in strings.
+- Difference between [] and {{}} bindings - We can't mix [] and {{}} together on the same attribute. Angular will complain.. Property bindings are actually manipulating the DOM and they get to preserve data types. Curly brace binding is string interpolation of the HTML and always results in strings.
 
 - It comes down to how they function. {{}} is basically a form of string interpolation. You should think of it as simply replacing the HTML string with the results of the binding, and then the HTML gets evaluated.
 
@@ -1793,9 +1793,9 @@ onOnInit() {
 
 - No more $apply, repeated digest cycles, no more watches, no more performance issues with digest cycle and watcher limits.
 
-- @Injectable() is similar to angular 1’s $inject. Now in new case we are using a decorator.
+- @Injectable() is similar to angular 1's $inject. Now in new case we are using a decorator.
 
-- When we inject a service, angular searches the appropriate injectors for it. Angular 2 has a hierarchical DI system with a tree of injectors that parallel an application’s component tree.
+- When we inject a service, angular searches the appropriate injectors for it. Angular 2 has a hierarchical DI system with a tree of injectors that parallel an application's component tree.
 
 - The great thing about the http object, the service that angular gives us, is when it gives us back the observable it will automatically unsubscribe when it is done. So we do not have to worry about cleaning up that particular one. If we create a manual observable and subscription, then we are going to have to clean up our own subscription.
 
@@ -1805,7 +1805,7 @@ onOnInit() {
 
 - RxJS subjects are like an observable, but they can multicast to many observers, they are like event emitters and they maintain a registry of many listeners or observers.
 
-- Angular universal is a concept that because we are no longer tightly coupled to the browser, because we have this compiler, we can actually build our application, and then render it entirely in a server side. Render it without the browser context at all. In this angular give us single method within what’s called platform server that renders our application to a string. So, we import our root module, and then angular say render to string. We give it the context of the URL the user’s trying to load. Then we can cache, serve or sent the string to the other user.
+- Angular universal is a concept that because we are no longer tightly coupled to the browser, because we have this compiler, we can actually build our application, and then render it entirely in a server side. Render it without the browser context at all. In this angular give us single method within what's called platform server that renders our application to a string. So, we import our root module, and then angular say render to string. We give it the context of the URL the user's trying to load. Then we can cache, serve or sent the string to the other user.
 
 - A decorator is a JavaScript language feature, the scope of the decorator is limited to the feature it decorates.it is always prefixed by @ sign. It needs to be define above the class signature with no semi-colon afterwards, it is like an attribute feature in other programming languages.
 
@@ -1817,7 +1817,7 @@ onOnInit() {
 
 - Declaration array – we use this to define the components, directives, and pipes that belong to this angular module. Every component, directive, pipe that we create must belong to one and only one angular module. Do not add other classes, services, or modules to the declarations array. All declared components, directives, and pipes are private by default. They are only accessible to other things in declared in the same module.
 
-- Exports array – allows us to share angular module’s components, directives, and pipes with other modules. Never export a service.
+- Exports array – allows us to share angular module's components, directives, and pipes with other modules. Never export a service.
 
 - Import array – an angular module can be extended by importing capabilities from other angular modules. It allows us to import supporting modules that exports components, directives, or pipes. We should only import what this module needs. Importing a module does not provide access to its imported modules.
 
@@ -1851,7 +1851,7 @@ onOnInit() {
 
 - For authenticating the user, we should use a separate server i.e. identity provider. Identity provider are also called SSO server.
 
-- The OAuth access tokens have a fixed expiration time. If they got expired then calling a protected API result in 401 unauthorized. In this case we need to obtain a new token from STS to continue calling API’s. we can’t use OAuth 2 refresh tokens with Implicit Flow.
+- The OAuth access tokens have a fixed expiration time. If they got expired then calling a protected API result in 401 unauthorized. In this case we need to obtain a new token from STS to continue calling API's. we can't use OAuth 2 refresh tokens with Implicit Flow.
 
 - Because all browsers do not support the newest version of javascript due to which we will use typescript. It transpile and change into javascript. We can let the browser let the transpile or we can transpile on server.
 
@@ -1875,21 +1875,21 @@ onOnInit() {
 
 - Angular also supports server-side rendering, mobile friendly, angular language service (Intellisense and better debugging in templates).
 
-- Standalone component doesn’t reduce work, but just reduce the learning curve for the new person learning angular, need to see what emerges further (new use cases).
+- Standalone component doesn't reduce work, but just reduce the learning curve for the new person learning angular, need to see what emerges further (new use cases).
 
 - Tools provided by the Nx – ESLint, Cypress, Jest, Storybook, Prettier.
 
 - Note that if your component has no inputs or you use it without providing any inputs, the framework will not call ngOnChanges().
 
-- ngDoCheck - This hook can be interpreted as an “extension” of ngOnChanges. You can use this method to detect changes that Angular can’t or won’t detect. It is called in every change detection, immediately after the ngOnChanges and ngOnInit hooks. This hook is costly since it is called with enormous frequency; after every change detection cycle no matter where the change occurred. Therefore, its usage should be careful to not affect the user experience. Well, since Angular tracks object reference and we mutate the object without changing the reference Angular won’t pick up the changes and it will not run change detection for the component. Thus the new name property value will not be re-rendered in DOM. Luckily, we can use the ngDoCheck lifecycle hook to check for object mutation and notify Angular.
+- ngDoCheck - This hook can be interpreted as an “extension” of ngOnChanges. You can use this method to detect changes that Angular can't or won't detect. It is called in every change detection, immediately after the ngOnChanges and ngOnInit hooks. This hook is costly since it is called with enormous frequency; after every change detection cycle no matter where the change occurred. Therefore, its usage should be careful to not affect the user experience. Well, since Angular tracks object reference and we mutate the object without changing the reference Angular won't pick up the changes and it will not run change detection for the component. Thus the new name property value will not be re-rendered in DOM. Luckily, we can use the ngDoCheck lifecycle hook to check for object mutation and notify Angular.
 
-- ngAfterContentInit - This method is called only once during the component’s lifecycle, after the first ngDoCheck. Within this hook, we have access for the first time to the ElementRef of the ContentChild after the component’s creation; after Angular has already projected the external content into the component’s view.
+- ngAfterContentInit - This method is called only once during the component's lifecycle, after the first ngDoCheck. Within this hook, we have access for the first time to the ElementRef of the ContentChild after the component's creation; after Angular has already projected the external content into the component's view.
 
-- ngAfterContentChecked - This method is called once during the component’s lifecycle after ngAfterContentInit and then after every subsequent ngDoCheck. It is called after Angular has already checked the content projected into the component in the current digest loop.
+- ngAfterContentChecked - This method is called once during the component's lifecycle after ngAfterContentInit and then after every subsequent ngDoCheck. It is called after Angular has already checked the content projected into the component in the current digest loop.
 
-- ngAfterViewInit - This method is called only once during the component’s lifecycle, after ngAfterContentChecked. Within this hook, we have access for the first time to the ElementRef of the ViewChildren after the component’s creation; after Angular has already composed the component’s views and its child views. This hook is useful when you need to load content on your view that depends on its view’s components; for instance when you need to set a video player or create a chart from a canvas element
+- ngAfterViewInit - This method is called only once during the component's lifecycle, after ngAfterContentChecked. Within this hook, we have access for the first time to the ElementRef of the ViewChildren after the component's creation; after Angular has already composed the component's views and its child views. This hook is useful when you need to load content on your view that depends on its view's components; for instance when you need to set a video player or create a chart from a canvas element
 
-- ngAfterViewChecked - This method is called once after ngAfterViewInit and then after every subsequent ngAfterContentChecked. It is called after Angular has already checked the component’s views and its child views in the current digest loop. If we continue clicking on the Update button many times, the ngAfterViewChecked will be triggered each time, as well as, ngDoCheck and ngAfterContentChecked.
+- ngAfterViewChecked - This method is called once after ngAfterViewInit and then after every subsequent ngAfterContentChecked. It is called after Angular has already checked the component's views and its child views in the current digest loop. If we continue clicking on the Update button many times, the ngAfterViewChecked will be triggered each time, as well as, ngDoCheck and ngAfterContentChecked.
 
 - Note that the ngOnDestroy is not called when the user refreshes the page or closes the browser. So, in case you need to handle some cleanup logic on those occasions as well, you can use the HostListener decorator
 
@@ -1902,11 +1902,11 @@ ngOnDestroy() {}
 
 ![angular-lifecycle-hooks-workflow](./images/angular-lifecycle-hooks-workflow.png)
 
-- How the Angular Compiler Works - The Angular Compiler (which we call ngc) is the tool used to compile Angular applications and libraries. ngc is built on the TypeScript compiler (called tsc) and extends the process of compiling TypeScript code to add additional code generation related to Angular’s capabilities.
+- How the Angular Compiler Works - The Angular Compiler (which we call ngc) is the tool used to compile Angular applications and libraries. ngc is built on the TypeScript compiler (called tsc) and extends the process of compiling TypeScript code to add additional code generation related to Angular's capabilities.
 
-- Angular’s compiler serves as a bridge between developer experience and run time performance: Angular users author applications against an ergonomic, decorator-based API, and ngc translates this code into more efficient runtime instructions. In this way, ngc can be considered an extended TypeScript compiler which also knows how to “execute” Angular decorators, applying their effects to the decorated classes at build time (as opposed to run time).
+- Angular's compiler serves as a bridge between developer experience and run time performance: Angular users author applications against an ergonomic, decorator-based API, and ngc translates this code into more efficient runtime instructions. In this way, ngc can be considered an extended TypeScript compiler which also knows how to “execute” Angular decorators, applying their effects to the decorated classes at build time (as opposed to run time).
 
-- The ngc has several important goals: Compile Angular decorators, including components and their templates. Apply TypeScript’s type-checking rules to component templates. Re-compile quickly when the developer makes a change.
+- The ngc has several important goals: Compile Angular decorators, including components and their templates. Apply TypeScript's type-checking rules to component templates. Re-compile quickly when the developer makes a change.
 
 - TypeScript by itself has no understanding of Angular template syntax and cannot type-check it directly. To perform this checking, the Angular compiler converts Angular templates into TypeScript code (known as a “Type Check Block”, or TCB) that expresses equivalent operations at the type level, and feeds this code to TypeScript for semantic checking. Any generated diagnostics are then mapped back and reported to the user in the context of the original template.
 
@@ -1934,11 +1934,11 @@ ng new my-app --create-application=false | ng new my-app --createApplication=fal
 
 - In angular 15, we can use RouterTestingHarness to test router links with ease
 
-- Angular’s compiler serves as a bridge between developer experience and run time performance: Angular users author applications against an ergonomic, decorator-based API, and ngc translates this code into more efficient runtime instructions.
+- Angular's compiler serves as a bridge between developer experience and run time performance: Angular users author applications against an ergonomic, decorator-based API, and ngc translates this code into more efficient runtime instructions.
 
 - In this way, ngc can be considered an extended TypeScript compiler which also knows how to “execute” Angular decorators, applying their effects to the decorated classes at build time (as opposed to run time).
 
-- ngc has several important goals: Compile Angular decorators, including components and their templates. Apply TypeScript’s type-checking rules to component templates. Re-compile quickly when the developer makes a change.
+- ngc has several important goals: Compile Angular decorators, including components and their templates. Apply TypeScript's type-checking rules to component templates. Re-compile quickly when the developer makes a change.
 
 - TypeScript by itself has no understanding of Angular template syntax and cannot type-check it directly. To perform this checking, the Angular compiler converts Angular templates into TypeScript code (known as a “Type Check Block”, or TCB) that expresses equivalent operations at the type level, and feeds this code to TypeScript for semantic checking. Any generated diagnostics are then mapped back and reported to the user in the context of the original template.
 
@@ -1952,7 +1952,7 @@ Innovation is more like a system or network not a single moment.
 
 ![angular-angular-inspired-by](./images/angular-angular-inspired-by.png)
 
-- FormControl is an entity that tracks the value and validation status of an individual form control. A FormControl is always created regardless of whether you use template driven or reactive forms. Instead of a native form control like input, any custom form control can interact with a formControl. The number of native form controls is limited, but the variety of custom form controls can be potentially infinite. So, Angular needs a generic mechanism to stand between Angular’s formControl and a native/custom form control. This is where the ControlValueAccessor object comes into play. This is the object that stands between the Angular formControl and a native form control and synchronizes values between the two. A ControlValueAccessor acts as a bridge between the Angular forms API and a native element in the DOM.
+- FormControl is an entity that tracks the value and validation status of an individual form control. A FormControl is always created regardless of whether you use template driven or reactive forms. Instead of a native form control like input, any custom form control can interact with a formControl. The number of native form controls is limited, but the variety of custom form controls can be potentially infinite. So, Angular needs a generic mechanism to stand between Angular's formControl and a native/custom form control. This is where the ControlValueAccessor object comes into play. This is the object that stands between the Angular formControl and a native form control and synchronizes values between the two. A ControlValueAccessor acts as a bridge between the Angular forms API and a native element in the DOM.
 
 - Default value accessors - DefaultValueAccessor, CheckboxControlValueAccessor, NumberValueAccessor, RadioControlValueAccessor, RangeValueAccessor, SelectControlValueAccessor, SelectMultipleControlValueAccessor
 
@@ -1960,9 +1960,9 @@ Innovation is more like a system or network not a single moment.
 
 - View encapsulation modes – none, emulated and shadowDom.
 
-- In the default emulated mode - It will add the random **ngHost and**ngContent attributes on the components if we have define some style properties on the component. Otherwise it won’t generate them. By this, these styles will be out from the global scope, this mode is handled by the angular.
+- In the default emulated mode - It will add the random **ngHost and**ngContent attributes on the components if we have define some style properties on the component. Otherwise it won't generate them. By this, these styles will be out from the global scope, this mode is handled by the angular.
 
-- The none and ShadowDom modes will be handled by the browser not by the angular. With none mode, it won’t generate any attributes and the styling given at the component level will be applied on the whole DOM. We can use this mode in the root app component so that all the styles which we apply in here will be applied on all page content globally. With ShadowDom, it will create the actual shadow root element will be created which will separate the marker and CSS outside of the scope of the parent document. This approach will cause problem in older versions of browser.
+- The none and ShadowDom modes will be handled by the browser not by the angular. With none mode, it won't generate any attributes and the styling given at the component level will be applied on the whole DOM. We can use this mode in the root app component so that all the styles which we apply in here will be applied on all page content globally. With ShadowDom, it will create the actual shadow root element will be created which will separate the marker and CSS outside of the scope of the parent document. This approach will cause problem in older versions of browser.
 
 - We should stick with the default Emulated mode.
 
@@ -1978,7 +1978,7 @@ Innovation is more like a system or network not a single moment.
 
 - B.E.M. is an acronym for `block__element--modifier`. A modifier would be any variation on a block or element within a block.
 
-- Single responsibility principle - Let’s say you have a component called Order that displays information about a customer’s order, including the customer’s name, order date, and order items. This component has two responsibilities: displaying the customer’s information and displaying the order information. According to the SRP, these two responsibilities should be separated into two separate components. By following the SRP, you can create a well-organized codebase that is easy to maintain and modify. This, in turn, makes your applications more scalable, flexible, and adaptable to changing requirements.
+- Single responsibility principle - Let's say you have a component called Order that displays information about a customer's order, including the customer's name, order date, and order items. This component has two responsibilities: displaying the customer's information and displaying the order information. According to the SRP, these two responsibilities should be separated into two separate components. By following the SRP, you can create a well-organized codebase that is easy to maintain and modify. This, in turn, makes your applications more scalable, flexible, and adaptable to changing requirements.
 
 - Open/Closed Principle (OCP) - The Open/Closed Principle (OCP) is a software design principle that states that software entities (classes, modules, functions, etc.) should be open for extension but closed for modification. This means that the implementation of a software entity should be written in such a way that it can be extended to meet new requirements without having to modify the original code.
 
@@ -2004,11 +2004,11 @@ Innovation is more like a system or network not a single moment.
 
 - To ensure that the DIP is not violated, it is important to design classes and modules in such a way that they depend on abstractions, not on concrete implementations. This can be achieved by defining interfaces that define the required behavior, and by implementing the concrete classes that provide the actual functionality.
 
-- Javascript based web applications, like angular, can’t maintain secrets, everything is public. A user can view page source, network requests and their payloads, and look at browser storage, nothing is secret to the user.
+- Javascript based web applications, like angular, can't maintain secrets, everything is public. A user can view page source, network requests and their payloads, and look at browser storage, nothing is secret to the user.
 
 - For queuing promise we can use Promise.all(), it is like Array.every().
 
-- Settling all promise by using Promise.allSettled(), for this we don’t need catch() as when it will be resolved it will have a specific key to specify which promise has been succeed or rejected. It is like Promise.some().
+- Settling all promise by using Promise.allSettled(), for this we don't need catch() as when it will be resolved it will have a specific key to specify which promise has been succeed or rejected. It is like Promise.some().
 
 - We can listen any of the first resolved promise by using Promise.any(). We can use Promise.any() if we want fastest response from any of the promise, it will return and resolved the Promise.any() immediately.
 
@@ -2016,7 +2016,7 @@ Innovation is more like a system or network not a single moment.
 
 - Async-await is a syntactic sugar for promises to make thing easier to read or to express.
 
-- UMD Modules – it check if it is AMD then use this format, otherwise check if Common JS then expose as CommonJS format otherwise it will export as Browser global. It doesn’t support standard ES Module as it was written before to it and ES module doesn’t work properly with this dynamic module detection approach.
+- UMD Modules – it check if it is AMD then use this format, otherwise check if Common JS then expose as CommonJS format otherwise it will export as Browser global. It doesn't support standard ES Module as it was written before to it and ES module doesn't work properly with this dynamic module detection approach.
 
 - Sometimes we want to write library which supports multiple module formats, there is a standard for this called UMD (Universal Module definition). I will support AMD, common js and Global.
 
@@ -2028,17 +2028,17 @@ Innovation is more like a system or network not a single moment.
 
 - Function throttling – common scenarios for using a proxy to apply on a function to avoid being executed again and again. It can protect execution to avoid bugging down the system or prevent to hammering an API.
 
-- A scope is called ‘lexical’ because it is linked to the to place where the function is written in the code.
+- A scope is called 'lexical' because it is linked to the to place where the function is written in the code.
 
-- In constructor method we should only build objects and prepares them for use. Don’t construct other dependencies, talk to external resources, execute initialization logic or application logic. Don’t write any logic in constructor. Just use assignments. We should inject dependencies assign to the private variables inside constructor.
+- In constructor method we should only build objects and prepares them for use. Don't construct other dependencies, talk to external resources, execute initialization logic or application logic. Don't write any logic in constructor. Just use assignments. We should inject dependencies assign to the private variables inside constructor.
 
-- Actually, legacy code is the one which doesn’t have automated test for it. It makes the code more brittle and harder to maintain and extend.
+- Actually, legacy code is the one which doesn't have automated test for it. It makes the code more brittle and harder to maintain and extend.
 
 - ![TDD History](./images/unit-testing-tdd-history.png)
 
 - Types of testing - unit testing, integration testing, acceptance testing (user interface).
 
-- Immutability – an object can’t change its state. Anytime a method would change the state of the object like pushing an item on a stack, it needs to return a new copy of the object with the change. The previous instant remains unchanged. It helps us in writing concurrent code more easily
+- Immutability – an object can't change its state. Anytime a method would change the state of the object like pushing an item on a stack, it needs to return a new copy of the object with the change. The previous instant remains unchanged. It helps us in writing concurrent code more easily
 
 - Test doubles - it is a generic term for any kind of pretend object used in place of a real object for testing purpose.
 
@@ -2054,19 +2054,19 @@ Innovation is more like a system or network not a single moment.
 
 - Test doubles – dummies like a placeholder, stubs objects that return predefined data, fakes slightly more realistic, mocks objects pre-programmed with expected outputs for given inputs and also able to verify their calls, spies real object and verify interactions like mocks it is an hybrid of stubs, fakes and mocks.
 
-- Unit tests are less brittle that’s why they are preferred a lot. It tests smallest behaviour.
+- Unit tests are less brittle that's why they are preferred a lot. It tests smallest behaviour.
 
 - What is pragmatism? A reasonable and logical way of doing thing. that is based on dealing with specific situations instead of ideas and theories.
 
 - Testing structure types - AAA (Act, Arrange, assert), Behavioral (Given, When, Then)
 
-- Anti-patterns – we should test the overall behavior details instead of implementation details. So, don’t overuse of mock, prefer stub. Focus of return of the function instead of inner details. Tests should be short and to the point.
+- Anti-patterns – we should test the overall behavior details instead of implementation details. So, don't overuse of mock, prefer stub. Focus of return of the function instead of inner details. Tests should be short and to the point.
 
 - Static method should be used only for pure functions like those methods which returns same value for same input, and in future there would be not change needed for those method implementations like math library inbuilt function.
 
 - When adding code to a fixture setup or teardown is that only code that is 100 percent common to all methods should go over there. If a lot not all methods have some common code then use helper method.
 
-- In unit testing don’t use random number to generate random number to test some value, it can generate random failures. So, we should not have random logic.
+- In unit testing don't use random number to generate random number to test some value, it can generate random failures. So, we should not have random logic.
 
 - Naming convention of the test method – choose any naming convention for unit tests that works for you and only try to stick with it consistently throughout the project.
 - Instead of using the manual mock we should use automatic mock like MOQ library.
@@ -2087,7 +2087,7 @@ Innovation is more like a system or network not a single moment.
 
 - Writing the test is easier then running the application. Testing is not like frosting on the cake, but it is sugar or flour which needs to bake when we are preparing the cake not in the end. This is also same issue with automation testing.
 
-- We should break into code into two type of classes, one which have business logic and others which make stuffs. Don’t combine both classes.
+- We should break into code into two type of classes, one which have business logic and others which make stuffs. Don't combine both classes.
 
 - Benefits of unit testing – higher quality, fewer defects, living documentation, well-crafted code, automatic regression harness. A unit test confirms functionality of a small unit of functionality or component in a larger system.
 
@@ -2104,7 +2104,7 @@ Innovation is more like a system or network not a single moment.
   Assert.IsNotNull(person.fullName);
   ```
 
-- Stubs – it is a minimal implementation of a class that likely implements a given interface or some abstract base class. It doesn’t maintain state and leaves method unimplemented like it just return some hard-code value directly:
+- Stubs – it is a minimal implementation of a class that likely implements a given interface or some abstract base class. It doesn't maintain state and leaves method unimplemented like it just return some hard-code value directly:
 
   ```typescript
   public class StubRepo: IOwnerRepository
@@ -2122,9 +2122,9 @@ Innovation is more like a system or network not a single moment.
 
 ![unit-testing-acceptance-testing-progress-report](./images/unit-testing-acceptance-testing-progress-report.png)
 
-- Prudent code coverage – 100% code coverage doesn’t mean no defects. Use code coverage as a developer tool not a performance metric. Let the code coverage find things that are important enough to add test, but realize that it is only contextually important and it is very rare that we need to strive for any sort of code coverage numbers up around 90 and 100%.
+- Prudent code coverage – 100% code coverage doesn't mean no defects. Use code coverage as a developer tool not a performance metric. Let the code coverage find things that are important enough to add test, but realize that it is only contextually important and it is very rare that we need to strive for any sort of code coverage numbers up around 90 and 100%.
 
-- Devi’s advocate, Gollum style and Ping Pong technique to write unit test case:
+- Devi's advocate, Gollum style and Ping Pong technique to write unit test case:
 
 ![unit-testing-devils-advocate](./images/unit-testing-devils-advocate.png)
 
@@ -2134,9 +2134,9 @@ Innovation is more like a system or network not a single moment.
 
 - It is not creation of millions of objects that keep application from being efficient but it is rather the efficiency of methods that we are executing that may make it slow. So, we can create many objects using immutable objects without causing any performance issue.
 
-- We should only throw exception if there is no way for the application to continue working under circumstances, otherwise implement different use case as-well. Also, don’t handle the exception in immediate caller but at the top most caller, the one which initiated the whole operation, by this the lower parts of the code will be clean from complicated error handling code, they will focus on normal control flow. We can handle this by showing a pop-up to user, retry the function or simply ignoring the error and moving forward. While using the immutable objects try to keep them small.
+- We should only throw exception if there is no way for the application to continue working under circumstances, otherwise implement different use case as-well. Also, don't handle the exception in immediate caller but at the top most caller, the one which initiated the whole operation, by this the lower parts of the code will be clean from complicated error handling code, they will focus on normal control flow. We can handle this by showing a pop-up to user, retry the function or simply ignoring the error and moving forward. While using the immutable objects try to keep them small.
 
-- While designing a class it should contains operations which naturally belongs to the class, if operation doesn’t belong to a class the move it out to a dependency and use the dependency to complete the operation.
+- While designing a class it should contains operations which naturally belongs to the class, if operation doesn't belong to a class the move it out to a dependency and use the dependency to complete the operation.
 
 - Marble testing is a technique where we draw marble diagrams using ACSII characters while writing unit test to visualize asynchronous observables behavior in a synchronous way. Benefits of marble testing – readable code, test synchronously and helps to find out race condition in our code. Marble syntax - -, |, #, ^, !, a, ()
 
@@ -2163,7 +2163,7 @@ Innovation is more like a system or network not a single moment.
 
 - In integration test we test component and its template together. In integration if we only test parent component then it becomes shallow integration test otherwise if we also test its working with its child or directive component then it becomes deep integration test.
 
-- To write the integration test to test the template along with component, we need to use the ‘Testbed’.
+- To write the integration test to test the template along with component, we need to use the 'Testbed'.
 
 - A component fixture is a wrapper for component that also has few extra properties for testing, we can use its one of the properties called componentInstance to get the instance of the component itself.
 
@@ -2194,7 +2194,7 @@ x-xss-protection: 1; report=https://report.uri.com/xss/enforce
 
 - XML external entities (XXE) – SAST static source code analysis (manual code reviews), we can also use DAST tool for testing.
 
-- Broken access control – IDOR, indirect object references, where we can twiddle a value in the URL to get someone else’s data. We should test access control so that we can’t do things outside of our privilege level.
+- Broken access control – IDOR, indirect object references, where we can twiddle a value in the URL to get someone else's data. We should test access control so that we can't do things outside of our privilege level.
 
 - Security Misconfiguration – weak ciphers, SSL problems, we can use tools to check them.
 
@@ -2229,7 +2229,7 @@ Status Code: 307 Internal Redirect
 Non-Authoritative-Reason: HSTS
 ```
 
-- Using HSTS (HTTP Strict Transport Security) – it will tell the browser you may not make an insecure request. Internally within the browser, you need to redirect or effectively go and make that request securely. That’s it also took only fraction of millisecond for first request with 307 status code, so by this the man in the middle won’t see this first request but the second request only.
+- Using HSTS (HTTP Strict Transport Security) – it will tell the browser you may not make an insecure request. Internally within the browser, you need to redirect or effectively go and make that request securely. That's it also took only fraction of millisecond for first request with 307 status code, so by this the man in the middle won't see this first request but the second request only.
 
 ```typescript
 Strict-Transport-Security: max-age=31536000; includeSubdomains; preload
@@ -2243,11 +2243,11 @@ Strict-Transport-Security: max-age=31536000; includeSubdomains; preload
 
 - Getting new certificate and renewing it has very less cost involved. We can use letsencrypt.org for free certificate authority. We can use `cerbot.eff.org` for automatically renewal of the certificates.
 
-- To avoid enumeration risk, show below message when login failed, like a generic message, don’t say that user doesn’t exist:
+- To avoid enumeration risk, show below message when login failed, like a generic message, don't say that user doesn't exist:
 
 ![security-avoid-enumeration-risk](./images/security-avoid-enumeration-risk.png)
 
-- Even in below case, if user type unavailable password then don’t show that it doesn’t exist, as we don’t want to show presence of a user on our system:
+- Even in below case, if user type unavailable password then don't show that it doesn't exist, as we don't want to show presence of a user on our system:
 
 ![security-avoid-enumeration-risk2](./images/security-avoid-enumeration-risk2.png)
 
@@ -2275,7 +2275,7 @@ Strict-Transport-Security: max-age=31536000; includeSubdomains; preload
 X-Frame-Options: Deny
 ```
 
-- The frame-ancestors – to avoid click jacking attacks. Attacker would embed the targeting website in his website into an iframe, then making that target website transparent putting content the attacker provides under the target website and enticing the user to click what they think is a button the attacker’s website but instead clicking a button on the target website. We can avoid this by this header so that our websites won’t be framed into some other website.
+- The frame-ancestors – to avoid click jacking attacks. Attacker would embed the targeting website in his website into an iframe, then making that target website transparent putting content the attacker provides under the target website and enticing the user to click what they think is a button the attacker's website but instead clicking a button on the target website. We can avoid this by this header so that our websites won't be framed into some other website.
 
 ```typescript
 frame-ancestors: 'none';
@@ -2287,7 +2287,7 @@ frame-ancestors: 'none';
 
 - Non-standard and browser prefixed headers – headers started with X was browser specific and has been deprecated now – X-Content-Security-Policy, X-WebKit-CSP, X-Frame-Options, X-XSS-Protection.
 
-- HTTP Public Key Pinning (HPKP) - This is progression over HSTS, which tells the website must also serve a particular certificate that the browser expects, not just on that’s valid but one that adheres to a very specific set of criteria, to avoid a scenario where certificate authority itself gets compromised.
+- HTTP Public Key Pinning (HPKP) - This is progression over HSTS, which tells the website must also serve a particular certificate that the browser expects, not just on that's valid but one that adheres to a very specific set of criteria, to avoid a scenario where certificate authority itself gets compromised.
 
 ```typescript
 Public-Key-Pins: pin-sha256=[pin 1]; pin-sha256=[pin 2]; max-age=2592000; report-uri=[uri];includeSubdomains
@@ -2303,31 +2303,31 @@ Public-Key-Pins: pin-sha256=[pin 1]; pin-sha256=[pin 2]; max-age=2592000; report
 
 - Email as username vs. free text for username for uniqueness – we should prefer email as username. Email as username is easier to remember, one less field to capture at sign-up, it is already unique per user, must be able to change in future. Free text for username can be displayed to user with less privacy risk, enable multiple accounts against one email, requires a "retrieve my username feature".
 
-- Password strength criteria – don’t limit the max entry criteria, also don’t put any condition for not having special characters, don’t discriminate with some character, allow user to pass any character. Pass phrases are stronger. We can use utility like 1password to generate password and saving it into centralize place.
+- Password strength criteria – don't limit the max entry criteria, also don't put any condition for not having special characters, don't discriminate with some character, allow user to pass any character. Pass phrases are stronger. We can use utility like 1password to generate password and saving it into centralize place.
 
 - We can also make backend call to check whether password is very simple to crack, then show as invalid like below, we can check it with bad list of passwords.
 
-- Don’t disable the password paste option on the field. People disable it to avoid brute force attack, but disabling the paste option, make the other worst problems like bad UX. To solve a problem, if that solution makes the problem worse than it is called as cobra effect.
+- Don't disable the password paste option on the field. People disable it to avoid brute force attack, but disabling the paste option, make the other worst problems like bad UX. To solve a problem, if that solution makes the problem worse than it is called as cobra effect.
 
-- Verifying accounts via Email to avoid entering fake and corrupted emails, as user can use any random or someone else email’s id.
+- Verifying accounts via Email to avoid entering fake and corrupted emails, as user can use any random or someone else email's id.
 
-- Don’t lock an account out as it will lead to DoS (denial of service) attack. We should degrade the service and log everything. Don't lock an account out, restrict logon by IP and limit attempts with a cookie.
+- Don't lock an account out as it will lead to DoS (denial of service) attack. We should degrade the service and log everything. Don't lock an account out, restrict logon by IP and limit attempts with a cookie.
 
-- Remember Me - This feature frequently implemented insecurely, by using user name and password in cookie and using it for re-login. It is a feature which requires trade-offs: security versus usability. It can disclose the credential of a user. It reduces the fiction of return visits for frequently used services like stackoverflow.com. It allows long-running sessions. But it increases numerous risks – someone else using the PC, a CSRF risk being exploited, if someone has access to unlocked machine. To make available this feature, it depends upon the nature of the application. We can give this option just for remembering the Client ID not password for sensitive websites, but this is not a remember me feature completely as it won’t do the auto login when user comes back to the website
+- Remember Me - This feature frequently implemented insecurely, by using user name and password in cookie and using it for re-login. It is a feature which requires trade-offs: security versus usability. It can disclose the credential of a user. It reduces the fiction of return visits for frequently used services like stackoverflow.com. It allows long-running sessions. But it increases numerous risks – someone else using the PC, a CSRF risk being exploited, if someone has access to unlocked machine. To make available this feature, it depends upon the nature of the application. We can give this option just for remembering the Client ID not password for sensitive websites, but this is not a remember me feature completely as it won't do the auto login when user comes back to the website
 
-- If we have expiry as ‘session’, then if we close the browser and reopen it, we won’t be able to logged on, the cookie will go away. If we use remember me feature, then it will have one more cookie for expiry of 1 year, it will not go away and reauthenticate the user again automatically. To implement it securely, don’t create remember me cookie, just change the auth token cookie from session scope to sometime duration scope like for a week, also mark http and secure flag as true. Additional security controls – like ebay we can choose an approach where we are breaking the cookie into two parts, first for user identity for long expiration time, and another cookie which requires for financial activity for short duration and re-authenticate user for the financial activity only.
+- If we have expiry as 'session', then if we close the browser and reopen it, we won't be able to logged on, the cookie will go away. If we use remember me feature, then it will have one more cookie for expiry of 1 year, it will not go away and reauthenticate the user again automatically. To implement it securely, don't create remember me cookie, just change the auth token cookie from session scope to sometime duration scope like for a week, also mark http and secure flag as true. Additional security controls – like ebay we can choose an approach where we are breaking the cookie into two parts, first for user identity for long expiration time, and another cookie which requires for financial activity for short duration and re-authenticate user for the financial activity only.
 
 - How attackers change account details – direct browser access, credential theft, CSRF, session hijacking (sending session on HTTP connection on in query strings), social engineering.
 
-- Account attributes attackers want to change – password, email, identity, credit card, attackers can chain together these many information and processes in order to gain access to a victim’s account.
+- Account attributes attackers want to change – password, email, identity, credit card, attackers can chain together these many information and processes in order to gain access to a victim's account.
 
 - To change the password or email, we should also ask the current password as-well, also keep change password feature on its own page
 
 - Account change notification – to cater a scenario where attacker already got the access for legitimate password, we need to notify the changes on different channel as-well like email or SMS. We should not allow to change the email address without first confirming via the original email address on the account. But if user not have access to original email then it will be a problem, then we can solve this by directing to manual human interaction at support desk.
 
-- The risk of password hints – don’t use password hint in any circumstances.
+- The risk of password hints – don't use password hint in any circumstances.
 
-- Why logging off is important – due to remember me we can have a long running session – also in browser if we choose below feature, then browser won’t delete the cookie after browser gets closed browser even if we don’t use remember me feature, so to avoid this we need to provide explicitly logoff functionality.
+- Why logging off is important – due to remember me we can have a long running session – also in browser if we choose below feature, then browser won't delete the cookie after browser gets closed browser even if we don't use remember me feature, so to avoid this we need to provide explicitly logoff functionality.
 
 - What constitutes of logging off – it removes the authentication token, by setting remember me token as empty and setting cookie expiry one day ago already.
 
@@ -2357,7 +2357,7 @@ Public-Key-Pins: pin-sha256=[pin 1]; pin-sha256=[pin 2]; max-age=2592000; report
 
 ![security-oauth-architecture](./images/security-oauth-architecture.png)
 
-- OpenID connect means the application doesn’t need to connect with back-end service, but it needs to know who the user is. It is for authentication.
+- OpenID connect means the application doesn't need to connect with back-end service, but it needs to know who the user is. It is for authentication.
 
 - OpenID Connect - It is built on top of OAuth2, and sometime we just need authentication at least to begin with to identify user in an application. OAuth2 is regularly abused for that.
 
@@ -2387,7 +2387,7 @@ Public-Key-Pins: pin-sha256=[pin 1]; pin-sha256=[pin 2]; max-age=2592000; report
 
 - We should re-authenticate the user before key actions, like asking current password on change password screen.
 
-- Unlike browser, mobile app doesn’t have secure paddle lock icon, as mobile app doesn’t run in browser. The mobile app, company itself handle the client communication, so we should not always trust the mobile apps.
+- Unlike browser, mobile app doesn't have secure paddle lock icon, as mobile app doesn't run in browser. The mobile app, company itself handle the client communication, so we should not always trust the mobile apps.
 
 - We can have two types of certificates DV and AV. Below is an AV certificate, it requires a business name also need to be registered.
 
@@ -2399,13 +2399,13 @@ Public-Key-Pins: pin-sha256=[pin 1]; pin-sha256=[pin 2]; max-age=2592000; report
 
 - By using Wi-Fi Pineapple and LAN Tap, we can monitor the traffic even for those devices which makes hard to proxy traffic like IOT devices.
 
-- Discovering leaky API’s – we should not return sensitive data from the web API in normal text form, also don’t return the data which is not need or non-essentials data on client side
+- Discovering leaky API's – we should not return sensitive data from the web API in normal text form, also don't return the data which is not need or non-essentials data on client side
 
 - Configuring fiddler to decrypt encrypted connections – it will install its root certificate on our windows machine, by this we just compromised our system (PC) only.
 
 - LDAP kept our user directory together, assign roles and query information about the user.
 
-- The idea of OAuth2 is how we can create valet parking key, not the master key. By which a resource owner gives the client a key to access the resources on the resource’s behalf, without giving the client master key aka the password.
+- The idea of OAuth2 is how we can create valet parking key, not the master key. By which a resource owner gives the client a key to access the resources on the resource's behalf, without giving the client master key aka the password.
 
 - Security tokens are protected data structures, contain information about issuer and subject, signed and typically contain an expiration time. A client requests a token, an issuer issues a token and a resource like API consumes a token, that resource has a trust relationship with the issuer.
 
@@ -2435,7 +2435,7 @@ Public-Key-Pins: pin-sha256=[pin 1]; pin-sha256=[pin 2]; max-age=2592000; report
 
 - Focusable elements – links, buttons, form elements – text input, text area, select, checkboxes, radio buttons.
 
-- On the website load, the first tab should go to the ‘skip link’, it generally skips the site navigation or repetitive contents.
+- On the website load, the first tab should go to the 'skip link', it generally skips the site navigation or repetitive contents.
 
 - In radio button, if a radio is selected then we need to use the arrows to move around other options, but if none is selected then we can use tab key to move around other options. It is called widget navigation where too many focusable elements on a control, it provides skip links functionality.
 
@@ -2453,7 +2453,7 @@ Public-Key-Pins: pin-sha256=[pin 1]; pin-sha256=[pin 2]; max-age=2592000; report
 
 - The email field should have autocomplete attribute as `email`.
 
-- The WCAG (web content accessibility guidelines) measure to accessibility of a website. Level A, Level AA, Level AAA. Who benefits – who only has one arm so can’t operate mouse, only the keyboard, a person who is blind so uses a screen reader, a person who has dexterity problem, can’t click on a small item, uses keyboard if she is struggling with the mouse.
+- The WCAG (web content accessibility guidelines) measure to accessibility of a website. Level A, Level AA, Level AAA. Who benefits – who only has one arm so can't operate mouse, only the keyboard, a person who is blind so uses a screen reader, a person who has dexterity problem, can't click on a small item, uses keyboard if she is struggling with the mouse.
 
 - Basic commands on form which can be interacted with like button, link and input controls, they are called focusable elements, pressing enter on that link or button should activate it. Space bar is used to toggle a checkbox and open a select control. Up and down arrows are used to scrolling the page or scroll through select component.
 
@@ -2471,13 +2471,13 @@ Public-Key-Pins: pin-sha256=[pin 1]; pin-sha256=[pin 2]; max-age=2592000; report
 
 - Every transition or animation should have purpose. When everything is just flashing and sliding around all over the page, it is not good for anyone, it makes user sick. We should provide an option to the user to disable animations.
 - Images are inaccessible so we need to use alt attribute to provide description of content of the image.
-- Aria roles is about filing the gap between what is available and the semantics of the code that we are using and what’s actually occurring in our rich internet applications.
+- Aria roles is about filing the gap between what is available and the semantics of the code that we are using and what's actually occurring in our rich internet applications.
 
 - ARIA states – describe dynamic states and changed with JavaScript: aria-busy, aria-disabled, aria-grabbed, aria-hidden, aria-invalid.
 
 - For forms the spacebar should activates controls and the enter key should submit the default action of the form.
 
-- We should only use custom elements, widgets and ARIA when we either do not have an HTML equivalent control or when we absolutely cannot use the existing control because it doesn’t have the functionality that we need.
+- We should only use custom elements, widgets and ARIA when we either do not have an HTML equivalent control or when we absolutely cannot use the existing control because it doesn't have the functionality that we need.
 
 - Software has to work and be easy and enjoyable to work. User can easily and quickly accomplish their tasks.
 
@@ -2507,11 +2507,11 @@ Public-Key-Pins: pin-sha256=[pin 1]; pin-sha256=[pin 2]; max-age=2592000; report
 
 - Types of industry - Finance, Education, Retail, Healthcare, Business & IT Services, Research & Development, Government and Defense.
 
-- In natural world there is no monochrome except blue sky overhead on a clear day, even sky is a gradient. So, while creating UI component use gradient from light to dark as top down lighting bias to makes the screen appear as more natural not as artificial monochrome. And the gradient shouldn’t be noticeable and flashy
+- In natural world there is no monochrome except blue sky overhead on a clear day, even sky is a gradient. So, while creating UI component use gradient from light to dark as top down lighting bias to makes the screen appear as more natural not as artificial monochrome. And the gradient shouldn't be noticeable and flashy
 
 - Instead of rectangle design, we should use curves. Humans usually prefer curved things over sharp-edged things – curved connotes safety, sharp-edged connotes danger. Curve soften the design and less stressful.
 
-- We should bring the UI element on screen on more gradual way and move that from one place to another in gradual way too or changing the size. Using animation as it feels more natural and don’t surprise or confuse user. While changing the screen from one to another also try to implement a subtle animation. Animation also help in maintaining context.
+- We should bring the UI element on screen on more gradual way and move that from one place to another in gradual way too or changing the size. Using animation as it feels more natural and don't surprise or confuse user. While changing the screen from one to another also try to implement a subtle animation. Animation also help in maintaining context.
 
 - When an action is not appropriate, prevent the user from doing it, provide a visual signal that the action is not available, like disabling a button instead of allowing it to click and showing error message or any popup.
 
@@ -2558,7 +2558,7 @@ Public-Key-Pins: pin-sha256=[pin 1]; pin-sha256=[pin 2]; max-age=2592000; report
 
 - Installing extension locally – copy your extension to the VS code extension directory. (windows - `%USERPROFILE%\.vscode\extensions`)
 
-- We should use arrows one way and two accordingly and shapes doesn’t represent any meaning, we just need to be consistent in shapes.
+- We should use arrows one way and two accordingly and shapes doesn't represent any meaning, we just need to be consistent in shapes.
 
 - We should have a key section to define the meaning of different attributes used in the diagrams
 
@@ -2579,7 +2579,7 @@ Public-Key-Pins: pin-sha256=[pin 1]; pin-sha256=[pin 2]; max-age=2592000; report
 
 ![architectural-flow-diagram](./images/architectural-flow-diagram.png)
 
-- The Persona Diagram - It is important to show that your architecture solves the business problem. A persona diagram describes a chronological view and actors in a particular workflow. This is your best tool for proving that you’ve taken the business into consideration when developing your solution.
+- The Persona Diagram - It is important to show that your architecture solves the business problem. A persona diagram describes a chronological view and actors in a particular workflow. This is your best tool for proving that you've taken the business into consideration when developing your solution.
 
 ![architectural-personal-diagram](./images/architectural-personal-diagram.png)
 
@@ -2615,7 +2615,7 @@ Public-Key-Pins: pin-sha256=[pin 1]; pin-sha256=[pin 2]; max-age=2592000; report
 
 - Git was developed by Linus Torvalds for managing the Linux kernel. It can be used offline and online for doing all the related operations. We can push or pull our changes after connecting with the network. Git is actually a bunch of individual scripts, most of which are written in Perl.
 
-- Other source code control system works with files, but Git works with content. When we say add to a file, it takes a snapshot of that, adds that to the index and then that’s what gets committed. We can fake this file based thing by saying Git commit –a, this commands stage any changes that are in the whole project right now, add those and do commits.
+- Other source code control system works with files, but Git works with content. When we say add to a file, it takes a snapshot of that, adds that to the index and then that's what gets committed. We can fake this file based thing by saying Git commit –a, this commands stage any changes that are in the whole project right now, add those and do commits.
 
 - The Git commands are called porcelain commands. At core Git is simply a map (a table with keys and values), a simple structure that maps keys to values. This structure is persistent and stored on our disk. Values are content of file, when we give values Git will calculate a key for us i.e. a SHA1 hash.
 
@@ -2623,7 +2623,7 @@ Public-Key-Pins: pin-sha256=[pin 1]; pin-sha256=[pin 2]; max-age=2592000; report
 
 - Detached Head – it is a situation when we checkout a commit. Then the head will refer to that commit, not the current branch. Git also runs a garbage collection like in below scenario, if we wanted to avoid that then we must create a branch which will refer to these isolated commits.
 
-- By using tags, we can tag a commit with a tag name. The command can be git tag –a dinner. The tag information saved into tags folder inside ref folder. Tag is also just a reference to an object just like branch but it doesn’t move. On a new commit, the current branch will move not the tag.
+- By using tags, we can tag a commit with a tag name. The command can be git tag –a dinner. The tag information saved into tags folder inside ref folder. Tag is also just a reference to an object just like branch but it doesn't move. On a new commit, the current branch will move not the tag.
 
 - Git Fork – it is kind of like clone, but it is a remote clone. By this we are cloning the project from someone else account to our GitHub account, and then we clone it from out account to our local machine. Upstream – to track the changes to the original project, then we need to add another remote point at it. It is called upstream. We can pull and push the changes to our account project, but only do pull from the upstream original account. We can send a pull request to this original account maintainer to pull our changes.
 
@@ -2633,7 +2633,7 @@ Public-Key-Pins: pin-sha256=[pin 1]; pin-sha256=[pin 2]; max-age=2592000; report
 
 - Recovering deleted commits – we can recover this dangling commit, we need to get back the value of SHA1 using commands reflog, and fsck.
 
-- Reverting commits – use command git revert #commit SHA1. Be careful while reverting the reverting a merge. Revert doesn’t mean undo operation.
+- Reverting commits – use command git revert #commit SHA1. Be careful while reverting the reverting a merge. Revert doesn't mean undo operation.
 
 - Peer to Peer Model -
 
@@ -2701,7 +2701,7 @@ Public-Key-Pins: pin-sha256=[pin 1]; pin-sha256=[pin 2]; max-age=2592000; report
 
 - Use `_` for italics, `**` for bold, ` `` ` for code words. Use `_` for unordered list and `#` for numeric list.
 
-- Artifact are the result of the build, if this process of creating artifacts doesn’t require any person to do anything for it to happen, other than make the change to source control, the you have continuous integration. If it also gets deployed automatically then I become continuous deployment as well.
+- Artifact are the result of the build, if this process of creating artifacts doesn't require any person to do anything for it to happen, other than make the change to source control, the you have continuous integration. If it also gets deployed automatically then I become continuous deployment as well.
 
 ![markdown-cd-ci](./images/markdown-cd-ci.png)
 
@@ -2711,7 +2711,7 @@ Public-Key-Pins: pin-sha256=[pin 1]; pin-sha256=[pin 2]; max-age=2592000; report
 
 - Writing process - plan -> research -> write -> review/edit -> launch
 
-- Don’t be vague but be simple and user friendly. Don’t use passive sentence but use active sentences:
+- Don't be vague but be simple and user friendly. Don't use passive sentence but use active sentences:
 
 ![markdown-writing-tips1](./images/markdown-writing-tips1.png)
 
@@ -2878,7 +2878,7 @@ console.log(root);
 
 - Standard Bodies for HTML – W3C, WHATWG, ECMASCRIPT
 
-- Inbuilt APIs - Elements with API – canvas, audio, video, Forms element – meter, progress, math, data-list, New JavaScript APIs – canvas, web animations, Interaction, events and messaging APIs - battery status, clipboard API and events, cross document messaging, device and screen orientation, full screen, geo-location, media capture, notifications, touch events, vibration, Storage and files APIs – Blob URL’s File API, File Reader, IndexedDB, Local Storage, Real time communication APIs – Push API, server sent events, web sockets
+- Inbuilt APIs - Elements with API – canvas, audio, video, Forms element – meter, progress, math, data-list, New JavaScript APIs – canvas, web animations, Interaction, events and messaging APIs - battery status, clipboard API and events, cross document messaging, device and screen orientation, full screen, geo-location, media capture, notifications, touch events, vibration, Storage and files APIs – Blob URL's File API, File Reader, IndexedDB, Local Storage, Real time communication APIs – Push API, server sent events, web sockets
 
 - Fallbacks and Polyfills – fall back is to provide similar functionality as a native feature but maybe just with a different API. A Polyfills, on the other hand, is meant to replicate the exact same interface as well as functionality as how the native implementation would be built in the browser. For this use <www.html5please.com> website.
 
@@ -2916,7 +2916,7 @@ console.log(root);
 
 ![html-history-of-css](./images/html-history-of-css.png)
 
-CSS is the styling mechanism for the web. It is a standard of selectors, properties and attributes. As it is just a standard so it doesn’t do anything, it just tells the people of created the web browsers how to interpret the CSS language and how to style HTML with it.
+CSS is the styling mechanism for the web. It is a standard of selectors, properties and attributes. As it is just a standard so it doesn't do anything, it just tells the people of created the web browsers how to interpret the CSS language and how to style HTML with it.
 
 - History of JavaScript
 
@@ -2928,7 +2928,7 @@ CSS is the styling mechanism for the web. It is a standard of selectors, propert
 
 - For checkbox and radio box, wrapped them into `<legend>` and `<fieldset>` tags
 
-- Disabled field doesn’t get included into form data submit, but read-only field will be included. Generally, we use read-only if that user has filled its value in previous page and we don't allow to edit it on current page.
+- Disabled field doesn't get included into form data submit, but read-only field will be included. Generally, we use read-only if that user has filled its value in previous page and we don't allow to edit it on current page.
 
 - ID vs Class attributes – use class attribute for styling instead of id.
 
@@ -2938,7 +2938,7 @@ CSS is the styling mechanism for the web. It is a standard of selectors, propert
 
 - The full form of SASS is syntactically awesome stylesheets.
 
-- SASS has two different syntax, the original SASS syntax a bit different from CSS. It essentially removes the curly braces and semicolons from CSS, and it relies on white space. Because of this we can’t take a CSS spreadsheet and change the extension and treat it as SASS. So, for exiting projects with large CSS stylesheet porting to SASS is problematic. Due to this an alternative syntax has been developed by name SCSS. SASS is built on Ruby, LESS and Stylus built on Node.
+- SASS has two different syntax, the original SASS syntax a bit different from CSS. It essentially removes the curly braces and semicolons from CSS, and it relies on white space. Because of this we can't take a CSS spreadsheet and change the extension and treat it as SASS. So, for exiting projects with large CSS stylesheet porting to SASS is problematic. Due to this an alternative syntax has been developed by name SCSS. SASS is built on Ruby, LESS and Stylus built on Node.
 
 - Responsive Page - text, images, buttons size become large/small, also page layout changes based on screen size changes. We can use media queries for it
 - Cookies are just additional pieces of information that the server asks the browser to store and send back to the server with every request. But now local storage is preferred. These generally stores authentication and configuration related information which server needs to see in any request. In JavaScript object we can define properties that are functions, in JSON functions are not a legal property.
@@ -2949,7 +2949,7 @@ CSS is the styling mechanism for the web. It is a standard of selectors, propert
 
 - We will use the service worker to cache the app shell. The cache API is a cache storage for requests and responses, it is a pre-requisite for service workers. It stores values in key value pairs, and available from window scope and service worker scope. Like below it will cache the entire request and response.
 
-- Web worker – a script running int the background. It initiated from the main document, runs separately from main document and doesn’t have access to the DOM. It is often used as a programmable network proxy which lets you control incoming and outgoing network request. We can combine it with the cache API to serve requests from the cache. Specially if network request fails from server, it can handle it
+- Web worker – a script running int the background. It initiated from the main document, runs separately from main document and doesn't have access to the DOM. It is often used as a programmable network proxy which lets you control incoming and outgoing network request. We can combine it with the cache API to serve requests from the cache. Specially if network request fails from server, it can handle it
 
 ![html-service-worker-life-cycle](./images/html-service-worker-life-cycle.png)
 
@@ -2961,9 +2961,9 @@ CSS is the styling mechanism for the web. It is a standard of selectors, propert
 
 - Browser cache, if files are already in browser cache then it will not make request to sever for them. In application, all the cache files will be in grouped to a single manifest file. We should not mix browser caching and application caching. In browser, we can specify when a file will be expired, but in application cache we can only send updated files if we change the manifest file.
 
-- Web storage comes in two flavour in local storage and session base. Security is per session and per domain. Capacity is between 2 to 10 MB. Web storage is client only (don’t need to send every time to the server) and larger capacity unlike cookies. It has simple API, key/value pair and widespread availability.
+- Web storage comes in two flavour in local storage and session base. Security is per session and per domain. Capacity is between 2 to 10 MB. Web storage is client only (don't need to send every time to the server) and larger capacity unlike cookies. It has simple API, key/value pair and widespread availability.
 
-- Two types – dedicated (linked to browser that spawned the worker so it has a very tight relationship), shared (runs in the background and basically any script that’s running within that domain can send messages to that worker. It is largely unimplemented in browser currently.).
+- Two types – dedicated (linked to browser that spawned the worker so it has a very tight relationship), shared (runs in the background and basically any script that's running within that domain can send messages to that worker. It is largely unimplemented in browser currently.).
 
 - The data which is stored in a sandbox so if website A creates it then it cannot be access by website B. local storage will work as session storage if working in private mode. Data is serialized to file system in a hard drive outside of the browser. It is synchronous.
 - Browser represent a web page in memory is through the document object model.
@@ -2974,7 +2974,7 @@ CSS is the styling mechanism for the web. It is a standard of selectors, propert
 
 - Why should we structure our text – users can get to information quickly, enables accessibility tools to understand information, enables browsers to style the content, helps search engines to understand content.
 
-- The term progressive enhancement refers to the use of newer features that add to the experience in modern browsers that support those features, but doesn’t detract from the experience in older browsers.
+- The term progressive enhancement refers to the use of newer features that add to the experience in modern browsers that support those features, but doesn't detract from the experience in older browsers.
 - URL part composition
 
 ![html-url-parts-composition](./images/html-url-parts-composition.png)
@@ -3021,7 +3021,7 @@ CSS is the styling mechanism for the web. It is a standard of selectors, propert
 
 - By default, if the element is inside a container and we apply absolute on the element then it will relative to the body top left corner, but if we apply absolute on the container as well then it will be relative to that container.
 
-- Relative Positioning - in this, other elements do not ignore its width and height. It doesn’t take out from the document flow. The original space will be maintained. The bottom: 0 value will make it to stay as it is because the bottom will be the same bottom of the element unlike absolute which will move it to the bottom of the window. And setting the position of the container element as relative does nothing at all unlike absolute positioning. If we have container with relative positioning and element as absolute, then the element will be relative to the container.
+- Relative Positioning - in this, other elements do not ignore its width and height. It doesn't take out from the document flow. The original space will be maintained. The bottom: 0 value will make it to stay as it is because the bottom will be the same bottom of the element unlike absolute which will move it to the bottom of the window. And setting the position of the container element as relative does nothing at all unlike absolute positioning. If we have container with relative positioning and element as absolute, then the element will be relative to the container.
 
 - Z-index – it allows us to control the stacking order of the elements. It will start from the negative value -1 and all the way up to highest z-index value.
 
@@ -3065,13 +3065,13 @@ CSS is the styling mechanism for the web. It is a standard of selectors, propert
 
 - We use use SVG images wherever possible.
 
-- Lossy optimizer and lossless optimizer: the lossless compression will remove lots of metadata/properties information from the file without affecting its visual quality unlike lossy which don’t remove the metadata info but other data related to visual looks.
+- Lossy optimizer and lossless optimizer: the lossless compression will remove lots of metadata/properties information from the file without affecting its visual quality unlike lossy which don't remove the metadata info but other data related to visual looks.
 
 - Use radio buttons for less than 5 options, use dropdown for more than 5 options.
 
 - CSS is crafted to be simple, but scaling simplicity is difficult. It is Sass not SASS, full form is syntactically awesome stylesheets. Its extension is “.scss”.
 
-- We should follow mobile first approach, then add media queries rules medium and large screen as required. So, we don’t have to add media queries in CSS reset and small screen. Due to this maximum CSS style rules will in small.css, then fewer in medium.css and few in large.css:
+- We should follow mobile first approach, then add media queries rules medium and large screen as required. So, we don't have to add media queries in CSS reset and small screen. Due to this maximum CSS style rules will in small.css, then fewer in medium.css and few in large.css:
 
 ![css-mobile-first-approach-style-files](./images/css-mobile-first-approach-style-files.png)
 
@@ -3085,7 +3085,7 @@ CSS is the styling mechanism for the web. It is a standard of selectors, propert
 
 - When not to use flexbox – they are good for simple layout where we can control over the components. But they are not meant for complex application grid systems. Better suited for individual components. So, should use more CSS grids instead of flexbox on entire page. Flexbox provide limited control over order. CSS grids provides better control over text layouts.
 
-- The Origins of Styling Scroll - 1920’s cartoons are the earlier example of scrolling effect, often used when character was walking. In 1980’s video games used the same technique as cartoons but added triggers which increase interest. Web designers began using parallax scrolling in 2011, Early design used only 2 layers.
+- The Origins of Styling Scroll - 1920's cartoons are the earlier example of scrolling effect, often used when character was walking. In 1980's video games used the same technique as cartoons but added triggers which increase interest. Web designers began using parallax scrolling in 2011, Early design used only 2 layers.
 
 - Responsive design got started when Steve Jobs launched iPhone in 2007 with web browser. Four mobile strategy - ignore them, build a seperate mobile web site, build an app for the apple store, build a responsive site
 
@@ -3116,11 +3116,11 @@ CSS is the styling mechanism for the web. It is a standard of selectors, propert
 
 ![css-anatomy-of-a-typeface](./images/css-anatomy-of-a-typeface.png)
 
-- Hyphenation – dividing words at the end of a line. Doesn’t look clean. No clear advantage. On digital application do not hyphenate.
+- Hyphenation – dividing words at the end of a line. Doesn't look clean. No clear advantage. On digital application do not hyphenate.
 
 ![css-hyphenation](./images/css-hyphenation.png)
 
-- Don’t put indent first paragraph in digital world –
+- Don't put indent first paragraph in digital world –
 
 ![css-indent](./images/css-indent.png)
 
@@ -3146,9 +3146,9 @@ CSS is the styling mechanism for the web. It is a standard of selectors, propert
 
 - Different ways to represent colors – RGB, CYMK, HSL, HSV and Pantone. RGB rules the world.
 
-- Choosing an image format (bitmap, tiff, compressed TIFF, gif, jpeg) only gif and jpeg can be used over the internet. Use gif for illustrations, logs and backgrounds and jpeg for photographs. We don’t use gif for photos because the compression would be lousy and if we use jpeg for illustration then its compression will be lousy.
+- Choosing an image format (bitmap, tiff, compressed TIFF, gif, jpeg) only gif and jpeg can be used over the internet. Use gif for illustrations, logs and backgrounds and jpeg for photographs. We don't use gif for photos because the compression would be lousy and if we use jpeg for illustration then its compression will be lousy.
 
-- Portable network graphics (PiNG) because GIF compression was patented. PiNG (PNG) provides lossless compression means we can save it over and over again without losing information. JPEG still have smaller size than PNG. But PNGs don’t do animation. GIF and PNG can do transparency, JPEG cannot. Transparency allows the color of the parent layer to shine through. So, use PNG unless we are sure you need JPEG, JPEG compression is lossy, don’t use for working copies.
+- Portable network graphics (PiNG) because GIF compression was patented. PiNG (PNG) provides lossless compression means we can save it over and over again without losing information. JPEG still have smaller size than PNG. But PNGs don't do animation. GIF and PNG can do transparency, JPEG cannot. Transparency allows the color of the parent layer to shine through. So, use PNG unless we are sure you need JPEG, JPEG compression is lossy, don't use for working copies.
 
 - Rater vs. vector based images – for vector we use .svg files -
 
@@ -3166,7 +3166,7 @@ CSS is the styling mechanism for the web. It is a standard of selectors, propert
 
 - We can use Cypress to test any web application built on any type of technology. - It has four key folders – fixtures, integrations, support and plugins.
 
-- Best practices – we should avoid using id’s or css classes to select element from the DOM, it will make the test brittle, because those things are likely to change. We should either use data attribute or actual component name itself.
+- Best practices – we should avoid using id's or css classes to select element from the DOM, it will make the test brittle, because those things are likely to change. We should either use data attribute or actual component name itself.
 
 - With Cypress, all related things are available out of the box –
 
@@ -3176,7 +3176,7 @@ CSS is the styling mechanism for the web. It is a standard of selectors, propert
 
 ![cypress-chained-api](./images/cypress-chained-api.png)
 
-- Test commands are executed in a deterministic manner, resulting in flake-free testing. Cypress will automatically wait for this assertion “.should” (4 seconds by default). So we don’t need to write code for wait and sleep until element is ready
+- Test commands are executed in a deterministic manner, resulting in flake-free testing. Cypress will automatically wait for this assertion “.should” (4 seconds by default). So we don't need to write code for wait and sleep until element is ready
 
 - In cypress we can also stub network response with fixtures by using cy.server() command.
 
@@ -3184,11 +3184,11 @@ CSS is the styling mechanism for the web. It is a standard of selectors, propert
 
 - Selenium and similar tools were designed to test applications that require a full-page refresh. Supporting SPAs with Ajax data fetching was an afterthought. This lead to many issues with timing and flakey tests. Tests would sometimes fail due to slow API requests or network latency. Fixing these flakey tests typically required adding sleep statements and increasing timeouts. This made the test code more brittle. Not to mention extremely slow.
 
-- It’s worth mentioning Google’s Puppeteer has inner access to web browser events, allowing us to wait on things like Ajax calls. However, writing tests with Puppeteer requires more initial setup work and more effort to write each test than it should.
+- It's worth mentioning Google's Puppeteer has inner access to web browser events, allowing us to wait on things like Ajax calls. However, writing tests with Puppeteer requires more initial setup work and more effort to write each test than it should.
 
-- Cypress.io is a relatively new framework. It overcomes many shortcomings found in Selenium, Phantom.js, and others before them. It uses an event-based architecture that hooks into Google Chrome’s lifecycle events. This enables it to wait for things like Ajax requests to complete without using a polling/timeout mechanism. This leads to reliable and fast tests. In short, it is truly the future of E2E testing and how it should have been in the first place.
+- Cypress.io is a relatively new framework. It overcomes many shortcomings found in Selenium, Phantom.js, and others before them. It uses an event-based architecture that hooks into Google Chrome's lifecycle events. This enables it to wait for things like Ajax requests to complete without using a polling/timeout mechanism. This leads to reliable and fast tests. In short, it is truly the future of E2E testing and how it should have been in the first place.
 
-- You can run Cypress in two modes: full-mode and headless-mode. The former lets you see your app’s UI and tests performed one step at a time. This mode is excellent for building up your test suite and debugging. The latter is great for a Continuous Integration (CI) environment. Another use case for headless-mode: you just want to make sure you haven’t broken anything with new changes but don’t care about the detailed steps.
+- You can run Cypress in two modes: full-mode and headless-mode. The former lets you see your app's UI and tests performed one step at a time. This mode is excellent for building up your test suite and debugging. The latter is great for a Continuous Integration (CI) environment. Another use case for headless-mode: you just want to make sure you haven't broken anything with new changes but don't care about the detailed steps.
 
 - Headless-mode is useful for running on a Continuous Integration (CI) server like CircleCI. Once you start writing tests more regularly as part of your development, you should invest time in getting a CI server configured so that every git commit runs the entire test suite.
 
@@ -3218,7 +3218,7 @@ CSS is the styling mechanism for the web. It is a standard of selectors, propert
 
 - There are two design pattern while writing the E2E to make it more maintainable and free from future breakage – Page Object Model and App Actions.
 
-- App Actions is an approach where tests directly access the internal implementation of the application under test. It enable changing application’s state without interacting with the application through the UI.
+- App Actions is an approach where tests directly access the internal implementation of the application under test. It enable changing application's state without interacting with the application through the UI.
 
 - Page Object model is a wrapper over a web page and a design pattern where web pages are represented as classes. Encapsulates the mechanics required to interact with the user interface. Second one, is the example for page object. By creating page object classes, it will increase the maintainability, code reusability and readability of our code.
 
@@ -3228,11 +3228,11 @@ CSS is the styling mechanism for the web. It is a standard of selectors, propert
 
 ![cypress-before-and-after](./images/cypress-before-and-after.png)
 
-- While writing the plugins, they run in Cypress background tasks in Node, since they executed in Node not in the browser, we can’t use Cypress syntax while writing plugins code.
+- While writing the plugins, they run in Cypress background tasks in Node, since they executed in Node not in the browser, we can't use Cypress syntax while writing plugins code.
 
 - By using plugins, we can modify or extend the internal behavior of Cypress. We can write our own custom code that executes during different Cypress stages. By this we can also tap into node process running outside the browser. We can also alter the configuration and environment variables or customize how test code is transpired and sent to browser or to manipulate the database.
 
-- Javascript mouse events are easy but CSS mouse events are hard. Cypress can’t easily trigger pseudo-classes like :hover. There are docs and options for this, but it is difficult.
+- Javascript mouse events are easy but CSS mouse events are hard. Cypress can't easily trigger pseudo-classes like :hover. There are docs and options for this, but it is difficult.
 
 - We should not select element by using text. We should use consistent selectors like id, class. Even better, use test-specific attributes like `<div data-cy="myElement"/>`
 
@@ -3409,7 +3409,7 @@ this.quantity.update(v => v.2);
 
 - in service we should use rxjs to get the data from the service but from service we should only expose signals. signals are great for optimizing rendering.
 
-- While ARIA is a powerful tool for enhancing accessibility, it should be used as a last resort. Native semantic HTML elements and attributes are preferred whenever possible, as they provide built-in accessibility features that ARIA does not have to replicate. Always prefer native elements like <button>, <label>, <nav> and <header> over their ARIA counterparts. For example, instead of using role="button" on a <div>, use a <button> element. Speaking about ARIA roles, they define what an HTML element is or how it should behave – when native HTML elements are not applicable. They tell assistive technologies how to interpret an element and its purpose within the page. Roles are particularly useful for custom components that don’t have native semantic meaning.
+- While ARIA is a powerful tool for enhancing accessibility, it should be used as a last resort. Native semantic HTML elements and attributes are preferred whenever possible, as they provide built-in accessibility features that ARIA does not have to replicate. Always prefer native elements like <button>, <label>, <nav> and <header> over their ARIA counterparts. For example, instead of using role="button" on a <div>, use a <button> element. Speaking about ARIA roles, they define what an HTML element is or how it should behave – when native HTML elements are not applicable. They tell assistive technologies how to interpret an element and its purpose within the page. Roles are particularly useful for custom components that don't have native semantic meaning.
 
 - 96% of the detected accessibility issues fall into 6 buckets. Here are the buckets from most to least common:
   - Low-contrast text: 79.1%
@@ -3460,7 +3460,7 @@ disableForm = computed(() => this.formInvalid() || this.formPending());
 
 - After 10 failed attempts, automatically wipe device (optional for highly sensitive use).
 
-Angular’s recent changes are moving in the "don’t rebuild the browser, use the browser" direction that the “SPA Is Dead” article talks about. Angular is slowly stepping away from the “full heavy SPA” mindset and toward leveraging modern browser features, server rendering, and minimal JavaScript for the same smooth experience.
+Angular's recent changes are moving in the "don't rebuild the browser, use the browser" direction that the “SPA Is Dead” article talks about. Angular is slowly stepping away from the “full heavy SPA” mindset and toward leveraging modern browser features, server rendering, and minimal JavaScript for the same smooth experience.
 
 ## User Experience
 
@@ -3492,7 +3492,7 @@ Angular’s recent changes are moving in the "don’t rebuild the browser, use t
 
 [![javascript.plainenglish....](https://images.openai.com/thumbnails/url/8etHZ3icu1mUUVJSUGylr5-al1xUWVCSmqJbkpRnoJdeXJJYkpmsl5yfq5-Zm5ieWmxfaAuUsXL0S7F0Tw508qwszcv2Li7M8k5NMzbKMXO1iIgsMCsPyfBMCwv3N0zODg7wd680Ny7yz68wyPPwT8kJyzXwdXdSKwYA0YgpKw)](https://javascript.plainenglish.io/10-css-best-practices-for-enhancing-screen-reader-support-893b73693a1c)
 
-Certainly! Building upon the best practices from Sean Goedecke’s article on API design, here are some additional best practices for enhancing screen reader support in CSS:
+Certainly! Building upon the best practices from Sean Goedecke's article on API design, here are some additional best practices for enhancing screen reader support in CSS:
 
 ---
 
@@ -3606,7 +3606,7 @@ If you'd like a visual cheat sheet summarizing these best practices, feel free t
 
 ---
 
-Here’s a **best practices guide for UI flows that convert**, with **practical examples** for each principle from Ryan Almeida’s article:
+Here's a **best practices guide for UI flows that convert**, with **practical examples** for each principle from Ryan Almeida's article:
 
 ---
 
@@ -3623,7 +3623,7 @@ Here’s a **best practices guide for UI flows that convert**, with **practical 
 
 ## ✂️ 2. Eliminate Unnecessary Steps
 
-**Best Practice:** Remove steps that don’t directly help the user complete the goal.
+**Best Practice:** Remove steps that don't directly help the user complete the goal.
 **Example:**
 
 - Instead of a multi-page checkout with unnecessary surveys, combine essentials:
@@ -3634,7 +3634,7 @@ Here’s a **best practices guide for UI flows that convert**, with **practical 
 
 ## 🗣️ 3. Use Clear, Conversational Language
 
-**Best Practice:** Use simple, direct language that’s easy to understand.
+**Best Practice:** Use simple, direct language that's easy to understand.
 **Example:**
 
 - Instead of: “Authenticate your credentials to proceed with the transaction,”
@@ -3642,7 +3642,7 @@ Here’s a **best practices guide for UI flows that convert**, with **practical 
 
 ---
 
-## 🧭 4. Guide Users, Don’t Force Them
+## 🧭 4. Guide Users, Don't Force Them
 
 **Best Practice:** Use visual cues and inline hints to lead users.
 **Example:**
@@ -3674,7 +3674,7 @@ Here’s a **best practices guide for UI flows that convert**, with **practical 
 
 ## 🎯 7. Align with User Expectations
 
-**Best Practice:** Follow familiar patterns so users don’t need to learn your interface.
+**Best Practice:** Follow familiar patterns so users don't need to learn your interface.
 **Example:**
 
 - Use a shopping cart icon at the top right (common convention).
@@ -3692,21 +3692,21 @@ Here’s a **best practices guide for UI flows that convert**, with **practical 
 
 ---
 
-If you want, I can **turn this into a compact “UI Flow Checklist”** that you can use while designing any product. It’ll be ready-to-use with examples included.
+If you want, I can **turn this into a compact “UI Flow Checklist”** that you can use while designing any product. It'll be ready-to-use with examples included.
 
 Do you want me to do that?
 
-Above the Fold - The part of a web page that users see without scrolling. The phrase comes from newspaper printing, where the most important headlines and stories were placed on the upper half of the front page — the part visible when the paper was folded. Example: Move the pricing info above the fold so users don’t miss it.
+Above the Fold - The part of a web page that users see without scrolling. The phrase comes from newspaper printing, where the most important headlines and stories were placed on the upper half of the front page — the part visible when the paper was folded. Example: Move the pricing info above the fold so users don't miss it.
 
-Viewport - The visible area of a web page inside a user’s screen. It changes depending on screen size and orientation.
+Viewport - The visible area of a web page inside a user's screen. It changes depending on screen size and orientation.
 Example: A mobile phone has a narrow viewport, so images and text need to scale down and fit within that space without horizontal scrolling.
 
 Material Design - A design language developed by Google in 2014 that uses clear hierarchy, bold colors, smooth motion, and realistic shadows. Despite being developed over 10 years ago, Material Design is still relevant and Google continues updating it.
 
-Motion-Responsive - Interfaces that respond to movement — like tilting, shaking, or gestures. Motion responsiveness is a growing trend in design, especially in augmented reality (AR) and virtual reality (VR). For instance, Apple’s Vision Pro headset uses motion responsiveness to track eye and hand movements.
+Motion-Responsive - Interfaces that respond to movement — like tilting, shaking, or gestures. Motion responsiveness is a growing trend in design, especially in augmented reality (AR) and virtual reality (VR). For instance, Apple's Vision Pro headset uses motion responsiveness to track eye and hand movements.
 
 Flat Design - A minimalist design style that avoids 3D effects like shadows and gradients and focuses on clean shapes, bright colors, and simple icons.
-Example: The background shifts slightly as you move your phone — it’s a motion-responsive UI.
+Example: The background shifts slightly as you move your phone — it's a motion-responsive UI.
 
 # Interview
 
@@ -3722,7 +3722,7 @@ Example: The background shifts slightly as you move your phone — it’s a moti
 
 - How do you do angular upgrade for your project
 
-- Angular bootstrapping flow - When an Angular application is started, the main.ts file is loaded first, here we bootstrap the root module i.e. app.module.ts. In this module, we specify a component as the bootstrap component and tell angular to load this component and all its dependencies at start up and register it’s selector app-root. Now when browser loads the index.html file, it knows what is app-root and render all the contents of this component.
+- Angular bootstrapping flow - When an Angular application is started, the main.ts file is loaded first, here we bootstrap the root module i.e. app.module.ts. In this module, we specify a component as the bootstrap component and tell angular to load this component and all its dependencies at start up and register it's selector app-root. Now when browser loads the index.html file, it knows what is app-root and render all the contents of this component.
 
 - Query decorator - @ViewChild, @ViewChildren, @ContentChild, @ContentChildren
 
@@ -3886,7 +3886,7 @@ import { MatCardModule } from '@angular/material/card';
 
 > if you had to pick only 5 libraries as dependencies for your angular app, which ones would you pick?
 
-> what’s your go-to strategy for debugging angular components?
+> what's your go-to strategy for debugging angular components?
 
 > have you ever created a custom rxjs operator? what problem did it solve?
 
@@ -4119,9 +4119,9 @@ Checkout the only resource you'll need to prepare for Frontend Interviews
 
 - 10 practical techniques for shrinking the size of Angular bundles, aiming to improve load time, Core Web Vitals, UX, and SEO - Always build in production mode, Use lazy loading for modules, Tree shaking & import only what you need, Use standalone components (Angular 15+), Optimize 3rd-party libraries, Set Angular build budgets, Remove unused polyfills, Use differential loading, Compress & optimize assets, Consider Server-Side Rendering (SSR)
 
-- When TDD Might Not Be Good - If deadlines are tight or you need to ship features quickly, probably don’t use TDD from the start. If the design or requirements are likely to change, heavily or often, TDD’s rigid structure of writing tests before code might cost more than it saves. Be pragmatic: use tests where they deliver the greatest value (e.g. for core logic, critical functions), rather than trying to enforce TDD everywhere.
+- When TDD Might Not Be Good - If deadlines are tight or you need to ship features quickly, probably don't use TDD from the start. If the design or requirements are likely to change, heavily or often, TDD's rigid structure of writing tests before code might cost more than it saves. Be pragmatic: use tests where they deliver the greatest value (e.g. for core logic, critical functions), rather than trying to enforce TDD everywhere.
 
-Many Angular codebases misuse the effect() function when using Angular’s signal/reactive system — leading to infinite loops and performance problems. He suggests using linkedSignal() (new in Angular 20) instead, where appropriate. In many components, people use an effect() to “watch” signals and then update other signals based on those watched values. But when the same effect updates a signal that itself is part of the effect’s dependency chain, changing that signal triggers the effect again → and so on. That causes infinite loops or unnecessary repeated execution. If quantity is used in any part of that effect's logic (or in things downstream that feed back), it can trigger itself repeatedly.
+Many Angular codebases misuse the effect() function when using Angular's signal/reactive system — leading to infinite loops and performance problems. He suggests using linkedSignal() (new in Angular 20) instead, where appropriate. In many components, people use an effect() to “watch” signals and then update other signals based on those watched values. But when the same effect updates a signal that itself is part of the effect's dependency chain, changing that signal triggers the effect again → and so on. That causes infinite loops or unnecessary repeated execution. If quantity is used in any part of that effect's logic (or in things downstream that feed back), it can trigger itself repeatedly.
 
 // avoid
 // WRONG: Using effect() to link signals
@@ -6486,7 +6486,7 @@ To be created...
   - Performance & scalability: Are there obvious performance pitfalls (e.g., nested loops, repeated database calls) or maintainability issues that will cause trouble as code evolves?
   - Security & best practices: Are secrets hardcoded? Is input validated? Is the code aligned with organizational or language style guides?
   - Test coverage & quality: Are there appropriate tests (unit/integration)? Do tests cover edge cases, not just happy paths?
-  - Collaboration mindset: Provide actionable feedback (not just “bad code”), highlight good things, maintain respectful tone. Code review is about improving the team’s output, not just pointing out flaws.
+  - Collaboration mindset: Provide actionable feedback (not just “bad code”), highlight good things, maintain respectful tone. Code review is about improving the team's output, not just pointing out flaws.
 
 - Common mistakes or pitfalls senior reviewers avoid
   - Focusing only on nit-picky style issues and missing the broader problem (architecture, maintainability).
@@ -6504,4 +6504,4 @@ To be created...
 
 - CSS Features Awaited in 2026 - Anchor Positioning, CSS Masonry Layout, Scroll-Driven Animations, Subgrid
 
-- Tailwind remains widely used and popular, but the article suggests that its benefits may be overestimated and that it’s become more of a habit or crutch rather than a genuine solution to CSS complexity.
+- Tailwind remains widely used and popular, but the article suggests that its benefits may be overestimated and that it's become more of a habit or crutch rather than a genuine solution to CSS complexity.

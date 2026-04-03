@@ -5,7 +5,7 @@
 - Don't use ChatGPT to "generate apps." Use it to think better. Explaining tradeoffs. Reviewing architectural ideas. Stress testing decisions. Drafting docs and explanations. It's like rubber‑duck debugging, except the duck answers back. Plus is worth it if you ask good questions. Useless if you don't. Write your problem clearly. Half the solution appears before the answer does.
 
 - A high-quality prompt should include:
-  - The Role: Define Claude’s persona (e.g., "expert frontend developer and accessibility specialist").
+  - The Role: Define Claude's persona (e.g., "expert frontend developer and accessibility specialist").
   - The Task: Be specific about what is being built (e.g., "Create a responsive pricing card").
   - The Constraints: Provide strict rules (e.g., "Use Tailwind CSS, use hex code #4F46E5, and no external dependencies").
   - The Edge Cases: Explicitly ask for details like hover states or loading indicators.
@@ -65,7 +65,7 @@
 
 - When on the Catalog.js page and I add an item to a batch, how is that price calculated?
 
-## Sample Prompts - Writing
+## Sample Prompts - Writing or Reading
 
 - Rewrite this to be cleaner and more concise without changing the meaning.
 
@@ -81,6 +81,16 @@
 
 - To avoid hallucination write prompt like are there credible studies suggesting multitasking improves cognitive performance? if so, summarize them and note any limitations.
 
+- ELI5 (explain like i'm 5), tl;dr (too long; didn't read) — instant summaries
+
+- Humanize (remove ai voice)
+
+- Rewrite like a sarcastic Redditor
+
+- Rewrite like Alex Hormozi and Steve Jobs
+
+- Before you start, ask me any questions you need so i can give you more context. be extremely comprehensive.
+
 ## Sample Prompts - Interviewee
 
-Act as a expert technical interviewer specializing in senior-level cybersecurity roles. create one strong hybrid behavioral-scenario interview question focused on risk prioritization, stakeholder management under high pressure, and continuous learnability (ability to learn from past experiences, reflect on outcomes and apply lessons to improve future decisions). - start with a behavioral opener: 'tell me about a time when you had to...
+- Act as a expert technical interviewer specializing in senior-level cybersecurity roles. create one strong hybrid behavioral-scenario interview question focused on risk prioritization, stakeholder management under high pressure, and continuous learnability (ability to learn from past experiences, reflect on outcomes and apply lessons to improve future decisions). - start with a behavioral opener: 'tell me about a time when you had to...
