@@ -13,3 +13,5 @@
 ## HTML
 
 - HTML is described as a contract between the developer and the machine. When you use a `<form>` tag, you are telling the browser, "This is a collection of user inputs meant to be submitted." When you bypass this with custom JS logic and no semantic tags, you are breaking that contract and making the web less interoperable.
+
+- The article lists practical issues developers often ignore: Scroll "bleeding" outside modals, Poor text wrapping, Default-looking form inputs, Elements feeling slightly misaligned, Layouts that feel "off" but not clearly broken

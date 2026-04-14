@@ -1,17 +1,9 @@
 # Practicals
 
-## Docker Kubernetes Cloud
+## Generative AI - Agentic AI
 
-## Generative AI
-
-- Add gitlab mcp server to local office project
-- Connect chrome dev tools MCP with github copilot
-- Create github copilot instructions, custom file specific instructions, custom reusable prompts, custom chat modes
-
-## React Angular
-
-## Soft Skills
+- To be created...
 
 ## System Design
 
-## TypeScript JavaScript
+- To be created...

@@ -6,7 +6,15 @@
 
 - People who hate their mother land can never be my friends.
 
+- When someone is going through hell, just say "I'm with you." Advice is minimally impactful. The notion that someone is with you is 10x more powerful.
+
+- The clock isn’t just measuring time—it’s silently showing whether you’re using your life well or wasting it.
+
+- "Idleness" here doesn’t mean laziness or doing nothing useless. It means: Leisure, Freedom from unnecessary labor, Time for creativity, joy, and human flourishing. The article connects this to the classical idea of "otium" (meaningful leisure). Lafargue imagined: Much shorter working hours, Machines handling most labor, People free to pursue: Art, Thinking, Enjoyment, Social life. Even Marx hinted at this kind of life—doing different activities freely instead of being stuck in one job. The article argues that modern society is wrongly built around excessive work, and true progress would mean using technology to give people more freedom to live, not just to produce. People with vocational (hands-on) skills - Electricians, plumbers, mechanics, technicians, Jobs that require: Physical presence, Real-world problem solving, Non-repeatable situations. These are hard to automate because AI struggles with messy, real-world environments.
+
 ## Lifestyle
+
+- Learn one dance move that you can reliably bust out when you inevitably get pushed into the center of a dance circle at a wedding or event.
 
 ### Traveling
 
