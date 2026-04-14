@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "Future Content Extraction Reminder",
+  "description": "When a new file is added to the __future__/ directory, remind to plan its extraction into the corresponding main topic folder.",
+  "version": "1",
+  "when": {
+    "type": "fileCreated",
+    "patterns": [
+      "__future__/**"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A new file was added to the __future__/ directory. Remind the user that this content is in the raw backlog and should eventually be reviewed and extracted into the corresponding main topic folder. Suggest which main folder it likely belongs to based on the file path and name."
+  }
+}

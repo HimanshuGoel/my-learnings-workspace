@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "Commit Message Format Check",
+  "description": "Before a prompt is submitted, check if it involves a git commit and remind about the commit message format convention: type: description (types: feat, fix, docs, refactor, style, test).",
+  "version": "1",
+  "when": {
+    "type": "preToolUse",
+    "toolTypes": [
+      "shell"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "If this is a git commit operation, verify the commit message follows the project convention: '<type>: <description>' where type is one of: feat, fix, docs, refactor, style, test. If the message doesn't match this format, suggest a corrected version. If this is not a git commit operation, do nothing."
+  }
+}

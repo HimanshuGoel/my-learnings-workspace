@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "New Content Quality Review",
+  "description": "When a new markdown file is created, review it for spelling, grammar, clarity, and adherence to the project's content conventions.",
+  "version": "1",
+  "when": {
+    "type": "fileCreated",
+    "patterns": [
+      "**/*.md"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Review the newly created markdown file for spelling errors, grammar issues, clarity, and adherence to project conventions (present tense, accurate content, proper markdown structure). Suggest improvements if needed, but keep feedback concise."
+  }
+}
