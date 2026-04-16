@@ -28,8 +28,28 @@
 
 - Use MCP when: dynamic tool discovery needed, unknown systems, exploratory agents. Avoid MCP when: workflows are fixed, APIs are known, performance matters.
 
+- Claude Routines let you automate development workflows by turning prompts into always-on AI agents triggered by schedule, API, or events.
+
+- 10 practical ways product teams use Claude Code effectively
+  - Work in parallel (biggest productivity boost) - Run multiple Claude sessions (e.g., via git worktrees) to handle different tasks simultaneously instead of sequentially.
+  - Start complex work in "plan mode" - Before coding, make Claude analyze and plan first, then execute. Better plans → fewer iterations.
+  - Maintain a strong CLAUDE.md (memory file) - Treat it like a team knowledge base: Store rules, patterns, mistakes, Continuously update it after corrections, This reduces repeated errors over time.
+  - Create reusable "skills" - If you repeat something often: Turn it into a command (e.g., /techdebt), Share via Git for team reuse, Builds automation over time
+  - Let Claude fix bugs autonomously - Instead of over-guiding: Paste logs / errors, Simply say "fix".
+  - Improve your prompting skills - Better prompts = better output. Think like: Clear intent, Constraints, Context.
+  - Optimize your environment - Use better tooling (terminal setup, shortcuts, workflows) to reduce friction when working with Claude.
+  - Use subagents (parallel thinking). Break tasks into smaller agents so Claude can: Analyze, Implement, Review ...in parallel streams.
+  - Use Claude for data & analytics. Not just coding—Claude can: Query data, Generate insights, Automate reporting.
+  - Treat it as a learning system - Continuously refine: Prompts, Rules, Workflows. Over time, Claude becomes more aligned with your team’s style.
+
+- What is the "Paper Computer"? It’s not a literal device. It’s a workflow / mindset: You write thoughts, problems, or instructions on paper. AI helps interpret, expand, or execute them. The interface becomes your notebook, not a screen. The goal: make computing feel more like thinking and writing, less like operating software.. The notebook becomes the IDE. A future where: your notebook = workspace, your thoughts = input, AI = execution engine. This is closer to how: mathematicians, writers, designers, already work.
+
 
 ## Kiro
+
+- Requirement clarity (WHAT), Design constraints (HOW), Execution plan (TASKS)
+
+- File Importance Why - requirement.md (Prevents over-engineering), design.md	(Keeps upgrade controlled), tasks.md (Executes safely)
 
 - A very practical workflow, This gives you Speed + safety balance -
   - Use ChatGPT to Understand problem, explore approaches
@@ -58,7 +78,7 @@
 
 - Kiro and Cursor represent the frontier of this movement, but they take dramatically different approaches to AI-assisted development. With property-aware code evolution, you and Kiro work from the same contract. Kiro drafts the boundary and the hypothesis. You can push back, redraw, tighten the scope, or ask for a different approach. By the time code is written, you've both agreed on what changes and what doesn't. For now, remember: the next time you file a bug, you're drawing a boundary. Draw it with Kiro, and the properties keep the fix on the right side.
 
-- Similar to existing tools like Cursor, Claude Code. Many believe: Models are already “good enough”. The actual limitation is: Poor context, Weak prompts, Lack of structured inputs. This aligns strongly with: Spec-driven development, Kiro’s design philosophy. Shift from “how to code” → “what to build”.
+- Similar to existing tools like Cursor, Claude Code. Many believe: Models are already "good enough". The actual limitation is: Poor context, Weak prompts, Lack of structured inputs. This aligns strongly with: Spec-driven development, Kiro’s design philosophy. Shift from "how to code" → "what to build".
 
 - Your success depends on: requirements.md quality, design.md clarity, task breakdown. Invest heavily in: Spec templates, Review process.
 
@@ -72,7 +92,7 @@
 
 - Circular specification problem = you discover requirements by building, Observer effect = users change requirements after seeing the system. Software development is driven by two fundamentally different but unavoidable forces—internal discovery and external feedback—and successful teams explicitly design their process to handle both, not just one.
 
-- Development is moving from “writing code” → “designing, reviewing, and orchestrating agents”
+- Development is moving from "writing code" → "designing, reviewing, and orchestrating agents"
 
 - A developer spent ~3 hours total vs ~2 days traditionally. Workflow described: 2.5 hours: Planning with AI agents, Iterating on design, 12 minutes: AI generated working implementation, Final step: Multiple AI agents reviewed code quality
 
@@ -82,7 +102,7 @@
 
 - Real-world stack: ChatGPT → ideation + PRD, Claude → coding, Kiro → documentation + system reasoning
 
-- Ask me clarifying questions first“Ask Questions First” Pattern. Instead of: Build a payment system. Do: Ask me clarifying questions first. This dramatically improves: Output quality, Architecture decisions.
+- Ask me clarifying questions first"Ask Questions First" Pattern. Instead of: Build a payment system. Do: Ask me clarifying questions first. This dramatically improves: Output quality, Architecture decisions.
 
 - AI Spec-Driven delivery transforms SDLC from a linear, labor-intensive process to a structured, repeatable, and auditable lifecycle that scales with the complexity of modern software systems, combining the capabilities of AI with the oversight of human expertise.
 
