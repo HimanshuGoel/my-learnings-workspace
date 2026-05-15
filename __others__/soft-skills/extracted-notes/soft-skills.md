@@ -18,6 +18,8 @@
 
 - Staff Engineers are not less valuable — they're just harder to justify in an AI + cost-focused world, so companies are quietly cutting them.
 
+- Be honest (but not stupidly honest) with your manager.
+
 ## Writing
 
 - Types of technical documents by purpose -

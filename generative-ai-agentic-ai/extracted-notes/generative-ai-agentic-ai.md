@@ -1,6 +1,21 @@
 # Generative AI - Agentic AI
 
+| Traditional Software | AI Systems       |
+| -------------------- | ---------------- |
+| Deterministic        | Probabilistic    |
+| Reproducible         | Non-reproducible |
+| Exact logic          | Pattern-based    |
+| Debuggable           | Harder to debug  |
+
+- "To grow skills, people need to go through hardship. They need to develop the muscle to think through problems," he said. "How would someone question if AI is accurate if they don't have critical thinking?"
+
+- We are like tailor, we get cloth and based on our talent and tools we can either make it from handkerchief but with better tooling and experience we can create a great craft.
+
 - AI behaves like a mid-level dev with amazing memory but weak system intuition. It knows patterns: "Zod schema error", "Next.js loading.tsx", "Suspense query fix". But it doesn't understand: Why your architecture exists, Long-term trade-offs, Enterprise constraints.
+
+- Move from "Task estimation" to Constraint-based solution design + risk communication
+
+- Instead of generic prompts, ask things like: "Find performance issues", "Check for security risks", "Suggest edge cases"
 
 - People who combine coding knowledge with other skills (AI, product thinking, systems design) will stay relevant. Coding is becoming a thinking skill, not just a typing skill.
 
@@ -247,3 +262,47 @@ AI may make low-quality content more abundant, but it also highlights the value 
 - I am based in Noida. I have 60000 for flights and stays. I want to 5-7 day trip between march and may with mountains or hills, good vegetarian food, not insanely crowded. suggest 5 destinations that fit with rough flight costs and why each place matches this vibe.
 
 - I tried reading book_name and found it too heavy. suggest 3 alternative books that cover similar ideas in a lighter, more story-driven way.
+
+
+Level 3 – AI Collaborator - AI writes larger chunks/features. You mainly review and guide, not write everything. Risk: you may ship code faster than you truly understand it.
+Level 4 – AI Team (Orchestrator) - You manage multiple AI agents (coding, testing, reviewing). You act like a tech lead/manager, not an individual coder. Focus shifts to system design and orchestration.
+Level 5 – Autonomous (“Dark Factory”) - You define requirements → AI builds everything. Humans don’t write or even read code. Still rare, but direction industry is heading.
+
+SDD = turn specs into executable constraints for AI (not just documentation). Meaning: AI doesn’t “guess” from prompts, It follows structured, enforceable specifications. The biggest mistake developers make is adding more instructions instead of better constraints.
+
+Old mindset: “Let me document everything in CLAUDE.md”. New mindset: “Let me control AI behavior with minimal, high-impact rules”.
+
+The piece warns that as AI becomes a default interface for thinking and asking questions, we may lose one of the most important human freedoms: the ability to think privately and anonymously—and that could subtly but deeply change behavior.
+
+## Claude
+
+9 important sections every DESIGN.md should contain: Problem Statement, Goals and Non-Goals, Architecture Overview, Data Model / State Design, API Contracts, Key Technical Decisions, Edge Cases and Failure Modes, Testing Strategy, Rollout / Migration Plan, 
+
+A serious setup uses a .claude/ architecture, not just prompts:
+
+- CLAUDE.md → central memory (short, focused context)
+- rules/ → scoped behavioral constraints (testing, typing, etc.)
+- agents/ → specialized sub-agents (reviewer, evaluator, auditor)
+- skills/ → reusable workflows (like commands)
+- hooks → automated guardrails
+- MCP servers → external integrations
+
+- using less tokens - Short, clear prompts (Let the AI ask questions instead of guessing), Break tasks into smaller sessions, Avoid long chat history (Start fresh frequently, Prevent context buildup), Use lighter formats (like .txt / .md instead of PDF), Be precise upfront (Reduce rework cycles)
+
+- Two Types of Skills (Important Insight) - Capability Skills (add new abilities, Example: web scraping, file processing), Preference Skills (Encode your way of doing things, Example: PR format, coding standards, documentation style)
+
+- Agent Skills cover end-to-end engineering - Define (Clarify idea, Write spec), Plan (Break into small tasks), Build (Incremental implementation), Verify (Testing (TDD, debugging)), Review (Code quality, security, performance), Ship (CI/CD, release, documentation)
+
+- Claude Code → architecture, frontend refinement, reasoning-heavy work. Codex → implementation acceleration, automation, repetitive engineering tasks, repo-wide changes. Codex for execution, Claude Code for thinking and refinement.
+
+## Spec-driven development
+
+Key Components of a Good Spec - From the article + broader SDD patterns:
+
+1. Outcome Definition - What must be true when done
+2. Constraints - Performance, Security, Compliance
+3. Task Breakdown - Step-by-step execution
+4. Verification Criteria - How to prove it works
+5. Architecture Plan - APIs, DB changes, system design
+
+- Where SDD helps: upgrade plans, migration rules, architecture constraints, acceptance criteria, compatibility checks, dependency mapping. Where SDD breaks: changing priorities, shifting framework versions, unexpected library conflicts, new business requirements, evolving architectural understanding. In practice, experienced engineers end up doing: continuous steering, context correction, architectural decisions, and selective overrides. That is exactly the “collapse” the author describes: specs alone are insufficient, prompts alone are insufficient, the real value is adaptive engineering judgment. This author argues: SDD is useful, but ultimately temporary, because real engineering is too dynamic for rigid specification trees.

@@ -14,9 +14,13 @@
 
 ## Lifestyle
 
+- When we have certainty and consistency in life, is when we are going to be best.
+
 - Learn one dance move that you can reliably bust out when you inevitably get pushed into the center of a dance circle at a wedding or event.
 
 ### Traveling
+
+- Beverage is the main profit item in restaurant.
 
 - The "Good Hotel Rule" - One thing wealthy travelers prioritize. Stay quality matters more than destination count. Good hotels mean better sleep, better food, happier child, relaxed parents.
 
