@@ -18,6 +18,21 @@
 
 - Learn one dance move that you can reliably bust out when you inevitably get pushed into the center of a dance circle at a wedding or event.
 
+- Best Hybrid Kitchen Strategy for Utensils
+
+| Category            | Best Material      |
+| ------------------- | ------------------ |
+| Fridge storage      | Borosilicate glass |
+| Leftovers           | Glass              |
+| Office lunch        | Steel              |
+| Water bottles       | Steel              |
+| Serving bowls       | Glass + ceramic    |
+| Cooking utensils    | Steel/cast iron    |
+| Kid utensils        | Steel              |
+| Pantry dry storage  | Glass jars         |
+| Microwave reheating | Glass              |
+| Travel food         | Steel              |
+
 ### Traveling
 
 - Beverage is the main profit item in restaurant.

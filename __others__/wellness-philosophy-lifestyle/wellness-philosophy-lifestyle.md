@@ -1,3 +1,13 @@
+# Parenting
+
+Games ideas with kids
+:pat head gently → horse eats grass (“nom nom nom” sounds), tiny kick with heels → horse runs fast, big hug around neck → horse goes slow and sleepy, say “freeze horse!” → horse statue mode, scratch back → horse laughs and wiggles
+:mini missions - “find the hidden teddy”, “deliver princess to castle”, “escape dinosaur!”, “collect magic apples” (pillows), “rescue baby animals”
+:sound effects make it 10x better - different gallop sounds, sneezing horse, horse hiccups, “engine starting” before running, dramatic crash into pillows
+:simple story loop - horse wakes up, adventure starts, small obstacle, big jump, celebrate, horse sleeps
+:balloon keep-up, pillow mountain, freeze dance, toy hospital, restaurant game, treasure hunt
+
+
 # Philosophy
 
 - What makes life enjoyable to live - A loaded bank account, a healthy relationship & a comfortable life is what most people will like to have, but it's not enough to live only, you must be determined to live for something.

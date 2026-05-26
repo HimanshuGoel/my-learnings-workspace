@@ -11,3 +11,7 @@
 - Good examples to refer for technical writing -
   - <https://github.com/hashicorp/terraform/tree/main/docs>
   - <https://github.com/fastapi/fastapi/tree/master/docs>
+
+## Carrier
+
+- Refer this profile while building resume and linkedin profile - <https://www.linkedin.com/in/florinsiciu/>

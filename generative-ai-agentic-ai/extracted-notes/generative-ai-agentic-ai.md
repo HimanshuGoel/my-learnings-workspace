@@ -306,3 +306,5 @@ Key Components of a Good Spec - From the article + broader SDD patterns:
 5. Architecture Plan - APIs, DB changes, system design
 
 - Where SDD helps: upgrade plans, migration rules, architecture constraints, acceptance criteria, compatibility checks, dependency mapping. Where SDD breaks: changing priorities, shifting framework versions, unexpected library conflicts, new business requirements, evolving architectural understanding. In practice, experienced engineers end up doing: continuous steering, context correction, architectural decisions, and selective overrides. That is exactly the “collapse” the author describes: specs alone are insufficient, prompts alone are insufficient, the real value is adaptive engineering judgment. This author argues: SDD is useful, but ultimately temporary, because real engineering is too dynamic for rigid specification trees.
+
+- Instead of writing huge specs, teams should focus on writing: executable facts, tests, constraints, schemas, validations, and measurable behavior.

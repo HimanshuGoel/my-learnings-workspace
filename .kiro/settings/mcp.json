@@ -3,7 +3,7 @@
     "filesystem": {
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-filesystem", "."],
-      "disabled": false,
+      "disabled": true,
       "autoApprove": []
     },
     "github": {
@@ -12,19 +12,19 @@
       "env": {
         "GITHUB_PERSONAL_ACCESS_TOKEN": "<PERSONAL_TOKEN>"
       },
-      "disabled": false,
+      "disabled": true,
       "autoApprove": []
     },
     "fetch": {
       "command": "C:\\Users\\higoel\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python312\\Scripts\\uvx.exe",
       "args": ["mcp-server-fetch"],
-      "disabled": false,
+      "disabled": true,
       "autoApprove": []
     },
     "memory": {
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-memory"],
-      "disabled": false,
+      "disabled": true,
       "autoApprove": []
     }
   }
