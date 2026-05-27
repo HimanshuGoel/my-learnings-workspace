@@ -2,6 +2,8 @@
 
 ## Wellness
 
+- To be created...
+
 ## Philosophy
 
 - People who hate their mother land can never be my friends.
@@ -13,6 +15,8 @@
 - "Idleness" here doesn’t mean laziness or doing nothing useless. It means: Leisure, Freedom from unnecessary labor, Time for creativity, joy, and human flourishing. The article connects this to the classical idea of "otium" (meaningful leisure). Lafargue imagined: Much shorter working hours, Machines handling most labor, People free to pursue: Art, Thinking, Enjoyment, Social life. Even Marx hinted at this kind of life—doing different activities freely instead of being stuck in one job. The article argues that modern society is wrongly built around excessive work, and true progress would mean using technology to give people more freedom to live, not just to produce. People with vocational (hands-on) skills - Electricians, plumbers, mechanics, technicians, Jobs that require: Physical presence, Real-world problem solving, Non-repeatable situations. These are hard to automate because AI struggles with messy, real-world environments.
 
 ## Lifestyle
+
+### Others
 
 - When we have certainty and consistency in life, is when we are going to be best.
 
