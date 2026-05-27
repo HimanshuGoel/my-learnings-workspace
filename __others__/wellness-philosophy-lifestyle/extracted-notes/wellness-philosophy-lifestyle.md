@@ -1,4 +1,4 @@
-# Wellness Philosophy Lifestyle
+# Extracted Notes
 
 ## Wellness
 

@@ -1,4 +1,4 @@
-# Tech Gadgets Games Science
+# Extracted Notes
 
 ## Tech
 
