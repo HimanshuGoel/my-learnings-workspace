@@ -1,5 +1,5 @@
 {
-  "enabled": true,
+  "enabled": false,
   "name": "Future Content Extraction Reminder",
   "description": "When a new file is added to the __future__/ directory, remind to plan its extraction into the corresponding main topic folder.",
   "version": "1",

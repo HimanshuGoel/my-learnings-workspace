@@ -1,5 +1,5 @@
 {
-  "enabled": true,
+  "enabled": false,
   "name": "Markdown Lint on Save",
   "description": "When a markdown file is saved, review it for formatting issues like inconsistent heading levels, missing blank lines, broken links, and deviations from the project's markdown conventions.",
   "version": "1",

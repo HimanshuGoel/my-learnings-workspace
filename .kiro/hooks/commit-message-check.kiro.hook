@@ -1,5 +1,5 @@
 {
-  "enabled": true,
+  "enabled": false,
   "name": "Commit Message Format Check",
   "description": "Before a prompt is submitted, check if it involves a git commit and remind about the commit message format convention: type: description (types: feat, fix, docs, refactor, style, test).",
   "version": "1",
