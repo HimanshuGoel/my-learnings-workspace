@@ -4,6 +4,14 @@ My Learnings Workspace is a personal knowledge hub for documenting weekly learni
 
 This is a content-only repository. There is no application code, build system, or runtime. The deliverables are markdown files, documents (`.docx`, `.pdf`), images, and presentations organized by topic.
 
-The `__future__/` directory holds raw, unreviewed learning materials. This is a personal backlog — content will be reviewed when time permits and selectively moved into the corresponding main topic folders. Do not treat it as finalized or authoritative.
+## Organization
 
-Contact: [email] — issues tracked via GitHub Issues.
+- Active topics live at the repository root (`generative-ai-agentic-ai/`, `system-design/`).
+- Secondary/archived topics live under `__others__/`.
+- Each topic folder may contain a `__rearrange__/` subdirectory holding raw, unreviewed materials. This is a personal backlog — content will be reviewed when time permits and moved into the proper structure. Do not treat it as finalized or authoritative.
+
+## Contact
+
+Himanshu Goel — <himanshu.goel.mca@gmail.com>
+
+Issues tracked via [GitHub Issues](https://github.com/HimanshuGoel/my-learnings-workspace/issues/new/choose).

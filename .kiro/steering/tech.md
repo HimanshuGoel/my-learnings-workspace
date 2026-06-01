@@ -7,12 +7,16 @@ This is a documentation-only repository. There is no application code, build pip
 - Markdown (`.md`) — primary format for notes, best practices, and extracted learnings
 - Word documents (`.docx`) — source material pending extraction into markdown
 - PDFs (`.pdf`) — source material, certificates, and presentations
+- Excel (`.xlsx`) — data files used in practice projects
+- Jupyter Notebooks (`.ipynb`) — practice exercises (e.g., ML/DS projects)
+- PowerPoint (`.pptx`) — presentation decks
 - Images (`.jpg`, `.jpeg`, `.png`, `.webp`) — certificates, awards, memes, and visual references
 
 ## Tooling
 
 - Git + GitHub for version control and issue tracking
-- GitHub Copilot configured via `.github/copilot-instructions.md`
+- Kiro AI assistant configured via `.kiro/` (steering, hooks, settings)
+- VS Code as the primary editor (`.vscode/settings.json`)
 - No package manager, linter, test runner, or build commands
 
 ## Markdown Conventions
