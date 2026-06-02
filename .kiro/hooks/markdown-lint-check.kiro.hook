@@ -1,7 +1,7 @@
 {
-  "enabled": false,
-  "name": "Markdown Lint on Save",
-  "description": "When a markdown file is saved, review it for formatting issues like inconsistent heading levels, missing blank lines, broken links, and deviations from the project's markdown conventions.",
+  "enabled": true,
+  "name": "Markdown Style Consistency Check",
+  "description": "When a markdown file is saved, review it for style consistency: list markers, heading hierarchy, blank lines, and heading uniqueness.",
   "version": "1",
   "when": {
     "type": "fileEdited",
@@ -11,6 +11,6 @@
   },
   "then": {
     "type": "askAgent",
-    "prompt": "Review the saved markdown file for formatting issues: inconsistent heading levels, missing blank lines around headings/lists, broken relative links, improper code block language tags, and deviations from the project's markdown conventions (# for title, ## for sections, ### for subsections, - for bullets). Report any issues found concisely."
+    "prompt": "Review the saved markdown file for style consistency issues. Check for:\n\n1. LIST MARKERS: All unordered lists must use `-` (dash), never `*` (asterisk).\n2. HEADING HIERARCHY: File should start with a single `#` top-level heading. Heading levels should increment by one (# → ## → ###). Do not skip levels.\n3. BLANK LINES: No multiple consecutive blank lines. Lists should be surrounded by blank lines.\n4. HEADING UNIQUENESS: Flag duplicate heading text within the same document. Suggest prefixing with parent context if needed.\n5. CODE BLOCKS: Fenced code blocks should include a language tag (use `text` for plain text examples).\n\nEXCLUSIONS: Do not flag files inside `__rearrange__/` directories. Files in `practices/` subfolders may use relaxed heading conventions for structured note-taking patterns.\n\nReport issues concisely with line references. If no issues found, say nothing."
   }
 }

@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "Folder & File Naming Check",
+  "description": "When a new file is created, verify it follows the repository's kebab-case naming rules and topic folder structure conventions.",
+  "version": "1",
+  "when": {
+    "type": "fileCreated",
+    "patterns": [
+      "**/*"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Check the newly created file's name and path against the repository naming conventions:\n\n1. FOLDER NAMES: Must be lowercase kebab-case (e.g., `generative-ai-agentic-ai/`, not `MyFolder/` or `my_folder/`).\n2. MARKDOWN IN `extracted-notes/`: Must be lowercase kebab-case (e.g., `system-design.md`).\n3. EXTRACTED NOTE PARTS: Must follow `{topic}-part-N-{source}.docx` or `{topic}-part-N.pdf` pattern.\n4. TOPIC FOLDERS: New topic folders should include a `README.md`.\n\nEXCLUSIONS:\n- Files inside `__rearrange__/` (backlog, not yet organized)\n- Files inside `practices/` subfolders (relaxed naming allowed — UPPERCASE, spaces, special characters are acceptable)\n- `.kiro/`, `.vscode/`, `.git/` directories\n- Binary files (images, Excel, PowerPoint) — naming is advisory only\n\nIf the file follows conventions or falls under an exclusion, say nothing. Only report actual violations concisely."
+  }
+}

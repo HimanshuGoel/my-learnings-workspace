@@ -1,7 +1,7 @@
 {
-  "enabled": false,
+  "enabled": true,
   "name": "New Content Quality Review",
-  "description": "When a new markdown file is created, review it for spelling, grammar, clarity, and adherence to the project's content conventions.",
+  "description": "When a new markdown file is created, review it for spelling, grammar, clarity, and adherence to project conventions.",
   "version": "1",
   "when": {
     "type": "fileCreated",
@@ -11,6 +11,6 @@
   },
   "then": {
     "type": "askAgent",
-    "prompt": "Review the newly created markdown file for spelling errors, grammar issues, clarity, and adherence to project conventions (present tense, accurate content, proper markdown structure). Suggest improvements if needed, but keep feedback concise."
+    "prompt": "Review the newly created markdown file for spelling errors, grammar issues, clarity, and adherence to project conventions (present tense, accurate content, proper markdown structure). Suggest improvements if needed, but keep feedback concise.\n\nSpecific checks:\n1. DOCUMENT TITLE: Must start with a `#` top-level heading that clearly describes the content.\n2. PRESENT TENSE: Instructional/explanatory content should use present tense. Past tense is acceptable only for historical references.\n3. EMPTY FILES: Flag if the file is empty or only contains placeholder text like 'To be created...' (unless part of a scaffolding commit).\n4. CODE BLOCKS: Must include language tags.\n5. STRUCTURE: Sections should have clear headings. Use lists for enumerable items. Use tables for structured comparisons.\n\nEXCLUSIONS: Do not flag files inside `__rearrange__/`. Placeholder `BEST_PRACTICES.md` files are acceptable."
   }
 }
