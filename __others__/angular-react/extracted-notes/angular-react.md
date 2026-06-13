@@ -1,3 +1,3 @@
 # Extracted Notes
 
-- To be created...
+- Jeremy ashkenas - Underscore.js, CoffeeScript, Backbone.js
