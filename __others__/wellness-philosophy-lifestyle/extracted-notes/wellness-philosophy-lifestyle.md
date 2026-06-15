@@ -1,10 +1,27 @@
+- [Extracted Notes](#extracted-notes)
+  - [Wellness](#wellness)
+  - [Philosophy](#philosophy)
+  - [Lifestyle](#lifestyle)
+    - [Others](#others)
+    - [Traveling](#traveling)
+- [Parenting](#parenting)
+  - [Philosophy](#philosophy-1)
+- [Wellness - Philosophy](#wellness---philosophy)
+  - [Wellness](#wellness-1)
+    - [Food](#food)
+    - [Exercise](#exercise)
+    - [Socializing](#socializing)
+  - [Philosophy](#philosophy-2)
+
 # Extracted Notes
 
 ## Wellness
 
-- To be created...
+- Do mindful focus, digital detox, single tasking to avoid brain rotting problem
 
 ## Philosophy
+
+- Don't automatically admire people because they're rich. Pay attention to how they acquired their wealth, how they use their power, and whether they create value for society.
 
 - People who hate their mother land can never be my friends.
 

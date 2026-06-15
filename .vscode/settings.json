@@ -3,5 +3,8 @@
         "Agentic",
         "frontends",
         "Noida"
-    ]
+    ],
+    "workbench.editorAssociations": {
+        "*.md": "default"
+    }
 }
