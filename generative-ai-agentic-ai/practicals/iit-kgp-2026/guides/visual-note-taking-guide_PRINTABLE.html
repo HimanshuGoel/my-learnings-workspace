@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Visual Note-Taking Guide — Printable Notes</title>
+<style>
+  @page { margin: 0.5cm; size: A4; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+  h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+  h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+  h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+  ul { margin: 0 0 2px 12px; padding: 0; }
+  li { margin-bottom: 0.5px; }
+  .tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+  .prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+  .two-col { column-count: 2; column-gap: 10px; }
+  code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+  table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 7pt; }
+  th, td { border: 1px solid #ccc; padding: 1.5px 4px; text-align: left; }
+  th { background: #f0f0f0; font-weight: bold; }
+  @media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+
+<h1>Visual Note-Taking Guide</h1>
+<p style="margin:1px 0; font-size:7pt;">Practical reference for taking visual notes on paper while working with AI or studying new concepts.</p>
+
+<h2>Core Elements (Building Blocks)</h2>
+<table>
+  <tr><th>Element</th><th>How to Draw</th><th>When to Use</th></tr>
+  <tr><td>Box / Rectangle</td><td>Simple bordered rectangle</td><td>Concept, component, class, or system</td></tr>
+  <tr><td>Rounded box</td><td>Rectangle with curved corners</td><td>Process, action, or step</td></tr>
+  <tr><td>Circle / Oval</td><td>Ellipse shape</td><td>Starting/ending point, or central idea</td></tr>
+  <tr><td>Diamond</td><td>Rotated square</td><td>Decision or condition</td></tr>
+  <tr><td>Cylinder</td><td>3D rectangle with curved top</td><td>Database or storage</td></tr>
+  <tr><td>Cloud shape</td><td>Wavy irregular blob</td><td>External systems, APIs, internet</td></tr>
+  <tr><td>Stick figure</td><td>Circle + lines</td><td>User or actor</td></tr>
+  <tr><td>Document icon</td><td>Rectangle with wavy bottom</td><td>File or document</td></tr>
+</table>
+
+<h2>Connectors (Relationships)</h2>
+<table>
+  <tr><th>Connector</th><th>How to Draw</th><th>Meaning</th></tr>
+  <tr><td>Solid arrow →</td><td>Straight line with arrowhead</td><td>"Flows to", "calls", "sends data to"</td></tr>
+  <tr><td>Dashed arrow -→</td><td>Dashed line with arrowhead</td><td>"Depends on", "references", "optional"</td></tr>
+  <tr><td>Double arrow ↔</td><td>Arrows on both ends</td><td>"Bidirectional", "communicates with"</td></tr>
+  <tr><td>Line (no arrow)</td><td>Plain line</td><td>"Is associated with", "belongs to"</td></tr>
+  <tr><td>Thick arrow ⇒</td><td>Bold/thick arrow</td><td>"Transforms into", "results in"</td></tr>
+  <tr><td>Dotted line ....</td><td>Series of dots</td><td>"Weak relationship", "might interact"</td></tr>
+</table>
+
+<h2>Annotations and Emphasis</h2>
+<div class="two-col">
+<table>
+  <tr><th>Technique</th><th>Purpose</th></tr>
+  <tr><td>Labels on arrows</td><td>Clarify what flows between elements</td></tr>
+  <tr><td>Numbering (1, 2, 3)</td><td>Show sequence/order</td></tr>
+  <tr><td>Color coding (2-3 pens)</td><td>Distinguish layers (blue=data, red=errors, green=happy path)</td></tr>
+  <tr><td>Highlighting / underline</td><td>Mark key insights or surprises</td></tr>
+  <tr><td>Question marks ?</td><td>Flag items to revisit</td></tr>
+  <tr><td>Stars ★</td><td>Important takeaways</td></tr>
+  <tr><td>Exclamation !</td><td>Gotchas or warnings</td></tr>
+  <tr><td>Brackets { }</td><td>Show scope or boundary</td></tr>
+</table>
+</div>
+
+<h2>Techniques by Scenario</h2>
+
+<h3>1. Understanding Architecture → Block Diagram</h3>
+<div class="prompt">┌──────────┐       ┌──────────┐       ┌──────────┐
+│  Client  │──────→│  Server  │──────→│    DB    │
+└──────────┘       └──────────┘       └──────────┘
+                        │
+                        ▼
+                   ┌──────────┐
+                   │  Cache   │
+                   └──────────┘</div>
+<ul>
+  <li>Draw each component as a box, arrows show data flow direction</li>
+  <li>Label arrows with what's sent (e.g., "HTTP request", "query")</li>
+  <li>Add boundary box (dashed rectangle) around grouped components</li>
+</ul>
+
+<h3>2. Learning a New Concept → Concept Map</h3>
+<div class="prompt">              ┌─────────────┐
+              │     RAG     │
+              └──────┬──────┘
+           ┌─────────┼─────────┐
+           ▼         ▼         ▼
+     ┌──────────┐ ┌────────┐ ┌──────────┐
+     │ Retrieve │ │Augment │ │ Generate │
+     └────┬─────┘ └────┬───┘ └────┬─────┘
+          ▼             ▼          ▼
+     Vector DB     Prompt +    LLM Output
+                   Context</div>
+<ul>
+  <li>Central concept at top/center, branch to sub-concepts</li>
+  <li>Add one-line definitions under each node</li>
+  <li>Use "is a", "has a", "uses" as arrow labels</li>
+</ul>
+
+<h3>3. Following a Process → Flowchart</h3>
+<div class="prompt">    ┌───────┐
+    │ Start │
+    └───┬───┘
+        ▼
+  ┌───────────┐
+  │ Get Input │
+  └─────┬─────┘
+        ▼
+    ◇ Valid? ◇
+   /          \
+  Yes          No → ┌────────┐
+  ▼                 │ Error  │
+┌─────────┐         └────────┘
+│ Process │
+└────┬────┘
+     ▼
+  ┌──────┐
+  │ End  │
+  └──────┘</div>
+<ul>
+  <li>Diamonds for decisions, keep happy path going down, branch sideways for errors</li>
+  <li>Number steps if sequence matters</li>
+</ul>
+
+<h3>4. Comparing Options → T-Chart / Comparison Grid</h3>
+<div class="prompt">    SQL                    vs                NoSQL
+┌──────────────┐                    ┌──────────────┐
+│ Structured   │                    │ Flexible     │
+│ ACID         │                    │ Eventual     │
+│ Joins        │                    │ Denormalized │
+│ Scale ↕      │                    │ Scale ↔      │
+└──────────────┘                    └──────────────┘
+        └────────── Use When ──────────┘
+         Fixed schema    |    Evolving schema
+         Complex queries |    Simple lookups</div>
+
+<h3>5. Understanding Code Flow → Sequence Diagram</h3>
+<div class="prompt">  User          API           Service         DB
+   │              │               │             │
+   │──request──→ │               │             │
+   │              │──validate──→ │             │
+   │              │              │──query──→   │
+   │              │              │←──data───   │
+   │              │←──result───  │             │
+   │←──response── │              │             │</div>
+<ul>
+  <li>Vertical lines = actors (name at top), horizontal arrows = messages</li>
+  <li>Read top to bottom for time sequence</li>
+</ul>
+
+<h3>6. Mental Models → Layered Diagram</h3>
+<div class="prompt">┌─────────────────────────────────┐
+│         Application Layer       │
+├─────────────────────────────────┤
+│         Framework Layer         │
+├─────────────────────────────────┤
+│         Runtime Layer           │
+├─────────────────────────────────┤
+│         OS / Hardware           │
+└─────────────────────────────────┘</div>
+<ul>
+  <li>Stack vertically: higher = more abstract, lower = more concrete</li>
+  <li>Add notes on side for "what lives here"</li>
+</ul>
+
+<h3>7. Brainstorming → Mind Map</h3>
+<div class="prompt">                    ┌── Vector DBs
+                    │
+        ┌── Storage ┤
+        │           └── Graph DBs
+        │
+  AI ───┼── Models ─── Transformers
+        │           └── Diffusion
+        │
+        └── Tools ──── LangChain
+                   └── LlamaIndex</div>
+<ul>
+  <li>Central topic in middle, branch outward freely, no strict structure needed</li>
+</ul>
+
+<h2>Practical Tips</h2>
+
+<div class="two-col">
+<h3>Layout Rules</h3>
+<ul>
+  <li><strong>Top-to-bottom</strong> for sequences and timelines</li>
+  <li><strong>Left-to-right</strong> for data flows and pipelines</li>
+  <li><strong>Center-outward</strong> for concept maps and mind maps</li>
+  <li><strong>Leave whitespace</strong> — cramped notes are hard to read later</li>
+  <li><strong>Consistent sizes</strong> — important things get bigger boxes</li>
+</ul>
+
+<h3>Making Them Look Good</h3>
+<ul>
+  <li>Write labels in CAPS or underline headings</li>
+  <li>Keep text inside boxes short (2-4 words max)</li>
+  <li>Use indentation to show hierarchy</li>
+  <li>Draw borders/frames around complete diagrams</li>
+</ul>
+
+<h3>Pen Strategy (Multiple Colors)</h3>
+<ul>
+  <li><strong>Black:</strong> Structure, boxes, primary connections</li>
+  <li><strong>Blue:</strong> Data flow, labels, annotations</li>
+  <li><strong>Red:</strong> Errors, warnings, gotchas, decisions</li>
+  <li><strong>Green:</strong> Happy path, success, key takeaways</li>
+</ul>
+
+<h3>Speed vs Neatness</h3>
+<ul>
+  <li>During AI session: speed wins, messy is fine, capture relationships</li>
+  <li>After session (optional): spend 2 min redrawing the one best diagram — this redraw is itself a retention exercise</li>
+</ul>
+</div>
+
+<h2>How Others Use Visual Notes</h2>
+<div class="two-col">
+<ul>
+  <li><strong>Software Engineers:</strong> Whiteboard architecture before coding, sequence diagrams on sticky notes, decision trees for library choices</li>
+  <li><strong>Students (Cornell Method):</strong> Left col = key terms/boxes, Right col = visual relationships, Bottom = one-sentence summary</li>
+  <li><strong>Sketchnote Practitioners:</strong> Combine text + icons + containers + connectors on single page, capture the "story"</li>
+  <li><strong>Bullet Journal / Zettelkasten:</strong> One concept per card with small diagram, link cards with arrows/references, build network over time</li>
+</ul>
+</div>
+
+<h2>Quick Reference: Which Technique for Which Task</h2>
+<table>
+  <tr><th>Task</th><th>Best Technique</th></tr>
+  <tr><td>Understanding a new architecture</td><td>Block diagram</td></tr>
+  <tr><td>Learning a new concept</td><td>Concept map</td></tr>
+  <tr><td>Following a multi-step process</td><td>Flowchart</td></tr>
+  <tr><td>Comparing two approaches</td><td>T-chart / comparison grid</td></tr>
+  <tr><td>Tracing code execution</td><td>Simplified sequence diagram</td></tr>
+  <tr><td>Understanding layers/abstractions</td><td>Layered diagram</td></tr>
+  <tr><td>Free exploration of a new topic</td><td>Mind map</td></tr>
+  <tr><td>Capturing a key insight</td><td>Single box with a star ★ and one sentence</td></tr>
+</table>
+
+</body>
+</html>

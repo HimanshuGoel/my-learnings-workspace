@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ChromaDB — Printable Learning Notes</title>
+<style>
+  @page { margin: 0.5cm; size: A4; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+  h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+  h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+  h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+  ul { margin: 0 0 2px 12px; padding: 0; }
+  li { margin-bottom: 0.5px; }
+  .tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+  .prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+  .two-col { column-count: 2; column-gap: 10px; }
+  code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+  table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+  th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+  th { background: #f3f4f6; font-weight: bold; }
+  .diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+  .diagram svg { max-width: 100%; }
+  .diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+  .section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+  @media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+<h1>ChromaDB — Complete Learning Notes</h1>
+<p><b>Summary:</b> ChromaDB is SQLite for embeddings — a zero-config local vector database that stores, indexes, and retrieves text by semantic similarity. The storage layer for RAG systems.</p>
+
+<h2>Why ChromaDB Exists</h2>
+<ul>
+<li><b>Problem</b> — after converting documents to embeddings, you need somewhere to store them and quickly find the most similar ones for a query. Recomputing on every query is expensive.</li>
+<li><b>Solution</b> — a vector database that stores embeddings + metadata + documents together, with fast approximate nearest-neighbor search. Zero config, local, just pip install.</li>
+<li><b>Mental Model</b> — <b>SQLite for embeddings</b>. As SQLite gives zero-config SQL storage, ChromaDB gives zero-config vector storage. SQL answers "WHERE condition matches." ChromaDB answers "WHERE meaning is similar."</li>
+<li><b>AI Connection</b> — the storage and retrieval layer in every RAG system. Without it, you'd search linearly through all embeddings (O(n)) on every query.</li>
+</ul>
+
+<h2>Where ChromaDB Fits</h2>
+<div class="diagram">
+<svg width="400" height="80" viewBox="0 0 400 80">
+<defs><marker id="arrCr" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto"><path d="M0,0 L6,2 L0,4 Z" fill="#999"/></marker></defs>
+<rect x="5" y="22" width="70" height="30" rx="3" fill="#f3f4f6" stroke="#ddd"/>
+<text x="40" y="35" text-anchor="middle" font-size="5.5pt" font-weight="bold">Documents</text>
+<text x="40" y="46" text-anchor="middle" font-size="5pt" fill="#666">PDF, text, web</text>
+<line x1="75" y1="37" x2="90" y2="37" stroke="#999" stroke-width="1" marker-end="url(#arrCr)"/>
+<rect x="90" y="22" width="75" height="30" rx="3" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="127" y="35" text-anchor="middle" font-size="5.5pt" font-weight="bold">Embed</text>
+<text x="127" y="46" text-anchor="middle" font-size="5pt" fill="#666">sentence-transformers</text>
+<line x1="165" y1="37" x2="180" y2="37" stroke="#999" stroke-width="1" marker-end="url(#arrCr)"/>
+<rect x="180" y="15" width="85" height="45" rx="4" fill="#ede9fe" stroke="#4F46E5" stroke-width="1.5"/>
+<text x="222" y="30" text-anchor="middle" font-size="6.5pt" font-weight="bold" fill="#4F46E5">ChromaDB</text>
+<text x="222" y="42" text-anchor="middle" font-size="5pt" fill="#4F46E5">Store + Index</text>
+<text x="222" y="52" text-anchor="middle" font-size="5pt" fill="#666">(you are here)</text>
+<line x1="265" y1="37" x2="280" y2="37" stroke="#999" stroke-width="1" marker-end="url(#arrCr)"/>
+<rect x="280" y="22" width="75" height="30" rx="3" fill="#dcfce7" stroke="#22c55e"/>
+<text x="317" y="35" text-anchor="middle" font-size="5.5pt" font-weight="bold">Top-K Docs</text>
+<text x="317" y="46" text-anchor="middle" font-size="5pt" fill="#666">→ LLM context</text>
+</svg>
+<div class="diagram-caption">ChromaDB sits between embedding creation and LLM generation — the "database" in RAG</div>
+</div>
+
+<h2>1. Core Operations</h2>
+<div class="prompt"># Setup
+client = chromadb.PersistentClient(path="./db")  # saves to disk
+collection = client.get_or_create_collection("docs")
+
+# Add documents (auto-embeds with default model)
+collection.add(
+    ids=["id1", "id2"],
+    documents=["text 1", "text 2"],
+    metadatas=[{"source": "a"}, {"source": "b"}]
+)
+
+# Query (find similar)
+results = collection.query(query_texts=["my question"], n_results=3)
+# → results["documents"], results["distances"], results["metadatas"]
+
+# Update
+collection.update(ids=["id1"], documents=["new text"])
+
+# Delete
+collection.delete(ids=["id1"])</div>
+
+<h2>2. Metadata Filtering</h2>
+<p class="section-intro">Combine semantic similarity with structured filters — like adding WHERE clauses to your vector search.</p>
+
+<table>
+<tr><th>Operator</th><th>Meaning</th><th>Example</th></tr>
+<tr><td><code>$eq</code></td><td>Equals (default)</td><td><code>{"source": "manual.pdf"}</code></td></tr>
+<tr><td><code>$ne</code></td><td>Not equals</td><td><code>{"status": {"$ne": "draft"}}</code></td></tr>
+<tr><td><code>$gt / $gte</code></td><td>Greater (or equal)</td><td><code>{"page": {"$gte": 5}}</code></td></tr>
+<tr><td><code>$lt / $lte</code></td><td>Less (or equal)</td><td><code>{"score": {"$lt": 0.5}}</code></td></tr>
+<tr><td><code>$in / $nin</code></td><td>In / not in list</td><td><code>{"topic": {"$in": ["ml", "dl"]}}</code></td></tr>
+<tr><td><code>$and / $or</code></td><td>Combine filters</td><td><code>{"$and": [{...}, {...}]}</code></td></tr>
+</table>
+
+<div class="prompt"># Filter + semantic search
+results = collection.query(
+    query_texts=["deployment"],
+    n_results=5,
+    where={"source": {"$in": ["ops-guide.md", "deploy.md"]}}
+)</div>
+
+<h2>3. LangChain Integration</h2>
+<div class="prompt">from langchain_community.vectorstores import Chroma
+from langchain_community.embeddings import HuggingFaceEmbeddings
+
+vectorstore = Chroma.from_documents(chunks, HuggingFaceEmbeddings(),
+    persist_directory="./db", collection_name="docs")
+
+retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
+docs = retriever.invoke("my query")  # → List[Document]</div>
+
+<h2>4. AI/ML Connection</h2>
+<table>
+<tr><th>Pipeline Stage</th><th>ChromaDB Role</th><th>Example</th></tr>
+<tr><td>Ingestion</td><td>Store document embeddings</td><td>Embed 10k doc chunks, add to collection</td></tr>
+<tr><td>Retrieval</td><td>Fast similarity search</td><td>Find top-5 chunks matching query in ms</td></tr>
+<tr><td>Filtering</td><td>Narrow by metadata</td><td>Only search docs from specific source/date</td></tr>
+<tr><td>Persistence</td><td>Survive restarts</td><td>PersistentClient keeps data on disk</td></tr>
+<tr><td>RAG</td><td>Complete retrieval layer</td><td>Retriever for LangChain RAG chain</td></tr>
+</table>
+
+<h3>IIT KGP Module Mapping</h3>
+<table>
+<tr><th>Module</th><th>How ChromaDB Is Used</th></tr>
+<tr><td>Module 2: RAG</td><td>Store and retrieve document embeddings for question answering</td></tr>
+<tr><td>Module 4: Agents</td><td>Agent memory / knowledge base for tool-augmented reasoning</td></tr>
+<tr><td>Module 5: Capstone</td><td>Persistent vector storage for deployed RAG application</td></tr>
+</table>
+
+<h2>5. ChromaDB vs Alternatives</h2>
+<table>
+<tr><th>Feature</th><th>ChromaDB</th><th>FAISS</th><th>Pinecone</th></tr>
+<tr><td>Setup</td><td>pip install (zero config)</td><td>pip install (lower level)</td><td>Cloud account required</td></tr>
+<tr><td>Persistence</td><td>Built-in (PersistentClient)</td><td>Manual (save/load index)</td><td>Cloud-managed</td></tr>
+<tr><td>Metadata filter</td><td>Yes (rich operators)</td><td>No (separate filtering)</td><td>Yes</td></tr>
+<tr><td>Scale</td><td>1M vectors (good)</td><td>1B+ vectors (excellent)</td><td>Unlimited (cloud)</td></tr>
+<tr><td>Best for</td><td>Prototyping, coursework, local apps</td><td>Scale + speed</td><td>Production cloud</td></tr>
+</table>
+
+<div class="tip"><b>For your IIT KGP coursework:</b> ChromaDB is the right choice. Simple, local, free. Move to FAISS (scale) or Pinecone (production) only when needed.</div>
+
+<h2>6. Common Mistakes</h2>
+<table>
+<tr><th>#</th><th>Mistake</th><th>Fix</th></tr>
+<tr><td>1</td><td>Non-unique IDs (overwrite silently)</td><td>Use content hashes or UUIDs as IDs</td></tr>
+<tr><td>2</td><td>Using in-memory client for real apps</td><td>PersistentClient(path) for data survival</td></tr>
+<tr><td>3</td><td>Mismatched embedding dimensions</td><td>Always use same model for store and query</td></tr>
+<tr><td>4</td><td>Not filtering by metadata</td><td>Use where= to narrow before similarity search</td></tr>
+<tr><td>5</td><td>Storing long texts without chunking</td><td>Split to 100-500 words first for precise retrieval</td></tr>
+<tr><td>6</td><td>Ignoring distance scores</td><td>Set threshold — low distance = high similarity</td></tr>
+</table>
+
+<h2>Quick Reference</h2>
+<div class="two-col">
+<h3>Client</h3>
+<div class="prompt">chromadb.Client()           # memory
+chromadb.PersistentClient(path)  # disk</div>
+
+<h3>Collection</h3>
+<div class="prompt">client.get_or_create_collection(name)
+collection.count()
+collection.peek(5)</div>
+
+<h3>CRUD</h3>
+<div class="prompt">collection.add(ids, documents, metadatas)
+collection.query(query_texts, n_results, where)
+collection.get(ids)
+collection.update(ids, documents)
+collection.upsert(ids, documents)
+collection.delete(ids)</div>
+
+<h3>Query Results</h3>
+<div class="prompt">results["ids"]         # matched IDs
+results["documents"]   # matched text
+results["metadatas"]   # matched metadata
+results["distances"]   # similarity (lower=better)</div>
+</div>
+
+<h2>Memory Map</h2>
+<div class="prompt">Setup
+  ├── Client (in-memory or persistent)
+  └── Collection (named group of embeddings)
+        │
+        ▼
+Ingestion
+  ├── add() — insert new documents
+  ├── upsert() — insert or update (prevents duplicates)
+  └── Auto-embed or pre-computed embeddings
+        │
+        ▼
+Retrieval
+  ├── query(query_texts) — semantic similarity search
+  ├── where= — metadata filters ($eq, $gt, $in, $and)
+  ├── where_document= — text content filter ($contains)
+  └── n_results — how many to return
+        │
+        ▼
+Maintenance
+  ├── update() — modify existing documents
+  ├── delete() — remove by ID or filter
+  └── get() — fetch by ID (non-semantic)
+        │
+        ▼
+Integration
+  ├── LangChain: Chroma.from_documents() → retriever
+  └── Raw: collection.query() → format → LLM prompt</div>
+
+<h2>Top Takeaways</h2>
+<table>
+<tr><th>#</th><th>Insight</th></tr>
+<tr><td>1</td><td>ChromaDB is "SQLite for vectors" — zero config, local, pip install and go</td></tr>
+<tr><td>2</td><td>Core flow: add(docs) → query(question) → get similar docs (that's it)</td></tr>
+<tr><td>3</td><td>Metadata filtering is critical — always store source, page, topic for precise retrieval</td></tr>
+<tr><td>4</td><td>PersistentClient saves data to disk — use for anything beyond quick testing</td></tr>
+<tr><td>5</td><td>Distance = lower is better (0 = identical, higher = less similar)</td></tr>
+<tr><td>6</td><td>Always chunk documents before storing — 500 chars is a good default</td></tr>
+<tr><td>7</td><td>Same embedding model for storage AND query (mismatch = garbage results)</td></tr>
+<tr><td>8</td><td>Content hashes as IDs prevent duplicates on re-ingestion</td></tr>
+</table>
+
+<h2>Ready to Move On?</h2>
+<div class="tip">
+<b>Self-Test Checklist:</b><br>
+☐ I can create a collection, add documents, and query for similar ones<br>
+☐ I understand embedding functions (text → vectors → stored in collection)<br>
+☐ I can use metadata filters to narrow search results<br>
+☐ I can integrate ChromaDB with LangChain as a retriever<br>
+☐ I know when to use ChromaDB vs FAISS vs managed solutions<br><br>
+<b>All checked → move to Pydantic.</b>
+</div>
+
+</body>
+</html>

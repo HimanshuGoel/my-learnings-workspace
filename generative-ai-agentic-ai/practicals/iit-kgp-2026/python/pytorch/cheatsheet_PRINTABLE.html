@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PyTorch — Printable Learning Notes</title>
+<style>
+  @page { margin: 0.5cm; size: A4; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+  h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+  h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+  h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+  ul { margin: 0 0 2px 12px; padding: 0; }
+  li { margin-bottom: 0.5px; }
+  .tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+  .prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+  .two-col { column-count: 2; column-gap: 10px; }
+  code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+  table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+  th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+  th { background: #f3f4f6; font-weight: bold; }
+  .diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+  .diagram svg { max-width: 100%; }
+  .diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+  .section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+  @media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+
+<h1>PyTorch — Complete Learning Notes</h1>
+<p><b>Summary:</b> PyTorch builds and trains neural networks with GPU acceleration and automatic gradient computation. It's the engine behind HuggingFace Transformers, Stable Diffusion, and most modern AI research.</p>
+
+<h2>Why PyTorch Exists</h2>
+<ul>
+<li><b>Problem</b> — traditional ML (sklearn) can't learn hierarchical patterns from raw images/text. Deep learning can, but requires GPU compute and automatic differentiation across millions of parameters.</li>
+<li><b>Solution</b> — PyTorch provides tensors (GPU-enabled arrays) + autograd (automatic calculus) + nn.Module (composable building blocks) with a Pythonic, debug-friendly interface.</li>
+<li><b>Mental Model</b> — <b>Angular + NumPy + Automatic Calculus</b>. Tensors = NumPy arrays that track math history. Autograd = calculates gradients for you. nn.Module = Angular Components you compose. Or: if sklearn is Spring Boot (magic .fit()), PyTorch is <b>Express.js</b> — you write the loop, you have full control.</li>
+<li><b>AI Connection</b> — every modern LLM (GPT, BERT, LLaMA) is a PyTorch nn.Module. HuggingFace Transformers is a wrapper around PyTorch.</li>
+</ul>
+
+<h2>Where PyTorch Fits</h2>
+<div class="diagram">
+<svg width="400" height="110" viewBox="0 0 400 110">
+<defs><marker id="arrT" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto"><path d="M0,0 L6,2 L0,4 Z" fill="#999"/></marker></defs>
+<rect x="5" y="35" width="80" height="35" rx="4" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="45" y="50" text-anchor="middle" font-size="6pt" font-weight="bold">Data</text>
+<text x="45" y="60" text-anchor="middle" font-size="5pt" fill="#666">NumPy / Pandas</text>
+<line x1="85" y1="52" x2="105" y2="52" stroke="#999" stroke-width="1" marker-end="url(#arrT)"/>
+<rect x="105" y="25" width="100" height="55" rx="4" fill="#ede9fe" stroke="#4F46E5" stroke-width="1.5"/>
+<text x="155" y="40" text-anchor="middle" font-size="7pt" font-weight="bold" fill="#4F46E5">PyTorch</text>
+<text x="155" y="52" text-anchor="middle" font-size="5.5pt" fill="#4F46E5">Define → Train → Infer</text>
+<text x="155" y="62" text-anchor="middle" font-size="5pt" fill="#4F46E5">Autograd + nn.Module</text>
+<text x="155" y="73" text-anchor="middle" font-size="5pt" fill="#666">(you are here)</text>
+<line x1="205" y1="52" x2="225" y2="52" stroke="#999" stroke-width="1" marker-end="url(#arrT)"/>
+<rect x="225" y="20" width="150" height="65" rx="4" fill="#f3f4f6" stroke="#ddd"/>
+<text x="300" y="35" text-anchor="middle" font-size="6pt" font-weight="bold">Built ON PyTorch</text>
+<text x="300" y="48" text-anchor="middle" font-size="5.5pt">HuggingFace Transformers</text>
+<text x="300" y="58" text-anchor="middle" font-size="5.5pt">Stable Diffusion</text>
+<text x="300" y="68" text-anchor="middle" font-size="5.5pt">LangChain (some parts)</text>
+<text x="300" y="78" text-anchor="middle" font-size="5.5pt">All LLM research (GPT, LLaMA)</text>
+</svg>
+<div class="diagram-caption">PyTorch is the foundation — everything in modern AI is built on top of it</div>
+</div>
+
+<h2>1. Tensors — NumPy Arrays with Superpowers</h2>
+<ul>
+<li><b>What</b> — multi-dimensional arrays (like NumPy) that can run on GPU and track computation history for automatic differentiation.</li>
+<li><b>Why not just NumPy?</b> — NumPy can't: (a) run on GPU, (b) automatically compute gradients. Both are essential for training neural networks.</li>
+<li><b>Conversion</b> — <code>torch.from_numpy(arr)</code> / <code>tensor.numpy()</code> — shares memory (zero-copy).</li>
+</ul>
+<div class="prompt">t = torch.randn(3, 4)         # random tensor
+t.shape    # torch.Size([3, 4])
+t.dtype    # torch.float32
+t.device   # cpu (or cuda:0)
+
+# GPU: tensor.to("cuda") | CPU: tensor.to("cpu")
+# NumPy ↔ Torch: shared memory, instant conversion</div>
+
+<h2>2. Autograd — Automatic Differentiation</h2>
+<p class="section-intro">The reason PyTorch exists. It computes gradients (derivatives) automatically — essential for training neural networks.</p>
+
+<div class="diagram">
+<svg width="380" height="75" viewBox="0 0 380 75">
+<defs><marker id="arrA" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto"><path d="M0,0 L6,2 L0,4 Z" fill="#4F46E5"/></marker>
+<marker id="arrB" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto"><path d="M0,0 L6,2 L0,4 Z" fill="#ef4444"/></marker></defs>
+<text x="10" y="12" font-size="6.5pt" font-weight="bold" fill="#4F46E5">Forward Pass (compute output):</text>
+<rect x="10" y="18" width="45" height="22" rx="3" fill="#dbeafe" stroke="#3b82f6"/><text x="32" y="32" text-anchor="middle" font-size="5.5pt">x=2</text>
+<line x1="55" y1="29" x2="70" y2="29" stroke="#4F46E5" stroke-width="1" marker-end="url(#arrA)"/>
+<rect x="70" y="18" width="55" height="22" rx="3" fill="#dbeafe" stroke="#3b82f6"/><text x="97" y="32" text-anchor="middle" font-size="5.5pt">y = x²+3x</text>
+<line x1="125" y1="29" x2="140" y2="29" stroke="#4F46E5" stroke-width="1" marker-end="url(#arrA)"/>
+<rect x="140" y="18" width="50" height="22" rx="3" fill="#dbeafe" stroke="#3b82f6"/><text x="165" y="32" text-anchor="middle" font-size="5.5pt">y = 10</text>
+<text x="10" y="52" font-size="6.5pt" font-weight="bold" fill="#ef4444">Backward Pass (compute gradient):</text>
+<rect x="140" y="56" width="50" height="18" rx="3" fill="#fee2e2" stroke="#ef4444"/><text x="165" y="68" text-anchor="middle" font-size="5.5pt">dy/dy=1</text>
+<line x1="140" y1="65" x2="125" y2="65" stroke="#ef4444" stroke-width="1" marker-end="url(#arrB)"/>
+<rect x="70" y="56" width="55" height="18" rx="3" fill="#fee2e2" stroke="#ef4444"/><text x="97" y="68" text-anchor="middle" font-size="5.5pt">dy/dx=2x+3</text>
+<line x1="70" y1="65" x2="55" y2="65" stroke="#ef4444" stroke-width="1" marker-end="url(#arrB)"/>
+<rect x="10" y="56" width="45" height="18" rx="3" fill="#fee2e2" stroke="#ef4444"/><text x="32" y="68" text-anchor="middle" font-size="5.5pt">grad=7</text>
+<text x="220" y="32" font-size="5.5pt" fill="#666">PyTorch tracks all ops</text>
+<text x="220" y="42" font-size="5.5pt" fill="#666">on requires_grad=True tensors</text>
+<text x="220" y="65" font-size="5.5pt" fill="#666">loss.backward() triggers this</text>
+</svg>
+<div class="diagram-caption">Autograd records forward ops, then computes gradients in reverse — no manual calculus needed</div>
+</div>
+
+<div class="prompt">x = torch.tensor([2.0], requires_grad=True)
+y = x**2 + 3*x   # forward
+y.backward()      # backward (auto-compute dy/dx)
+print(x.grad)     # tensor([7.]) — the gradient</div>
+
+<h2>3. nn.Module — Building Neural Networks</h2>
+<p class="section-intro">Every neural network in PyTorch is an nn.Module. It's the Component class of the framework.</p>
+
+<div class="diagram">
+<svg width="380" height="90" viewBox="0 0 380 90">
+<defs><marker id="arrN" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto"><path d="M0,0 L6,2 L0,4 Z" fill="#4F46E5"/></marker></defs>
+<rect x="5" y="30" width="55" height="30" rx="3" fill="#f3f4f6" stroke="#ddd"/>
+<text x="32" y="43" text-anchor="middle" font-size="5.5pt" font-weight="bold">Input</text>
+<text x="32" y="53" text-anchor="middle" font-size="5pt" fill="#666">(784,)</text>
+<line x1="60" y1="45" x2="80" y2="45" stroke="#4F46E5" stroke-width="1" marker-end="url(#arrN)"/>
+<rect x="80" y="25" width="65" height="40" rx="3" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="112" y="40" text-anchor="middle" font-size="5.5pt" font-weight="bold">Linear</text>
+<text x="112" y="50" text-anchor="middle" font-size="5pt">784→128</text>
+<text x="112" y="60" text-anchor="middle" font-size="5pt" fill="#059669">+ ReLU</text>
+<line x1="145" y1="45" x2="165" y2="45" stroke="#4F46E5" stroke-width="1" marker-end="url(#arrN)"/>
+<rect x="165" y="25" width="65" height="40" rx="3" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="197" y="40" text-anchor="middle" font-size="5.5pt" font-weight="bold">Linear</text>
+<text x="197" y="50" text-anchor="middle" font-size="5pt">128→64</text>
+<text x="197" y="60" text-anchor="middle" font-size="5pt" fill="#059669">+ ReLU</text>
+<line x1="230" y1="45" x2="250" y2="45" stroke="#4F46E5" stroke-width="1" marker-end="url(#arrN)"/>
+<rect x="250" y="30" width="60" height="30" rx="3" fill="#dcfce7" stroke="#22c55e"/>
+<text x="280" y="43" text-anchor="middle" font-size="5.5pt" font-weight="bold">Output</text>
+<text x="280" y="53" text-anchor="middle" font-size="5pt" fill="#666">64→10</text>
+<text x="112" y="80" font-size="5.5pt" fill="#4F46E5">__init__: declare layers</text>
+<text x="250" y="80" font-size="5.5pt" fill="#4F46E5">forward(): define data flow</text>
+</svg>
+<div class="diagram-caption">nn.Module = Angular Component. __init__ = template setup. forward() = render method.</div>
+</div>
+
+<div class="prompt">class MyModel(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(784, 128), nn.ReLU(), nn.Dropout(0.3),
+            nn.Linear(128, 10))
+    def forward(self, x):
+        return self.net(x)</div>
+
+<h2>4. The Training Loop — Heart of Deep Learning</h2>
+<p class="section-intro">Unlike sklearn's .fit(), PyTorch makes the loop explicit. This gives full control over every step.</p>
+
+<div class="diagram">
+<svg width="380" height="65" viewBox="0 0 380 65">
+<defs><marker id="arrL" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto"><path d="M0,0 L6,2 L0,4 Z" fill="#4F46E5"/></marker></defs>
+<rect x="5" y="15" width="75" height="35" rx="4" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="42" y="30" text-anchor="middle" font-size="6pt" font-weight="bold">1. Forward</text>
+<text x="42" y="42" text-anchor="middle" font-size="5pt" fill="#666">output=model(x)</text>
+<line x1="80" y1="32" x2="95" y2="32" stroke="#4F46E5" stroke-width="1.2" marker-end="url(#arrL)"/>
+<rect x="95" y="15" width="75" height="35" rx="4" fill="#fef3c7" stroke="#f59e0b"/>
+<text x="132" y="30" text-anchor="middle" font-size="6pt" font-weight="bold">2. Loss</text>
+<text x="132" y="42" text-anchor="middle" font-size="5pt" fill="#666">loss=criterion()</text>
+<line x1="170" y1="32" x2="185" y2="32" stroke="#4F46E5" stroke-width="1.2" marker-end="url(#arrL)"/>
+<rect x="185" y="15" width="75" height="35" rx="4" fill="#fee2e2" stroke="#ef4444"/>
+<text x="222" y="30" text-anchor="middle" font-size="6pt" font-weight="bold">3. Backward</text>
+<text x="222" y="42" text-anchor="middle" font-size="5pt" fill="#666">loss.backward()</text>
+<line x1="260" y1="32" x2="275" y2="32" stroke="#4F46E5" stroke-width="1.2" marker-end="url(#arrL)"/>
+<rect x="275" y="15" width="80" height="35" rx="4" fill="#dcfce7" stroke="#22c55e"/>
+<text x="315" y="30" text-anchor="middle" font-size="6pt" font-weight="bold">4. Step</text>
+<text x="315" y="42" text-anchor="middle" font-size="5pt" fill="#666">optimizer.step()</text>
+<text x="190" y="60" text-anchor="middle" font-size="5.5pt" fill="#4F46E5">← Repeat for every batch, every epoch →</text>
+</svg>
+<div class="diagram-caption">The 4 steps of every training iteration: forward → loss → backward → update weights</div>
+</div>
+
+<div class="prompt">for epoch in range(num_epochs):
+    for X_batch, y_batch in train_loader:
+        optimizer.zero_grad()           # clear old gradients
+        output = model(X_batch)         # forward pass
+        loss = criterion(output, y_batch)  # compute loss
+        loss.backward()                 # compute gradients
+        optimizer.step()                # update weights</div>
+
+<div class="tip"><b>Don't forget:</b> <code>optimizer.zero_grad()</code> before backward! Gradients accumulate by default — omitting this causes exploding updates.</div>
+
+<h2>5. Common Layers, Losses & Optimizers</h2>
+
+<h3>Layers</h3>
+<table>
+<tr><th>Layer</th><th>Purpose</th><th>Used In</th></tr>
+<tr><td><code>nn.Linear(in, out)</code></td><td>Fully connected</td><td>Every network</td></tr>
+<tr><td><code>nn.ReLU()</code></td><td>Activation (non-linearity)</td><td>Between layers</td></tr>
+<tr><td><code>nn.Dropout(p)</code></td><td>Regularization (prevent overfitting)</td><td>Training only</td></tr>
+<tr><td><code>nn.Embedding(vocab, dim)</code></td><td>Token IDs → vectors</td><td>First layer in all LLMs</td></tr>
+<tr><td><code>nn.LayerNorm(dim)</code></td><td>Normalize activations</td><td>Transformers</td></tr>
+<tr><td><code>nn.MultiheadAttention</code></td><td>Self-attention</td><td>Core of Transformers</td></tr>
+<tr><td><code>nn.Conv2d(in, out, k)</code></td><td>Spatial patterns</td><td>Image models</td></tr>
+<tr><td><code>nn.LSTM(in, hidden)</code></td><td>Sequential data</td><td>Time series, old NLP</td></tr>
+</table>
+
+<h3>Loss Functions</h3>
+<table>
+<tr><th>Loss</th><th>Task</th><th>Note</th></tr>
+<tr><td><code>nn.CrossEntropyLoss()</code></td><td>Multi-class classification</td><td>Includes softmax — don't apply softmax yourself!</td></tr>
+<tr><td><code>nn.BCEWithLogitsLoss()</code></td><td>Binary classification</td><td>Includes sigmoid — pass raw logits</td></tr>
+<tr><td><code>nn.MSELoss()</code></td><td>Regression</td><td>Mean squared error</td></tr>
+</table>
+
+<h3>Optimizers</h3>
+<table>
+<tr><th>Optimizer</th><th>When</th></tr>
+<tr><td><code>Adam(params, lr=1e-3)</code></td><td>Default choice for everything</td></tr>
+<tr><td><code>AdamW(params, lr=1e-3)</code></td><td>Transformers (Adam + weight decay)</td></tr>
+<tr><td><code>SGD(params, lr=0.01, momentum=0.9)</code></td><td>Large-scale vision models</td></tr>
+</table>
+
+<h2>6. Evaluation & Inference</h2>
+<div class="prompt">model.eval()                    # disable dropout, batch norm
+with torch.no_grad():           # don't track gradients (saves memory)
+    output = model(test_data)
+    preds = output.argmax(dim=1)
+model.train()                   # re-enable for next training</div>
+
+<div class="tip"><b>Two things to remember for inference:</b> (1) <code>model.eval()</code> — changes dropout/batchnorm behavior. (2) <code>torch.no_grad()</code> — saves memory and speeds up computation.</div>
+
+<h2>7. AI/ML Connection — Detailed</h2>
+<table>
+<tr><th>Pipeline Stage</th><th>PyTorch Component</th><th>Concrete Example</th></tr>
+<tr><td>Model Definition</td><td>nn.Module, nn.Sequential</td><td>Define Transformer encoder architecture</td></tr>
+<tr><td>Training</td><td>Training loop + autograd</td><td>Fine-tune BERT for sentiment analysis</td></tr>
+<tr><td>Inference</td><td>model.eval() + no_grad()</td><td>Generate embeddings from a sentence-transformer</td></tr>
+<tr><td>Transfer Learning</td><td>Freeze layers + new head</td><td>Add classification layer to pre-trained model</td></tr>
+<tr><td>Fine-tuning (PEFT)</td><td>requires_grad manipulation</td><td>LoRA: only train low-rank adapter matrices</td></tr>
+<tr><td>Saving/Loading</td><td>state_dict</td><td>Save checkpoints, share model weights</td></tr>
+</table>
+
+<h3>IIT KGP Module Mapping</h3>
+<table>
+<tr><th>Module</th><th>How PyTorch Is Used</th></tr>
+<tr><td>Module 1: GenAI</td><td>Understanding Transformer internals (attention, embeddings, forward pass)</td></tr>
+<tr><td>Module 3: Fine-Tuning</td><td>LoRA/PEFT operates on PyTorch parameters — freeze/unfreeze layers</td></tr>
+<tr><td>Module 4: Multimodal</td><td>Compose vision + language models as nn.Modules</td></tr>
+<tr><td>Module 5: Deployment</td><td>Export with torch.jit or ONNX for production serving</td></tr>
+</table>
+
+<h2>8. Common Mistakes</h2>
+<table>
+<tr><th>#</th><th>Mistake</th><th>Fix</th></tr>
+<tr><td>1</td><td>Forgetting optimizer.zero_grad()</td><td>Always zero before backward (gradients accumulate!)</td></tr>
+<tr><td>2</td><td>Not switching train/eval mode</td><td>model.train() for training, model.eval() for inference</td></tr>
+<tr><td>3</td><td>Forgetting torch.no_grad() at inference</td><td>Wrap eval code in <code>with torch.no_grad():</code></td></tr>
+<tr><td>4</td><td>Device mismatch (model GPU, data CPU)</td><td>.to(device) both model AND data</td></tr>
+<tr><td>5</td><td>Applying softmax before CrossEntropyLoss</td><td>CrossEntropyLoss includes softmax — pass raw logits</td></tr>
+<tr><td>6</td><td>Learning rate too high</td><td>Start with 1e-3 for Adam, reduce if loss oscillates</td></tr>
+</table>
+
+<h2>9. When NOT to Use PyTorch</h2>
+<table>
+<tr><th>Scenario</th><th>Use Instead</th><th>Why</th></tr>
+<tr><td>Tabular data (structured)</td><td>Scikit-Learn, XGBoost</td><td>Simpler, often better for tables</td></tr>
+<tr><td>Quick pre-trained model inference</td><td>HuggingFace pipeline()</td><td>Hides PyTorch complexity</td></tr>
+<tr><td>Production serving (max speed)</td><td>ONNX Runtime, TensorRT</td><td>Optimized inference engines</td></tr>
+<tr><td>Distributed training at scale</td><td>PyTorch Lightning, DeepSpeed</td><td>Handles multi-GPU boilerplate</td></tr>
+</table>
+
+<h2>Quick Reference</h2>
+<div class="two-col">
+<h3>Tensor Creation</h3>
+<div class="prompt">torch.tensor(data)  torch.zeros(shape)
+torch.ones(shape)   torch.randn(shape)
+torch.arange(n)     torch.from_numpy(arr)</div>
+
+<h3>Operations</h3>
+<div class="prompt">a @ b  torch.matmul(a, b)
+a.reshape()  a.view()
+a.unsqueeze(0)  a.squeeze()
+torch.cat([a,b])  torch.stack([a,b])
+a.sum(dim=0)  a.argmax(dim=1)</div>
+
+<h3>Training</h3>
+<div class="prompt">optimizer.zero_grad()
+output = model(batch)
+loss = criterion(output, target)
+loss.backward()
+optimizer.step()</div>
+
+<h3>Eval</h3>
+<div class="prompt">model.eval()
+with torch.no_grad():
+    pred = model(data).argmax(dim=1)</div>
+
+<h3>Save/Load</h3>
+<div class="prompt">torch.save(model.state_dict(), "m.pth")
+model.load_state_dict(torch.load("m.pth"))</div>
+</div>
+
+<h2>AI Translation Table</h2>
+<table>
+<tr><th>PyTorch Concept</th><th>AI Interpretation</th><th>Example</th></tr>
+<tr><td>Tensor</td><td>Data container (inputs, weights, outputs)</td><td>Image = (3, 224, 224) tensor</td></tr>
+<tr><td>requires_grad</td><td>"This is a learnable parameter"</td><td>Model weights track gradients</td></tr>
+<tr><td>backward()</td><td>Backpropagation (compute all gradients)</td><td>How model learns from errors</td></tr>
+<tr><td>nn.Module</td><td>Model architecture</td><td>GPT, BERT, ResNet — all nn.Modules</td></tr>
+<tr><td>forward()</td><td>One prediction computation</td><td>Input → layers → output</td></tr>
+<tr><td>nn.Embedding</td><td>Token → vector lookup</td><td>First layer of every LLM</td></tr>
+<tr><td>CrossEntropyLoss</td><td>"How wrong is the prediction?"</td><td>Standard classification loss</td></tr>
+<tr><td>Adam optimizer</td><td>"How to adjust weights"</td><td>Default for almost everything</td></tr>
+<tr><td>DataLoader</td><td>Feed data in batches</td><td>32 samples at a time to GPU</td></tr>
+<tr><td>model.eval()</td><td>Inference mode</td><td>Disable dropout for stable predictions</td></tr>
+<tr><td>state_dict</td><td>Model weights (checkpoint)</td><td>Save/share trained models</td></tr>
+<tr><td>requires_grad=False</td><td>Freeze layer (don't train)</td><td>Transfer learning / LoRA</td></tr>
+</table>
+
+<h2>Memory Map</h2>
+<div class="prompt">Tensors (The Data)
+  ├── Creation: tensor, zeros, randn, from_numpy
+  ├── Properties: shape, dtype, device, requires_grad
+  └── Operations: math, reshape, indexing (like NumPy)
+        │
+        ▼
+Autograd (The Learning Mechanism)
+  ├── requires_grad=True → track operations
+  ├── loss.backward() → compute all gradients
+  └── optimizer.step() → update weights using gradients
+        │
+        ▼
+nn.Module (The Architecture)
+  ├── __init__: declare layers (Linear, ReLU, Dropout, Embedding)
+  ├── forward(): define data flow
+  └── Compose: small modules → big models
+        │
+        ▼
+Training Loop (The Process)
+  ├── DataLoader → batches
+  ├── For each batch: forward → loss → backward → step
+  ├── Track loss per epoch
+  └── Evaluate periodically (model.eval + no_grad)
+        │
+        ▼
+Production
+  ├── model.eval() + no_grad → fast inference
+  ├── state_dict → save/load checkpoints
+  └── Transfer learning → freeze + new head</div>
+
+<h2>Top Takeaways (Ranked)</h2>
+<table>
+<tr><th>#</th><th>Insight</th></tr>
+<tr><td>1</td><td>Tensors = NumPy arrays + GPU + gradient tracking (that's the key difference)</td></tr>
+<tr><td>2</td><td>Autograd eliminates manual calculus — loss.backward() computes all gradients</td></tr>
+<tr><td>3</td><td>The training loop is 4 steps: forward → loss → backward → step (memorize this)</td></tr>
+<tr><td>4</td><td>nn.Module is the building block — every LLM is just a composition of modules</td></tr>
+<tr><td>5</td><td>Always zero_grad() before backward() — gradients accumulate by default</td></tr>
+<tr><td>6</td><td>model.eval() + torch.no_grad() for inference — changes dropout/batchnorm behavior</td></tr>
+<tr><td>7</td><td>CrossEntropyLoss includes softmax — never apply softmax manually before it</td></tr>
+<tr><td>8</td><td>Transfer learning = freeze pre-trained layers + train only new head</td></tr>
+<tr><td>9</td><td>HuggingFace Transformers is just a collection of PyTorch nn.Modules with pretrained weights</td></tr>
+<tr><td>10</td><td>Understanding PyTorch fundamentals makes fine-tuning (LoRA/PEFT) far less mysterious</td></tr>
+</table>
+
+<h2>Ready to Move On?</h2>
+<div class="tip">
+<b>Self-Test Checklist:</b><br>
+☐ I can create tensors, move between CPU/GPU, convert to/from NumPy<br>
+☐ I understand autograd (requires_grad, backward, grad) conceptually<br>
+☐ I can define a simple nn.Module with layers and a forward method<br>
+☐ I can write a training loop (forward, loss, backward, step)<br>
+☐ I know the difference between model.train() and model.eval()<br><br>
+<b>All checked → move to Transformers (HuggingFace).</b>
+</div>
+
+</body>
+</html>

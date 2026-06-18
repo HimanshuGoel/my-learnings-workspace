@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Stage 1 — Set Theory & Mathematical Thinking — Printable Notes</title>
+<style>
+  @page { margin: 0.5cm; size: A4; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+  h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+  h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+  h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+  ul { margin: 0 0 2px 12px; padding: 0; }
+  li { margin-bottom: 0.5px; }
+  .tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+  .prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+  .two-col { column-count: 2; column-gap: 10px; }
+  .three-col { column-count: 3; column-gap: 10px; }
+  code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+  table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+  th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+  th { background: #f3f4f6; font-weight: bold; }
+  .diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+  .diagram svg { max-width: 100%; }
+  .diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+  .diagram-row { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 8px; margin: 4px 0; break-inside: avoid; }
+  .diagram-row .diagram { flex: 1; min-width: 120px; max-width: 250px; }
+  .section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+  @media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+
+<h1>Stage 1 — Set Theory &amp; Mathematical Thinking</h1>
+<p><b>Summary:</b> Set theory provides the foundational language for grouping, filtering, and logically reasoning about collections of objects — the same operations AI uses for retrieval, classification, and Boolean logic.</p>
+
+<h2>Why This Matters for AI</h2>
+<ul>
+<li><b>Queries &amp; Filters</b> — every database query, search filter, and classification system is built on set operations (union, intersection, complement)</li>
+<li><b>RAG Systems</b> — Retrieval-Augmented Generation systems filter documents using set-theoretic conditions like <code>{x | similarity &gt; 0.8}</code></li>
+<li><b>Boolean Logic</b> — Boolean logic in AI moderation, safety filters, and rule engines maps directly to set operations and De Morgan's Laws</li>
+<li><b>Combinatorics</b> — feature selection and combinatorial search spaces use power sets and Cartesian products</li>
+<li><b>Probability Foundation</b> — understanding sets builds the mental framework for probability (events are sets of outcomes)</li>
+</ul>
+
+<h2>1.1 Defining Sets</h2>
+<p class="section-intro">Before we can do anything with groups of objects, we need ways to define them. There are three approaches: list the members explicitly, state a rule for membership, or generate members step-by-step.</p>
+
+<h3>1. Roster Form</h3>
+<ul>
+<li><b>Meaning</b> — Explicitly listing every element of a set inside curly braces. This is the most direct way to define a set — you simply write out what's in it.</li>
+<li><b>Why It Exists</b> — When the set is small and concrete, listing members is the clearest and most unambiguous way to communicate what belongs.</li>
+<li><b>Formula</b> — <code>A = {1, 2, 3}</code></li>
+<li><b>Example</b> — <code>Fruits = {apple, banana, mango}</code>. The set of primary colors: <code>{red, blue, yellow}</code>.</li>
+<li><b>Mental Model</b> — A guest list for a party. You write every name explicitly — no ambiguity about who's invited.</li>
+<li><b>AI Connection</b> — Retrieved documents in a RAG system, user groups, tag sets — all finite explicit collections.</li>
+<li><b>Common Mistake</b> — Order doesn't matter (<code>{1,2,3} = {3,1,2}</code>) and duplicates are ignored (<code>{1,1,2} = {1,2}</code>).</li>
+</ul>
+
+<h3>2. Set Builder Form</h3>
+<ul>
+<li><b>Meaning</b> — Define a set using a rule or condition that members must satisfy. Instead of listing elements, you state what property makes something belong.</li>
+<li><b>Why It Exists</b> — Many sets are too large or infinite to list explicitly. A rule-based definition handles sets of any size: "all even numbers" or "all employees earning above 10 lakhs."</li>
+<li><b>Formula</b> — <code>{x | condition}</code> — read as "the set of all x such that condition is true"</li>
+<li><b>Example</b> — <code>E = {x | x is even}</code> defines all even numbers. <code>HighSalary = {emp | emp.salary &gt; 1000000}</code> defines high earners.</li>
+<li><b>Mental Model</b> — Entry criteria for a club. You don't list members — you state the rule, and anyone meeting it belongs.</li>
+<li><b>AI Connection</b> — Every database WHERE clause, every search filter, and every RAG retrieval condition (<code>{x | similarity(x, query) &gt; 0.8}</code>) is a set builder definition.</li>
+</ul>
+
+<h3>3. Recursive Form</h3>
+<ul>
+<li><b>Meaning</b> — Define a set by providing a starting point and a generation rule. Each new element is built from previous ones using the rule.</li>
+<li><b>Why It Exists</b> — Some sets are naturally defined by a process rather than a property. Natural numbers, Fibonacci sequences, and tree structures are all recursive.</li>
+<li><b>Formula</b> — (1) Base case: <code>1 ∈ S</code>, (2) Rule: if <code>x ∈ S</code> then <code>x + 1 ∈ S</code></li>
+<li><b>Example</b> — Natural numbers: start with 1, keep adding 1. Fibonacci: start with (1,1), each new term is the sum of the previous two.</li>
+<li><b>Mental Model</b> — A staircase: you define the first step and the rule for building each next step from the previous one.</li>
+<li><b>AI Connection</b> — Chain-of-thought reasoning (each step builds on the last), iterative token prediction in LLMs (each token depends on previous tokens), recursive tree traversal in agents.</li>
+</ul>
+
+<h2>1.2 Set Relationships</h2>
+<p class="section-intro">Now that we can define sets, the next question is: how do sets relate to each other? Can one contain another? What's outside a set?</p>
+
+<h3>4. Subsets</h3>
+<ul>
+<li><b>Meaning</b> — Set A is a subset of set B if every single element of A is also in B. A is "inside" B — nothing in A is missing from B.</li>
+<li><b>Why It Exists</b> — Hierarchy and classification require knowing when one group is entirely contained within another. "All dogs are animals" means Dogs ⊆ Animals.</li>
+<li><b>Formula</b> — <code>A ⊆ B</code> means every element of A belongs to B</li>
+<li><b>Example</b> — <code>{1, 2} ⊆ {1, 2, 3, 4}</code>. Engineering employees ⊆ All employees.</li>
+<li><b>Mental Model</b> — A small circle completely inside a bigger circle in a Venn diagram.</li>
+<li><b>AI Connection</b> — Classification hierarchies (poodle ⊆ dog ⊆ animal), permission systems (admin privileges ⊆ all possible privileges), filtering pipelines (each filter produces a subset of the input).</li>
+<li><b>Important Properties:</b>
+  <ul>
+  <li>Every set is a subset of itself: <code>A ⊆ A</code></li>
+  <li>Empty set is a subset of everything: <code>∅ ⊆ A</code> (for any A)</li>
+  <li>Transitive: if <code>A ⊆ B</code> and <code>B ⊆ C</code> then <code>A ⊆ C</code></li>
+  </ul>
+</li>
+</ul>
+
+<h3>5. Complement of a Set</h3>
+<ul>
+<li><b>Meaning</b> — The complement of set A is everything in the universal set that is NOT in A. It's the mathematical way of saying "everything else."</li>
+<li><b>Why It Exists</b> — Many problems are easier to solve by thinking about what's excluded rather than what's included. "Not spam" is often easier to define than "all legitimate emails."</li>
+<li><b>Formula</b> — <code>Aᶜ = {x ∈ U | x ∉ A}</code> where U is the universal set</li>
+<li><b>Example</b> — If <code>U = {1,2,3,4,5}</code> and <code>A = {2,4}</code>, then <code>Aᶜ = {1,3,5}</code>.</li>
+<li><b>Mental Model</b> — Everything outside the fence. A is inside, Aᶜ is everything outside.</li>
+<li><b>AI Connection</b> — Content moderation: safe prompts vs unsafe prompts (Aᶜ). Spam filtering: not-spam = complement of spam. Any binary classification is essentially a set and its complement.</li>
+<li><b>Key Properties:</b> <code>A ∪ Aᶜ = U</code> (together they cover everything), <code>A ∩ Aᶜ = ∅</code> (no overlap), <code>(Aᶜ)ᶜ = A</code> (complement of complement = original)</li>
+</ul>
+
+<!-- Venn Diagram: A∩B, A∪B, Aᶜ -->
+<div class="diagram-row">
+<div class="diagram">
+<svg width="160" height="110" viewBox="0 0 160 110">
+<rect x="2" y="2" width="156" height="106" fill="none" stroke="#ccc" stroke-width="0.5"/>
+<text x="6" y="12" font-size="5.5pt" fill="#666">U (Universal Set)</text>
+<circle cx="58" cy="58" r="35" fill="rgba(79,70,229,0.15)" stroke="#4F46E5" stroke-width="1"/>
+<circle cx="102" cy="58" r="35" fill="rgba(245,158,11,0.15)" stroke="#f59e0b" stroke-width="1"/>
+<text x="38" y="62" font-size="7pt" fill="#4F46E5" font-weight="bold">A</text>
+<text x="112" y="62" font-size="7pt" fill="#f59e0b" font-weight="bold">B</text>
+<text x="73" y="62" font-size="6pt" fill="#1a1a1a" font-weight="bold">A∩B</text>
+</svg>
+<div class="diagram-caption">Intersection (A∩B): elements in BOTH sets</div>
+</div>
+<div class="diagram">
+<svg width="160" height="110" viewBox="0 0 160 110">
+<rect x="2" y="2" width="156" height="106" fill="none" stroke="#ccc" stroke-width="0.5"/>
+<text x="6" y="12" font-size="5.5pt" fill="#666">U (Universal Set)</text>
+<circle cx="58" cy="58" r="35" fill="rgba(79,70,229,0.25)" stroke="#4F46E5" stroke-width="1"/>
+<circle cx="102" cy="58" r="35" fill="rgba(79,70,229,0.25)" stroke="#4F46E5" stroke-width="1"/>
+<text x="38" y="62" font-size="7pt" fill="#fff" font-weight="bold">A</text>
+<text x="112" y="62" font-size="7pt" fill="#fff" font-weight="bold">B</text>
+<text x="62" y="100" font-size="6pt" fill="#4F46E5" font-weight="bold">A∪B</text>
+</svg>
+<div class="diagram-caption">Union (A∪B): elements in EITHER set</div>
+</div>
+<div class="diagram">
+<svg width="160" height="110" viewBox="0 0 160 110">
+<rect x="2" y="2" width="156" height="106" fill="rgba(245,158,11,0.12)" stroke="#ccc" stroke-width="0.5"/>
+<text x="6" y="12" font-size="5.5pt" fill="#666">U (Universal Set)</text>
+<circle cx="80" cy="58" r="30" fill="#fff" stroke="#4F46E5" stroke-width="1.2"/>
+<text x="73" y="62" font-size="7pt" fill="#4F46E5" font-weight="bold">A</text>
+<text x="120" y="95" font-size="6.5pt" fill="#f59e0b" font-weight="bold">Aᶜ</text>
+</svg>
+<div class="diagram-caption">Complement (Aᶜ): everything OUTSIDE A</div>
+</div>
+</div>
+
+<h3>6. Complement Laws</h3>
+<ul>
+<li><b>Meaning</b> — A collection of rules governing how complements behave. These are the logical foundations for NOT operations over sets.</li>
+<li><b>Why It Exists</b> — These laws let us simplify complex expressions involving complements, just as algebraic rules simplify equations.</li>
+<li><b>Formula:</b>
+  <ul>
+  <li>Double Complement: <code>(Aᶜ)ᶜ = A</code> (NOT NOT A = A)</li>
+  <li>Union with Complement: <code>A ∪ Aᶜ = U</code> (everything is either in or out)</li>
+  <li>Intersection with Complement: <code>A ∩ Aᶜ = ∅</code> (nothing is both in and out)</li>
+  </ul>
+</li>
+<li><b>Example</b> — In JavaScript: <code>!!isLoggedIn === isLoggedIn</code>. Double negation cancels out.</li>
+<li><b>Mental Model</b> — Flipping a light switch twice puts it back where it started.</li>
+<li><b>AI Connection</b> — Boolean simplification in rule engines, moderation pipelines, and query optimization.</li>
+</ul>
+
+<h3>7. Symmetric Difference</h3>
+<ul>
+<li><b>Meaning</b> — The symmetric difference contains elements that belong to ONLY one set, not both. It captures what's different between two groups — the non-overlapping parts.</li>
+<li><b>Why It Exists</b> — Sometimes we need to know: "what does A have that B doesn't, AND what does B have that A doesn't?" This is the "difference" between two sets in both directions.</li>
+<li><b>Formula</b> — <code>A △ B = (A ∪ B) - (A ∩ B)</code> or equivalently <code>(A - B) ∪ (B - A)</code></li>
+<li><b>Example</b> — <code>A = {1,2,3}</code>, <code>B = {3,4,5}</code>. Common: <code>{3}</code>. Symmetric difference: <code>{1,2,4,5}</code> — everything except the overlap.</li>
+<li><b>Mental Model</b> — "What's different between us?" If two friends list their skills, the symmetric difference shows skills that only one of them has.</li>
+<li><b>AI Connection</b> — Comparing model outputs (what did model A predict differently from model B?), dataset drift detection (what changed between training and production data?), diff operations.</li>
+</ul>
+
+<h2>1.3 Set Constructions</h2>
+<p class="section-intro">We can also build entirely new sets from existing ones. These constructions create larger or more complex sets and are the basis for feature engineering and search space analysis in AI.</p>
+
+<h3>8. Cartesian Product</h3>
+<ul>
+<li><b>Meaning</b> — The Cartesian product of two sets creates ALL possible ordered pairs by combining every element of the first set with every element of the second set.</li>
+<li><b>Why It Exists</b> — Many problems require considering all possible combinations between two categories. "All possible shirt-pant outfits" or "all possible user-product pairs" are Cartesian products.</li>
+<li><b>Formula</b> — <code>A × B = {(a, b) | a ∈ A, b ∈ B}</code>. Size: <code>|A × B| = |A| × |B|</code></li>
+<li><b>Example</b> — <code>A = {1, 2}</code>, <code>B = {x, y}</code>. <code>A × B = {(1,x), (1,y), (2,x), (2,y)}</code>. That's 2 × 2 = 4 pairs.</li>
+<li><b>Mental Model</b> — A menu with 3 starters and 4 mains gives 12 possible meal combinations. Every starter paired with every main.</li>
+<li><b>AI Connection</b> — Feature combinations in recommendation systems (all user × product pairs to score), coordinate systems (2D space = ℝ × ℝ), attention matrices (all query × key pairs).</li>
+<li><b>Common Mistake</b> — Order matters in Cartesian products: <code>(1, x) ≠ (x, 1)</code>. Also, <code>A × B ≠ B × A</code> in general.</li>
+</ul>
+
+<!-- Cartesian Product Grid Diagram -->
+<div class="diagram">
+<svg width="220" height="130" viewBox="0 0 220 130">
+<text x="10" y="12" font-size="6.5pt" fill="#1a1a1a" font-weight="bold">A × B where A={1,2,3}, B={x,y}</text>
+<!-- Grid lines -->
+<line x1="50" y1="25" x2="50" y2="120" stroke="#ccc" stroke-width="0.5"/>
+<line x1="100" y1="25" x2="100" y2="120" stroke="#ccc" stroke-width="0.5"/>
+<line x1="150" y1="25" x2="150" y2="120" stroke="#ccc" stroke-width="0.5"/>
+<line x1="30" y1="55" x2="170" y2="55" stroke="#ccc" stroke-width="0.5"/>
+<line x1="30" y1="95" x2="170" y2="95" stroke="#ccc" stroke-width="0.5"/>
+<!-- Column headers (A elements) -->
+<text x="45" y="38" font-size="7pt" fill="#4F46E5" font-weight="bold">1</text>
+<text x="95" y="38" font-size="7pt" fill="#4F46E5" font-weight="bold">2</text>
+<text x="145" y="38" font-size="7pt" fill="#4F46E5" font-weight="bold">3</text>
+<!-- Row headers (B elements) -->
+<text x="35" y="60" font-size="7pt" fill="#f59e0b" font-weight="bold">x</text>
+<text x="35" y="100" font-size="7pt" fill="#f59e0b" font-weight="bold">y</text>
+<!-- Pair dots and labels -->
+<circle cx="50" cy="55" r="3" fill="#4F46E5"/>
+<text x="42" y="70" font-size="5.5pt" fill="#1a1a1a">(1,x)</text>
+<circle cx="100" cy="55" r="3" fill="#4F46E5"/>
+<text x="92" y="70" font-size="5.5pt" fill="#1a1a1a">(2,x)</text>
+<circle cx="150" cy="55" r="3" fill="#4F46E5"/>
+<text x="142" y="70" font-size="5.5pt" fill="#1a1a1a">(3,x)</text>
+<circle cx="50" cy="95" r="3" fill="#f59e0b"/>
+<text x="42" y="110" font-size="5.5pt" fill="#1a1a1a">(1,y)</text>
+<circle cx="100" cy="95" r="3" fill="#f59e0b"/>
+<text x="92" y="110" font-size="5.5pt" fill="#1a1a1a">(2,y)</text>
+<circle cx="150" cy="95" r="3" fill="#f59e0b"/>
+<text x="142" y="110" font-size="5.5pt" fill="#1a1a1a">(3,y)</text>
+<!-- Size annotation -->
+<text x="175" y="75" font-size="6pt" fill="#666">|A|×|B|</text>
+<text x="175" y="85" font-size="6pt" fill="#666">= 3×2 = 6</text>
+</svg>
+<div class="diagram-caption">Cartesian Product: every element of A paired with every element of B — a grid of all combinations</div>
+</div>
+
+<h3>9. Power Set</h3>
+<ul>
+<li><b>Meaning</b> — The power set of A is the set of ALL possible subsets of A, including the empty set and A itself. It represents every possible way to select (or not select) elements.</li>
+<li><b>Why It Exists</b> — When you need to consider "every possible combination of selections," you're working with the power set. This is the mathematical foundation of combinatorial search.</li>
+<li><b>Formula</b> — <code>P(A)</code> has <code>2ⁿ</code> elements where n = |A|</li>
+<li><b>Example</b> — <code>A = {1, 2}</code>. <code>P(A) = {∅, {1}, {2}, {1,2}}</code> — that's 2² = 4 subsets.</li>
+<li><b>Mental Model</b> — All possible team formations from a player pool. For each player, you decide: include or exclude? That's 2 choices per player, giving 2ⁿ total combinations.</li>
+<li><b>AI Connection</b> — Feature selection (which subset of features to use?), search spaces in planning, combinatorial explosion (why brute-force search becomes impossible — 2²⁰ &gt; 1 million possible subsets from just 20 items).</li>
+</ul>
+<div class="tip"><b>In Plain English:</b> The power set shows why AI needs heuristics. Even a modest set of 30 features has 2³⁰ ≈ 1 billion possible subsets. You can't check them all — you need smart search strategies.</div>
+
+<!-- Power Set Tree Diagram -->
+<div class="diagram">
+<svg width="280" height="130" viewBox="0 0 280 130">
+<text x="10" y="12" font-size="6.5pt" fill="#1a1a1a" font-weight="bold">Power Set of {a, b, c} → 2³ = 8 subsets</text>
+<!-- Tree structure showing include/exclude decisions -->
+<circle cx="140" cy="30" r="3" fill="#4F46E5"/>
+<text x="148" y="33" font-size="5.5pt" fill="#666">Start</text>
+<!-- Level 1: include/exclude a -->
+<line x1="140" y1="33" x2="80" y2="55" stroke="#4F46E5" stroke-width="0.8"/>
+<line x1="140" y1="33" x2="200" y2="55" stroke="#ccc" stroke-width="0.8"/>
+<text x="95" y="48" font-size="5pt" fill="#4F46E5">+a</text>
+<text x="165" y="48" font-size="5pt" fill="#999">−a</text>
+<!-- Level 2: include/exclude b -->
+<circle cx="80" cy="58" r="2" fill="#4F46E5"/>
+<circle cx="200" cy="58" r="2" fill="#ccc"/>
+<line x1="80" y1="60" x2="50" y2="82" stroke="#4F46E5" stroke-width="0.8"/>
+<line x1="80" y1="60" x2="110" y2="82" stroke="#ccc" stroke-width="0.8"/>
+<line x1="200" y1="60" x2="170" y2="82" stroke="#4F46E5" stroke-width="0.8"/>
+<line x1="200" y1="60" x2="230" y2="82" stroke="#ccc" stroke-width="0.8"/>
+<text x="55" y="75" font-size="5pt" fill="#4F46E5">+b</text>
+<text x="92" y="75" font-size="5pt" fill="#999">−b</text>
+<text x="175" y="75" font-size="5pt" fill="#4F46E5">+b</text>
+<text x="212" y="75" font-size="5pt" fill="#999">−b</text>
+<!-- Level 3: leaf nodes (final subsets) -->
+<line x1="50" y1="85" x2="35" y2="105" stroke="#4F46E5" stroke-width="0.5"/>
+<line x1="50" y1="85" x2="60" y2="105" stroke="#ccc" stroke-width="0.5"/>
+<line x1="110" y1="85" x2="100" y2="105" stroke="#4F46E5" stroke-width="0.5"/>
+<line x1="110" y1="85" x2="120" y2="105" stroke="#ccc" stroke-width="0.5"/>
+<line x1="170" y1="85" x2="158" y2="105" stroke="#4F46E5" stroke-width="0.5"/>
+<line x1="170" y1="85" x2="180" y2="105" stroke="#ccc" stroke-width="0.5"/>
+<line x1="230" y1="85" x2="220" y2="105" stroke="#4F46E5" stroke-width="0.5"/>
+<line x1="230" y1="85" x2="242" y2="105" stroke="#ccc" stroke-width="0.5"/>
+<!-- Leaf labels -->
+<text x="25" y="115" font-size="5pt" fill="#4F46E5">{a,b,c}</text>
+<text x="53" y="115" font-size="5pt" fill="#1a1a1a">{a,b}</text>
+<text x="92" y="115" font-size="5pt" fill="#1a1a1a">{a,c}</text>
+<text x="115" y="115" font-size="5pt" fill="#1a1a1a">{a}</text>
+<text x="150" y="115" font-size="5pt" fill="#1a1a1a">{b,c}</text>
+<text x="175" y="115" font-size="5pt" fill="#1a1a1a">{b}</text>
+<text x="215" y="115" font-size="5pt" fill="#1a1a1a">{c}</text>
+<text x="238" y="115" font-size="5pt" fill="#999">∅</text>
+<!-- Growth annotation -->
+<text x="10" y="128" font-size="5.5pt" fill="#f59e0b">n=10→1024 | n=20→1M | n=30→1B subsets — exponential explosion!</text>
+</svg>
+<div class="diagram-caption">Power set tree: each branch is an include/exclude decision — 2ⁿ leaves grow exponentially</div>
+</div>
+
+<h3>10. Generalized Intersection</h3>
+<ul>
+<li><b>Meaning</b> — Finding elements common to MANY sets simultaneously. It's the multi-condition version of intersection — an element must belong to ALL sets to survive.</li>
+<li><b>Why It Exists</b> — Real-world filtering usually involves multiple conditions at once. "Remote AND engineering AND Delhi-based" requires satisfying all three criteria simultaneously.</li>
+<li><b>Formula</b> — <code>A ∩ B ∩ C = {x | x ∈ A AND x ∈ B AND x ∈ C}</code></li>
+<li><b>Example</b> — Employees who are remote, in engineering, AND based in Delhi. Only those satisfying all three conditions appear in the result.</li>
+<li><b>Mental Model</b> — A funnel with multiple filters stacked. Only items passing through ALL filters come out the other end.</li>
+<li><b>AI Connection</b> — Multi-condition retrieval in RAG, compound WHERE clauses in SQL, multi-faceted search (category AND price range AND rating AND availability).</li>
+</ul>
+
+<h2>1.4 Set Laws</h2>
+<p class="section-intro">Sets obey specific algebraic laws that let us simplify complex expressions. These laws mirror programming logic and are used in query optimization, filter simplification, and rule engines.</p>
+
+<h3>11. Commutative Laws</h3>
+<ul>
+<li><b>Meaning</b> — Changing the order of sets in a union or intersection doesn't change the result. A ∪ B = B ∪ A.</li>
+<li><b>Why It Exists</b> — This property guarantees that the order in which we combine or filter doesn't matter, enabling query optimizers to reorder operations for efficiency.</li>
+<li><b>Formula</b> — <code>A ∪ B = B ∪ A</code> and <code>A ∩ B = B ∩ A</code></li>
+<li><b>Example</b> — Tea + Sugar = Sugar + Tea. Filtering by "spam AND contains-link" = "contains-link AND spam".</li>
+<li><b>Mental Model</b> — The order you add ingredients doesn't change the final dish.</li>
+<li><b>AI Connection</b> — Query optimization: database engines can reorder filter conditions freely because intersection is commutative.</li>
+</ul>
+
+<h3>12. Associative Laws</h3>
+<ul>
+<li><b>Meaning</b> — Changing the grouping (parentheses) in unions or intersections doesn't change the result. How you bracket operations doesn't matter.</li>
+<li><b>Why It Exists</b> — This lets us process multi-set operations in any order we want, enabling parallelization and pipeline regrouping.</li>
+<li><b>Formula</b> — <code>(A ∪ B) ∪ C = A ∪ (B ∪ C)</code> and <code>(A ∩ B) ∩ C = A ∩ (B ∩ C)</code></li>
+<li><b>Example</b> — (Tea + Sugar) + Milk = Tea + (Sugar + Milk). Same result regardless of grouping.</li>
+<li><b>Mental Model</b> — Stacking three filters: doesn't matter which two you combine first — the final result is identical.</li>
+<li><b>AI Connection</b> — Distributed computation: MapReduce can split set operations across machines in any grouping because associativity guarantees the same result.</li>
+</ul>
+
+<h3>13. Distributive Laws</h3>
+<ul>
+<li><b>Meaning</b> — One operation can "spread" across another, similar to how multiplication distributes over addition in arithmetic.</li>
+<li><b>Why It Exists</b> — Allows complex compound conditions to be decomposed into simpler parts, enabling optimization and parallel execution.</li>
+<li><b>Formula</b> — <code>A ∩ (B ∪ C) = (A ∩ B) ∪ (A ∩ C)</code> and <code>A ∪ (B ∩ C) = (A ∪ B) ∩ (A ∪ C)</code></li>
+<li><b>Example</b> — In programming: <code>A AND (B OR C) = (A AND B) OR (A AND C)</code>. You can verify this with any truth table.</li>
+<li><b>Mental Model</b> — Distributing work: "Quality team reviews (frontend OR backend)" = "(Quality reviews frontend) OR (Quality reviews backend)".</li>
+<li><b>AI Connection</b> — Query decomposition: breaking a complex retrieval condition into multiple simpler queries that can run in parallel, then combining results.</li>
+</ul>
+
+<h3>14. De Morgan's Laws</h3>
+<ul>
+<li><b>Meaning</b> — When you negate (take complement of) a compound expression, the operator flips: NOT(OR) becomes AND-of-NOTs, and NOT(AND) becomes OR-of-NOTs.</li>
+<li><b>Why It Exists</b> — These laws are essential for simplifying negated conditions in programming, database queries, and logic systems. They tell you exactly how NOT interacts with AND/OR.</li>
+<li><b>Formula</b> — <code>(A ∪ B)ᶜ = Aᶜ ∩ Bᶜ</code> and <code>(A ∩ B)ᶜ = Aᶜ ∪ Bᶜ</code></li>
+<li><b>Example</b> — In JavaScript: <code>!(A || B) === (!A &amp;&amp; !B)</code> and <code>!(A &amp;&amp; B) === (!A || !B)</code>. These are used constantly in condition simplification.</li>
+<li><b>Mental Model</b> — NOT is like pushing through a door: as it passes through, it flips the operator. OR becomes AND, AND becomes OR.</li>
+<li><b>AI Connection</b> — Moderation systems: "NOT (harmful OR inappropriate)" = "not-harmful AND not-inappropriate". Query rewriting in search engines. Logic simplification in rule-based AI systems.</li>
+</ul>
+<div class="tip"><b>In Plain English:</b> "It's NOT the case that it's raining OR snowing" means the same as "It's NOT raining AND it's NOT snowing." The NOT pushes in and flips OR to AND.</div>
+
+<h3>15. Absorption Laws</h3>
+<ul>
+<li><b>Meaning</b> — When a set appears both in a union and an intersection with another set, the redundant part gets "absorbed." The extra condition adds nothing new.</li>
+<li><b>Why It Exists</b> — Identifies and removes redundant conditions in logical expressions, making queries and rules simpler without changing their meaning.</li>
+<li><b>Formula</b> — <code>A ∪ (A ∩ B) = A</code> and <code>A ∩ (A ∪ B) = A</code></li>
+<li><b>Example</b> — "Show all employees OR (employees who are engineers)" = "Show all employees." The second condition is redundant because engineers are already included in "all employees."</li>
+<li><b>Mental Model</b> — The bigger group absorbs the smaller. Adding "everyone" OR "just engineers" is just "everyone."</li>
+<li><b>AI Connection</b> — Query optimization: removing redundant filter conditions that don't narrow results. Rule simplification in expert systems.</li>
+</ul>
+
+<h2>1.5 Number System Extension</h2>
+
+<h3>16. Imaginary Numbers</h3>
+<ul>
+<li><b>Meaning</b> — An extension of the number system that introduces <code>i</code> where <code>i² = -1</code>. Complex numbers take the form <code>a + bi</code> where a is the real part and b is the imaginary part.</li>
+<li><b>Why It Exists</b> — Some equations (like <code>x² = -1</code>) have no solution in real numbers. Imaginary numbers were invented to make every polynomial equation solvable, and they turned out to be incredibly useful in engineering.</li>
+<li><b>Formula</b> — <code>i² = -1</code>, complex number: <code>z = a + bi</code></li>
+<li><b>Example</b> — <code>√(-9) = 3i</code>. The complex number <code>3 + 4i</code> has real part 3 and imaginary part 4.</li>
+<li><b>Mental Model</b> — A new dimension of numbers. Real numbers are a line; complex numbers are a plane. Adding <code>i</code> is like adding a second axis perpendicular to the number line.</li>
+<li><b>AI Connection</b> — Low relevance for GenAI initially. Becomes important in signal processing (Fourier transforms for audio AI), quantum computing, and advanced neural network architectures.</li>
+</ul>
+
+<h2>Quick Reference Tables</h2>
+
+<h3>Table 1 — Core Concepts Overview</h3>
+<table>
+<tr><th>#</th><th>Topic</th><th>Simple Meaning</th><th>Key Symbol/Formula</th><th>AI Connection</th></tr>
+<tr><td>1</td><td>Roster Form</td><td>List members explicitly</td><td><code>{1, 2, 3}</code></td><td>Retrieved documents, tag sets</td></tr>
+<tr><td>2</td><td>Set Builder Form</td><td>Define by rule/condition</td><td><code>{x | condition}</code></td><td>Query filters, RAG retrieval</td></tr>
+<tr><td>3</td><td>Recursive Form</td><td>Generate step-by-step</td><td>Base + rule</td><td>Token generation, chain-of-thought</td></tr>
+<tr><td>4</td><td>Subsets</td><td>One group inside another</td><td><code>A ⊆ B</code></td><td>Classification hierarchy, permissions</td></tr>
+<tr><td>5</td><td>Complement</td><td>Everything NOT in the set</td><td><code>Aᶜ</code></td><td>Safety filtering, binary classification</td></tr>
+<tr><td>6</td><td>Complement Laws</td><td>NOT logic over sets</td><td><code>(Aᶜ)ᶜ = A</code></td><td>Boolean simplification</td></tr>
+<tr><td>7</td><td>Symmetric Difference</td><td>Non-common elements only</td><td><code>A △ B</code></td><td>Model comparison, dataset drift</td></tr>
+<tr><td>8</td><td>Cartesian Product</td><td>All possible pairings</td><td><code>A × B</code>, size = <code>|A| × |B|</code></td><td>Feature combinations, attention pairs</td></tr>
+<tr><td>9</td><td>Power Set</td><td>All possible subsets</td><td><code>2ⁿ</code> subsets</td><td>Search space explosion, feature selection</td></tr>
+<tr><td>10</td><td>Generalized Intersection</td><td>Common across many sets</td><td><code>A ∩ B ∩ C</code></td><td>Multi-condition filtering</td></tr>
+<tr><td>11</td><td>Commutative Laws</td><td>Order doesn't matter</td><td><code>A ∪ B = B ∪ A</code></td><td>Query reordering</td></tr>
+<tr><td>12</td><td>Associative Laws</td><td>Grouping doesn't matter</td><td><code>(A ∪ B) ∪ C = A ∪ (B ∪ C)</code></td><td>Distributed computation</td></tr>
+<tr><td>13</td><td>Distributive Laws</td><td>Spread one op over another</td><td><code>A ∩ (B ∪ C) = (A∩B) ∪ (A∩C)</code></td><td>Query decomposition</td></tr>
+<tr><td>14</td><td>De Morgan's Laws</td><td>NOT flips the operator</td><td><code>(A ∪ B)ᶜ = Aᶜ ∩ Bᶜ</code></td><td>Moderation, logic simplification</td></tr>
+<tr><td>15</td><td>Absorption Laws</td><td>Redundant part absorbed</td><td><code>A ∪ (A ∩ B) = A</code></td><td>Query optimization</td></tr>
+<tr><td>16</td><td>Imaginary Numbers</td><td>Extension via i² = -1</td><td><code>a + bi</code></td><td>Signal processing, Fourier transforms</td></tr>
+</table>
+
+<h3>Table 2 — Laws Quick Reference</h3>
+<table>
+<tr><th>Law Type</th><th>Formula</th><th>Programming Equivalent</th></tr>
+<tr><td>Complement</td><td><code>A ∪ Aᶜ = U</code></td><td><code>x || !x === true</code></td></tr>
+<tr><td>Complement</td><td><code>A ∩ Aᶜ = ∅</code></td><td><code>x &amp;&amp; !x === false</code></td></tr>
+<tr><td>Double Complement</td><td><code>(Aᶜ)ᶜ = A</code></td><td><code>!!x === x</code></td></tr>
+<tr><td>Commutative</td><td><code>A ∪ B = B ∪ A</code></td><td><code>a || b === b || a</code></td></tr>
+<tr><td>Commutative</td><td><code>A ∩ B = B ∩ A</code></td><td><code>a &amp;&amp; b === b &amp;&amp; a</code></td></tr>
+<tr><td>Associative</td><td><code>(A ∪ B) ∪ C = A ∪ (B ∪ C)</code></td><td>Grouping doesn't matter</td></tr>
+<tr><td>Associative</td><td><code>(A ∩ B) ∩ C = A ∩ (B ∩ C)</code></td><td>Grouping doesn't matter</td></tr>
+<tr><td>Distributive</td><td><code>A ∩ (B ∪ C) = (A∩B) ∪ (A∩C)</code></td><td><code>a &amp;&amp; (b || c) === (a&amp;&amp;b) || (a&amp;&amp;c)</code></td></tr>
+<tr><td>Distributive</td><td><code>A ∪ (B ∩ C) = (A∪B) ∩ (A∪C)</code></td><td><code>a || (b &amp;&amp; c) === (a||b) &amp;&amp; (a||c)</code></td></tr>
+<tr><td>De Morgan</td><td><code>(A ∪ B)ᶜ = Aᶜ ∩ Bᶜ</code></td><td><code>!(a || b) === !a &amp;&amp; !b</code></td></tr>
+<tr><td>De Morgan</td><td><code>(A ∩ B)ᶜ = Aᶜ ∪ Bᶜ</code></td><td><code>!(a &amp;&amp; b) === !a || !b</code></td></tr>
+<tr><td>Absorption</td><td><code>A ∪ (A ∩ B) = A</code></td><td>Redundant condition removed</td></tr>
+<tr><td>Absorption</td><td><code>A ∩ (A ∪ B) = A</code></td><td>Redundant condition removed</td></tr>
+</table>
+
+<h3>Table 3 — AI Importance Ranking</h3>
+<table>
+<tr><th>Concept</th><th>Why Important in AI</th><th>Priority</th></tr>
+<tr><td>Subsets</td><td>Filtering, classification, hierarchy</td><td>High</td></tr>
+<tr><td>Complement</td><td>Exclusion, moderation, binary decisions</td><td>High</td></tr>
+<tr><td>Cartesian Product</td><td>Feature combinations, attention pairs</td><td>High</td></tr>
+<tr><td>Power Set</td><td>Search spaces, feature selection</td><td>High</td></tr>
+<tr><td>Intersections</td><td>Multi-condition retrieval</td><td>High</td></tr>
+<tr><td>De Morgan's Laws</td><td>Logic optimization, query rewriting</td><td>High</td></tr>
+<tr><td>Distributive Laws</td><td>Query decomposition, parallel execution</td><td>Medium</td></tr>
+<tr><td>Set Builder Form</td><td>Query conditions, filter definitions</td><td>Medium</td></tr>
+<tr><td>Recursive Form</td><td>Iterative reasoning, token generation</td><td>Medium</td></tr>
+<tr><td>Absorption Laws</td><td>Simplifying redundant filters</td><td>Medium</td></tr>
+<tr><td>Commutative Laws</td><td>Query reordering for performance</td><td>Lower</td></tr>
+<tr><td>Associative Laws</td><td>Distributed pipeline grouping</td><td>Lower</td></tr>
+<tr><td>Imaginary Numbers</td><td>Signal processing (advanced only)</td><td>Low for GenAI</td></tr>
+</table>
+
+<h3>Table 4 — Memory Tricks</h3>
+<table>
+<tr><th>Concept</th><th>Remember This</th></tr>
+<tr><td>Subset</td><td>Small group completely inside bigger group</td></tr>
+<tr><td>Complement</td><td>Everything OUTSIDE the fence</td></tr>
+<tr><td>Cartesian Product</td><td>All possible pairings (menu combinations)</td></tr>
+<tr><td>Power Set</td><td>2ⁿ — every include/exclude decision</td></tr>
+<tr><td>Intersection</td><td>Must pass ALL filters</td></tr>
+<tr><td>Union</td><td>Pass ANY filter</td></tr>
+<tr><td>Symmetric Difference</td><td>What's different between two groups</td></tr>
+<tr><td>De Morgan</td><td>NOT pushes through and FLIPS the operator</td></tr>
+<tr><td>Absorption</td><td>Bigger group swallows the smaller</td></tr>
+<tr><td>Recursive Form</td><td>Defined using itself (staircase)</td></tr>
+</table>
+
+<h2>Memory Map</h2>
+<div class="prompt">Ways to Define Sets
+  ├── Roster (list members)
+  ├── Set Builder (state a rule)
+  └── Recursive (start + generate)
+      ↓
+Set Relationships
+  ├── Subset (A inside B)
+  ├── Complement (everything outside A)
+  └── Symmetric Difference (non-shared parts)
+      ↓
+Set Constructions
+  ├── Cartesian Product (all pairs)
+  ├── Power Set (all subsets)
+  └── Generalized Intersection (multi-filter)
+      ↓
+Set Laws (simplification tools)
+  ├── Commutative (order doesn't matter)
+  ├── Associative (grouping doesn't matter)
+  ├── Distributive (spread one op over another)
+  ├── De Morgan (NOT flips operator)
+  └── Absorption (redundancy removed)
+      ↓
+Foundation for:
+  ├── Probability (events = sets of outcomes)
+  ├── Databases (SQL = set operations)
+  ├── Search & Retrieval (filtering = intersection)
+  ├── Boolean Logic (AI moderation, rules)
+  └── Combinatorics (counting via sets)</div>
+
+<h2>Interview / Revision Summary</h2>
+<table>
+<tr><th>Concept</th><th>Remember This</th></tr>
+<tr><td>Set</td><td>A collection of distinct objects</td></tr>
+<tr><td>Roster Form</td><td>List elements: <code>{1, 2, 3}</code></td></tr>
+<tr><td>Set Builder</td><td>Rule-based: <code>{x | condition}</code></td></tr>
+<tr><td>Subset</td><td>Every element of A is also in B</td></tr>
+<tr><td>Complement</td><td>Everything NOT in the set</td></tr>
+<tr><td>Cartesian Product</td><td>All possible ordered pairs, size = |A| × |B|</td></tr>
+<tr><td>Power Set</td><td>All possible subsets, size = 2ⁿ</td></tr>
+<tr><td>Intersection</td><td>Elements in ALL sets (AND logic)</td></tr>
+<tr><td>Union</td><td>Elements in ANY set (OR logic)</td></tr>
+<tr><td>De Morgan</td><td>NOT flips OR↔AND</td></tr>
+<tr><td>Distributive</td><td>AND distributes over OR (and vice versa)</td></tr>
+<tr><td>Absorption</td><td>Bigger condition absorbs smaller redundant one</td></tr>
+<tr><td>Key Insight</td><td>Set theory = the math behind every filter, query, and classification</td></tr>
+</table>
+
+<h2>If Someone Asks: "How does Set Theory connect to AI?"</h2>
+<p>Set theory provides the mathematical foundation for how AI systems group, filter, and classify information. Every database query is a set operation — WHERE clauses are set builder notation, JOINs involve Cartesian products, and AND/OR conditions map to intersection and union. In AI specifically, retrieval systems filter candidates using set intersection (documents matching ALL criteria), classification creates subsets (spam ⊆ all-emails), and power sets explain why exhaustive feature search is computationally impossible (2ⁿ grows exponentially). De Morgan's Laws are used constantly in content moderation logic, and the entire field of probability is built on set theory — events are literally defined as sets of outcomes.</p>
+
+</body>
+</html>

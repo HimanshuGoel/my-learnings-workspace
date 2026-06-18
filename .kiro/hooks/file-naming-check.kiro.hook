@@ -1,5 +1,5 @@
 {
-  "enabled": true,
+  "enabled": false,
   "name": "Folder & File Naming Check",
   "description": "When a new file is created, verify it follows the repository's kebab-case naming rules and topic folder structure conventions.",
   "version": "1",

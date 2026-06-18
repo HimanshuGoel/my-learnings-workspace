@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Pandas — Printable Learning Notes</title>
+<style>
+  @page { margin: 0.5cm; size: A4; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+  h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+  h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+  h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+  ul { margin: 0 0 2px 12px; padding: 0; }
+  li { margin-bottom: 0.5px; }
+  .tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+  .prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+  .two-col { column-count: 2; column-gap: 10px; }
+  .three-col { column-count: 3; column-gap: 10px; }
+  code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+  table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+  th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+  th { background: #f3f4f6; font-weight: bold; }
+  .diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+  .diagram svg { max-width: 100%; }
+  .diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+  .diagram-row { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 8px; margin: 4px 0; break-inside: avoid; }
+  .diagram-row .diagram { flex: 1; min-width: 120px; max-width: 250px; }
+  .section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+  @media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+
+<h1>Pandas — Complete Learning Notes</h1>
+<p><b>Summary:</b> Pandas is Python's tabular data toolkit — it loads, cleans, transforms, and explores structured data (CSV, Excel, SQL) using a spreadsheet-like API with method chaining.</p>
+
+<h2>Why Pandas Exists</h2>
+<ul>
+<li><b>Problem</b> — real-world data comes in messy tables (CSV, Excel) with mixed types, missing values, and inconsistent formats. Processing it with raw Python requires hundreds of lines of manual parsing.</li>
+<li><b>Solution</b> — Pandas provides a DataFrame (labeled 2D table) with built-in methods for loading, filtering, grouping, joining, and transforming — like SQL + Excel + LINQ combined.</li>
+<li><b>Mental Model</b> — Pandas is <b>Excel on steroids for developers</b>. If NumPy is <code>int[]</code> (raw arrays), Pandas is <code>DataTable</code> in .NET — structured, labeled, mixed-type, queryable.</li>
+<li><b>AI Connection</b> — 80% of data science is data preparation. Every ML pipeline starts with Pandas for loading and cleaning before the model ever sees the data.</li>
+</ul>
+
+<h2>Where Pandas Fits in the AI Pipeline</h2>
+<div class="diagram">
+<svg width="420" height="130" viewBox="0 0 420 130">
+<defs><marker id="arrF" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto"><path d="M0,0 L6,2 L0,4 Z" fill="#999"/></marker></defs>
+<!-- Raw data sources -->
+<rect x="5" y="15" width="65" height="50" rx="4" fill="#f3f4f6" stroke="#ddd"/>
+<text x="37" y="30" text-anchor="middle" font-size="5.5pt" font-weight="bold">Raw Sources</text>
+<text x="37" y="40" text-anchor="middle" font-size="5pt" fill="#666">CSV</text>
+<text x="37" y="48" text-anchor="middle" font-size="5pt" fill="#666">Excel, JSON</text>
+<text x="37" y="56" text-anchor="middle" font-size="5pt" fill="#666">SQL, API</text>
+<line x1="70" y1="40" x2="90" y2="40" stroke="#999" stroke-width="1" marker-end="url(#arrF)"/>
+<!-- Pandas -->
+<rect x="90" y="10" width="100" height="60" rx="4" fill="#ede9fe" stroke="#4F46E5" stroke-width="1.5"/>
+<text x="140" y="28" text-anchor="middle" font-size="7pt" font-weight="bold" fill="#4F46E5">Pandas</text>
+<text x="140" y="38" text-anchor="middle" font-size="5.5pt" fill="#4F46E5">Load → Clean → Transform</text>
+<text x="140" y="48" text-anchor="middle" font-size="5.5pt" fill="#4F46E5">Explore → Engineer Features</text>
+<text x="140" y="58" text-anchor="middle" font-size="5pt" fill="#666">(you are here)</text>
+<!-- Output arrows -->
+<line x1="190" y1="30" x2="215" y2="25" stroke="#999" stroke-width="1" marker-end="url(#arrF)"/>
+<line x1="190" y1="40" x2="215" y2="45" stroke="#999" stroke-width="1" marker-end="url(#arrF)"/>
+<line x1="190" y1="50" x2="215" y2="65" stroke="#999" stroke-width="1" marker-end="url(#arrF)"/>
+<line x1="190" y1="55" x2="215" y2="85" stroke="#999" stroke-width="1" marker-end="url(#arrF)"/>
+<!-- Outputs -->
+<rect x="215" y="12" width="80" height="22" rx="3" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="255" y="26" text-anchor="middle" font-size="5.5pt">NumPy (computation)</text>
+<rect x="215" y="37" width="80" height="22" rx="3" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="255" y="51" text-anchor="middle" font-size="5.5pt">Scikit-Learn (ML)</text>
+<rect x="215" y="62" width="80" height="22" rx="3" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="255" y="76" text-anchor="middle" font-size="5.5pt">Matplotlib (plots)</text>
+<rect x="215" y="87" width="80" height="22" rx="3" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="255" y="101" text-anchor="middle" font-size="5.5pt">PyTorch (DL)</text>
+<!-- Annotation -->
+<text x="310" y="40" font-size="5.5pt" fill="#666">.values / .to_numpy()</text>
+<text x="310" y="55" font-size="5.5pt" fill="#666">df passed directly</text>
+<text x="310" y="78" font-size="5.5pt" fill="#666">df.plot() built-in</text>
+<text x="310" y="103" font-size="5.5pt" fill="#666">→ tensor conversion</text>
+</svg>
+<div class="diagram-caption">Pandas is the universal data interchange format — everything starts here</div>
+</div>
+
+<h2>1. Series & DataFrame — The Two Core Objects</h2>
+<p class="section-intro">Everything in Pandas is either a Series (1D column) or a DataFrame (2D table). Understanding this distinction is foundational.</p>
+
+<div class="diagram">
+<svg width="380" height="100" viewBox="0 0 380 100">
+<!-- Series -->
+<rect x="10" y="10" width="120" height="80" rx="4" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="70" y="25" text-anchor="middle" font-size="7pt" font-weight="bold">Series (1D)</text>
+<text x="30" y="40" font-size="6pt">index  value</text>
+<text x="30" y="50" font-size="6pt">0      100</text>
+<text x="30" y="60" font-size="6pt">1      200</text>
+<text x="30" y="70" font-size="6pt">2      150</text>
+<text x="30" y="82" font-size="5.5pt" fill="#666">= one column</text>
+<!-- Arrow -->
+<text x="150" y="50" font-size="9pt">→</text>
+<!-- DataFrame -->
+<rect x="175" y="10" width="195" height="80" rx="4" fill="#ede9fe" stroke="#4F46E5"/>
+<text x="272" y="25" text-anchor="middle" font-size="7pt" font-weight="bold">DataFrame (2D)</text>
+<text x="195" y="40" font-size="6pt">     name     age   salary</text>
+<text x="195" y="50" font-size="6pt">0    Alice    28    72000</text>
+<text x="195" y="60" font-size="6pt">1    Bob      35    85000</text>
+<text x="195" y="70" font-size="6pt">2    Charlie  42    95000</text>
+<text x="195" y="82" font-size="5.5pt" fill="#666">= collection of Series (one per column)</text>
+</svg>
+<div class="diagram-caption">A DataFrame is a dictionary of Series sharing the same index — like an Excel sheet in code</div>
+</div>
+
+<h3>Key Properties</h3>
+<table>
+<tr><th>Property</th><th>Series</th><th>DataFrame</th></tr>
+<tr><td><code>.shape</code></td><td>(rows,)</td><td>(rows, cols)</td></tr>
+<tr><td><code>.dtype / .dtypes</code></td><td>Single type</td><td>Type per column</td></tr>
+<tr><td><code>.index</code></td><td>Row labels</td><td>Row labels</td></tr>
+<tr><td><code>.values</code></td><td>NumPy 1D array</td><td>NumPy 2D array</td></tr>
+<tr><td><code>.columns</code></td><td>N/A</td><td>Column names</td></tr>
+</table>
+
+<h2>2. Loading & Inspecting Data</h2>
+<p class="section-intro">The first thing you do in any data project: load and understand what you have.</p>
+
+<div class="prompt">df = pd.read_csv("data.csv")       # most common in ML
+df = pd.read_excel("data.xlsx")    # business data
+df = pd.read_json("data.json")     # API outputs
+
+# First look (run these 5 every time)
+df.shape            # (rows, cols) — how big?
+df.head()           # first 5 rows — what does it look like?
+df.info()           # types + null counts — any issues?
+df.describe()       # statistics — any outliers?
+df.isnull().sum()   # missing values — how bad?</div>
+
+<div class="tip"><b>Rule of thumb:</b> Always run these 5 commands first on any new dataset. Takes 30 seconds, saves hours of debugging.</div>
+
+<h2>3. Selection — loc vs iloc</h2>
+<p class="section-intro">The most important indexing distinction. Get this wrong and you'll have subtle bugs.</p>
+
+<div class="diagram">
+<svg width="380" height="80" viewBox="0 0 380 80">
+<rect x="10" y="10" width="170" height="60" rx="4" fill="#dcfce7" stroke="#22c55e"/>
+<text x="95" y="28" text-anchor="middle" font-size="7pt" font-weight="bold" fill="#166534">.loc — Label-based</text>
+<text x="20" y="42" font-size="6pt">df.loc[0:5, "name":"age"]</text>
+<text x="20" y="52" font-size="6pt">Inclusive on both ends</text>
+<text x="20" y="62" font-size="6pt" fill="#666">Like dict["key"] — by name</text>
+<rect x="200" y="10" width="170" height="60" rx="4" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="285" y="28" text-anchor="middle" font-size="7pt" font-weight="bold" fill="#1d4ed8">.iloc — Position-based</text>
+<text x="210" y="42" font-size="6pt">df.iloc[0:5, 0:3]</text>
+<text x="210" y="52" font-size="6pt">Exclusive on end (like Python)</text>
+<text x="210" y="62" font-size="6pt" fill="#666">Like array[index] — by number</text>
+</svg>
+<div class="diagram-caption">loc = label (inclusive), iloc = integer position (exclusive end) — the #1 source of Pandas confusion</div>
+</div>
+
+<div class="prompt"># Boolean filtering — the most common pattern in ML
+df[df["age"] > 30]                            # simple filter
+df[(df["age"] > 25) & (df["salary"] > 60000)] # AND (use & not 'and')
+df[df["city"].isin(["NYC", "LA"])]            # IN clause
+df.query("age > 25 and salary > 60000")       # SQL-like string</div>
+
+<h2>4. Cleaning Data — The 80% of Data Science</h2>
+<p class="section-intro">Real data is messy. Missing values, duplicates, wrong types, inconsistent formats — Pandas handles all of it.</p>
+
+<div class="diagram">
+<svg width="380" height="70" viewBox="0 0 380 70">
+<defs><marker id="arrC" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto"><path d="M0,0 L6,2 L0,4 Z" fill="#4F46E5"/></marker></defs>
+<rect x="5" y="15" width="70" height="40" rx="3" fill="#fee2e2" stroke="#ef4444"/>
+<text x="40" y="32" text-anchor="middle" font-size="6pt" font-weight="bold">Messy Data</text>
+<text x="40" y="44" text-anchor="middle" font-size="5pt" fill="#666">NaN, dupes, types</text>
+<line x1="75" y1="35" x2="95" y2="35" stroke="#4F46E5" stroke-width="1" marker-end="url(#arrC)"/>
+<rect x="95" y="20" width="45" height="30" rx="3" fill="#f3f4f6" stroke="#ddd"/>
+<text x="117" y="38" text-anchor="middle" font-size="5pt">isnull()</text>
+<line x1="140" y1="35" x2="155" y2="35" stroke="#4F46E5" stroke-width="1" marker-end="url(#arrC)"/>
+<rect x="155" y="20" width="45" height="30" rx="3" fill="#f3f4f6" stroke="#ddd"/>
+<text x="177" y="38" text-anchor="middle" font-size="5pt">fillna()</text>
+<line x1="200" y1="35" x2="215" y2="35" stroke="#4F46E5" stroke-width="1" marker-end="url(#arrC)"/>
+<rect x="215" y="20" width="55" height="30" rx="3" fill="#f3f4f6" stroke="#ddd"/>
+<text x="242" y="38" text-anchor="middle" font-size="5pt">drop_dupes</text>
+<line x1="270" y1="35" x2="285" y2="35" stroke="#4F46E5" stroke-width="1" marker-end="url(#arrC)"/>
+<rect x="285" y="15" width="80" height="40" rx="3" fill="#dcfce7" stroke="#22c55e"/>
+<text x="325" y="32" text-anchor="middle" font-size="6pt" font-weight="bold" fill="#166534">Clean Data</text>
+<text x="325" y="44" text-anchor="middle" font-size="5pt" fill="#666">Ready for ML</text>
+</svg>
+<div class="diagram-caption">Cleaning pipeline: detect → fix → verify — run before every model</div>
+</div>
+
+<div class="prompt"># Missing values
+df.isnull().sum()                        # count per column
+df.dropna(subset=["target"])             # drop if target is NaN
+df["age"].fillna(df["age"].median())     # fill with median (numeric)
+df["cat"].fillna("Unknown")              # fill with string (categorical)
+
+# Duplicates
+df.drop_duplicates()
+df.drop_duplicates(subset=["email"])     # by specific column
+
+# Type fixes
+df["price"] = df["price"].astype(float)
+df["date"] = pd.to_datetime(df["date"])
+df["name"] = df["name"].str.strip().str.lower()  # clean strings</div>
+
+<div class="tip"><b>SettingWithCopyWarning trap:</b> <code>df[df["a"]>5]["b"] = 0</code> might not work! Use <code>df.loc[df["a"]>5, "b"] = 0</code> instead. Always use .loc for assignment.</div>
+
+<h2>5. GroupBy — Split-Apply-Combine</h2>
+<p class="section-intro">The most powerful analysis pattern: split data into groups, apply a function to each, combine results. Equivalent to SQL GROUP BY.</p>
+
+<div class="diagram">
+<svg width="380" height="90" viewBox="0 0 380 90">
+<defs><marker id="arrG" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto"><path d="M0,0 L6,2 L0,4 Z" fill="#4F46E5"/></marker></defs>
+<!-- Original -->
+<rect x="5" y="10" width="70" height="65" rx="3" fill="#f3f4f6" stroke="#ddd"/>
+<text x="40" y="22" text-anchor="middle" font-size="5.5pt" font-weight="bold">Full DataFrame</text>
+<text x="12" y="34" font-size="5pt">Eng  90k</text>
+<text x="12" y="42" font-size="5pt">Sales 60k</text>
+<text x="12" y="50" font-size="5pt">Eng  85k</text>
+<text x="12" y="58" font-size="5pt">Sales 70k</text>
+<text x="12" y="66" font-size="5pt">Eng  95k</text>
+<!-- Arrow 1 -->
+<line x1="75" y1="42" x2="95" y2="42" stroke="#4F46E5" stroke-width="1" marker-end="url(#arrG)"/>
+<text x="85" y="52" font-size="5pt" fill="#4F46E5">split</text>
+<!-- Groups -->
+<rect x="95" y="10" width="60" height="30" rx="3" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="125" y="22" text-anchor="middle" font-size="5pt" font-weight="bold">Eng</text>
+<text x="125" y="32" text-anchor="middle" font-size="5pt">90k, 85k, 95k</text>
+<rect x="95" y="45" width="60" height="30" rx="3" fill="#fef3c7" stroke="#f59e0b"/>
+<text x="125" y="57" text-anchor="middle" font-size="5pt" font-weight="bold">Sales</text>
+<text x="125" y="67" text-anchor="middle" font-size="5pt">60k, 70k</text>
+<!-- Arrow 2 -->
+<line x1="155" y1="42" x2="175" y2="42" stroke="#4F46E5" stroke-width="1" marker-end="url(#arrG)"/>
+<text x="165" y="52" font-size="5pt" fill="#4F46E5">apply</text>
+<!-- Applied -->
+<rect x="175" y="10" width="60" height="30" rx="3" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="205" y="22" text-anchor="middle" font-size="5pt">mean()</text>
+<text x="205" y="32" text-anchor="middle" font-size="5pt">= 90k</text>
+<rect x="175" y="45" width="60" height="30" rx="3" fill="#fef3c7" stroke="#f59e0b"/>
+<text x="205" y="57" text-anchor="middle" font-size="5pt">mean()</text>
+<text x="205" y="67" text-anchor="middle" font-size="5pt">= 65k</text>
+<!-- Arrow 3 -->
+<line x1="235" y1="42" x2="255" y2="42" stroke="#4F46E5" stroke-width="1" marker-end="url(#arrG)"/>
+<text x="245" y="52" font-size="5pt" fill="#4F46E5">combine</text>
+<!-- Result -->
+<rect x="255" y="20" width="100" height="40" rx="3" fill="#dcfce7" stroke="#22c55e"/>
+<text x="305" y="35" text-anchor="middle" font-size="5.5pt" font-weight="bold">Result</text>
+<text x="305" y="47" text-anchor="middle" font-size="5pt">Eng: 90k | Sales: 65k</text>
+</svg>
+<div class="diagram-caption">GroupBy: split into groups → apply function to each → combine into result</div>
+</div>
+
+<div class="prompt"># Basic groupby
+df.groupby("dept")["salary"].mean()
+
+# Multiple aggregations
+df.groupby("dept").agg(
+    avg_salary=("salary", "mean"),
+    headcount=("name", "count"),
+    max_age=("age", "max")
+)
+
+# Pivot table (Excel-style cross-tab)
+df.pivot_table(values="revenue", index="month", columns="product", aggfunc="sum")</div>
+
+<h2>6. Merging — SQL JOINs in Pandas</h2>
+<p class="section-intro">Combining data from multiple tables/sources. Exactly like SQL JOINs — same mental model applies.</p>
+
+<div class="diagram">
+<svg width="380" height="80" viewBox="0 0 380 80">
+<!-- Left table -->
+<rect x="10" y="10" width="90" height="60" rx="3" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="55" y="22" text-anchor="middle" font-size="5.5pt" font-weight="bold">employees</text>
+<text x="15" y="34" font-size="5pt">name   dept_id</text>
+<text x="15" y="43" font-size="5pt">Alice  1</text>
+<text x="15" y="52" font-size="5pt">Bob    2</text>
+<text x="15" y="61" font-size="5pt">Eve    4 ← no match</text>
+<!-- Right table -->
+<rect x="130" y="10" width="90" height="60" rx="3" fill="#fef3c7" stroke="#f59e0b"/>
+<text x="175" y="22" text-anchor="middle" font-size="5.5pt" font-weight="bold">departments</text>
+<text x="135" y="34" font-size="5pt">dept_id  name</text>
+<text x="135" y="43" font-size="5pt">1        Eng</text>
+<text x="135" y="52" font-size="5pt">2        Sales</text>
+<text x="135" y="61" font-size="5pt">3        HR ← no match</text>
+<!-- Result -->
+<rect x="250" y="10" width="120" height="60" rx="3" fill="#dcfce7" stroke="#22c55e"/>
+<text x="310" y="22" text-anchor="middle" font-size="5.5pt" font-weight="bold">left join result</text>
+<text x="255" y="34" font-size="5pt">name   dept_id  dept_name</text>
+<text x="255" y="43" font-size="5pt">Alice  1        Eng</text>
+<text x="255" y="52" font-size="5pt">Bob    2        Sales</text>
+<text x="255" y="61" font-size="5pt">Eve    4        NaN</text>
+</svg>
+<div class="diagram-caption">Left join keeps all left rows — unmatched right side becomes NaN</div>
+</div>
+
+<div class="prompt"># SQL-style joins
+pd.merge(left, right, on="key", how="inner")   # only matching rows
+pd.merge(left, right, on="key", how="left")    # keep all left rows
+pd.merge(left, right, on="key", how="outer")   # keep all rows from both
+pd.merge(left, right, left_on="a", right_on="b")  # different key names
+
+# Stack DataFrames
+pd.concat([df1, df2], axis=0)   # rows (append)
+pd.concat([df1, df2], axis=1)   # columns (side-by-side)</div>
+
+<h2>7. Feature Engineering for ML</h2>
+<p class="section-intro">Creating new features from existing data is where domain knowledge meets code. This directly improves model accuracy.</p>
+
+<div class="prompt"># Derived features (vectorized — no loops!)
+df["price_per_sqft"] = df["price"] / df["sqft"]
+df["age"] = 2026 - df["year_built"]
+df["is_premium"] = np.where(df["price"] > 500000, 1, 0)
+
+# Binning continuous → categorical
+df["age_group"] = pd.cut(df["age"], bins=[0,18,35,65,100],
+                         labels=["youth","young","mid","senior"])
+
+# One-hot encoding (categorical → binary columns)
+df = pd.get_dummies(df, columns=["city", "type"], drop_first=True)
+
+# String extraction
+df["domain"] = df["email"].str.split("@").str[1]
+
+# Date features
+df["month"] = df["date"].dt.month
+df["is_weekend"] = df["date"].dt.dayofweek >= 5</div>
+
+<div class="tip"><b>ML rule:</b> Raw categorical strings ("Red", "Blue") can't go into models. You must encode them first — <code>pd.get_dummies()</code> is the fastest way. Use <code>drop_first=True</code> to avoid multicollinearity (redundant columns that confuse the model).</div>
+
+<h2>8. Method Chaining — Fluent API Pattern</h2>
+<p class="section-intro">Chain operations like LINQ in C# or builder pattern in Java. Clean, readable, and avoids temporary variables.</p>
+
+<div class="prompt"># Instead of:
+temp = df[df["age"] > 25]
+temp = temp.groupby("dept").agg(avg=("salary","mean"))
+temp = temp.sort_values("avg", ascending=False)
+result = temp.head(5)
+
+# Use method chaining:
+result = (
+    df
+    .query("age > 25")
+    .groupby("dept")
+    .agg(avg_salary=("salary", "mean"))
+    .sort_values("avg_salary", ascending=False)
+    .head(5)
+)</div>
+
+<h2>9. AI/ML Connection — Detailed</h2>
+
+<table>
+<tr><th>Pipeline Stage</th><th>Pandas Operation</th><th>Concrete Example</th></tr>
+<tr><td>Data Loading</td><td>read_csv, read_json</td><td>Load 100k-row training dataset from Kaggle</td></tr>
+<tr><td>Exploration (EDA)</td><td>describe, value_counts, corr</td><td>Check target balance, find correlated features</td></tr>
+<tr><td>Cleaning</td><td>dropna, fillna, drop_duplicates</td><td>Remove broken rows, impute missing ages with median</td></tr>
+<tr><td>Feature Engineering</td><td>apply, cut, get_dummies</td><td>Create price_per_sqft, encode city as one-hot</td></tr>
+<tr><td>Data Formatting</td><td>to_json (JSONL)</td><td>Export fine-tuning data as instruction/input/output</td></tr>
+<tr><td>Evaluation</td><td>merge, groupby</td><td>Join predictions with actuals, compute per-group accuracy</td></tr>
+<tr><td>Reporting</td><td>pivot_table, to_csv</td><td>Experiment results table exported for stakeholders</td></tr>
+</table>
+
+<h3>IIT KGP Module Mapping</h3>
+<table>
+<tr><th>Module</th><th>How Pandas Is Used</th></tr>
+<tr><td>Foundation Bridge</td><td>Loading datasets, basic EDA, classification data prep</td></tr>
+<tr><td>Module 1: GenAI Foundations</td><td>Loading text datasets, analyzing token distributions, preparing prompts</td></tr>
+<tr><td>Module 2: RAG</td><td>Document metadata management, chunk tracking, retrieval evaluation</td></tr>
+<tr><td>Module 3: Fine-Tuning</td><td>Preparing instruction datasets (JSONL format), data filtering and quality checks</td></tr>
+<tr><td>Module 4: Multimodal</td><td>Image metadata management, caption datasets, multi-modal alignment data</td></tr>
+<tr><td>Module 5: Deployment</td><td>Experiment logging, A/B test results, evaluation metric tables</td></tr>
+</table>
+
+<h2>10. Common Mistakes</h2>
+<table>
+<tr><th>#</th><th>Mistake</th><th>Fix</th></tr>
+<tr><td>1</td><td>SettingWithCopyWarning: chained indexing doesn't modify original</td><td>Use <code>df.loc[mask, "col"] = value</code></td></tr>
+<tr><td>2</td><td>Forgetting inplace/reassignment: <code>df.dropna()</code> does nothing</td><td><code>df = df.dropna()</code> or <code>inplace=True</code></td></tr>
+<tr><td>3</td><td>Using apply() for simple math (slow Python loop)</td><td>Use vectorized: <code>df["x"] * 2</code></td></tr>
+<tr><td>4</td><td>Index gaps after filtering (0,1,5,8...)</td><td><code>df.reset_index(drop=True)</code></td></tr>
+<tr><td>5</td><td>Loading huge file when you need 3 columns</td><td><code>pd.read_csv(f, usecols=["a","b","c"])</code></td></tr>
+<tr><td>6</td><td>Using 'and'/'or' in boolean filter (Python logic vs element-wise)</td><td>Use <code>&</code> / <code>|</code> with parentheses</td></tr>
+</table>
+
+<h2>11. When NOT to Use Pandas</h2>
+<table>
+<tr><th>Scenario</th><th>Use Instead</th><th>Why</th></tr>
+<tr><td>Pure number crunching (no labels needed)</td><td>NumPy</td><td>Faster, less overhead</td></tr>
+<tr><td>Data larger than RAM (10GB+)</td><td>Polars, Dask, PySpark</td><td>Pandas loads everything into memory</td></tr>
+<tr><td>Maximum performance on transforms</td><td>Polars</td><td>Rust-based, 5-10x faster on large data</td></tr>
+<tr><td>Real-time streaming</td><td>Kafka + Flink</td><td>Pandas is batch-oriented</td></tr>
+<tr><td>Graph/network data</td><td>NetworkX</td><td>DataFrames aren't suited for graph traversal</td></tr>
+<tr><td>Image/audio arrays</td><td>NumPy directly</td><td>DataFrame overhead for pure arrays is wasteful</td></tr>
+</table>
+
+<h2>Quick Reference — Functions by Task</h2>
+<div class="two-col">
+
+<h3>Loading</h3>
+<div class="prompt">pd.read_csv("f.csv")
+pd.read_csv("f.csv", usecols=["a","b"])
+pd.read_excel("f.xlsx")
+pd.read_json("f.json")
+df.to_csv("out.csv", index=False)</div>
+
+<h3>Inspection</h3>
+<div class="prompt">df.head()  df.tail()  df.sample(5)
+df.shape  df.info()  df.describe()
+df.dtypes  df.columns  df.nunique()
+df["col"].value_counts()</div>
+
+<h3>Selection</h3>
+<div class="prompt">df["col"]  df[["a","b"]]
+df.loc[row, col]   # by label
+df.iloc[row, col]  # by position
+df[df["a"] > 5]    # boolean filter
+df.query("a > 5")  # SQL-like</div>
+
+<h3>Cleaning</h3>
+<div class="prompt">df.isnull().sum()
+df.dropna()  df.fillna(val)
+df.drop_duplicates()
+df.rename(columns={"old":"new"})
+df["col"].astype(int)
+pd.to_datetime(df["date"])</div>
+
+<h3>Transform</h3>
+<div class="prompt">df["new"] = df["a"] * df["b"]
+df["col"].apply(func)
+df["col"].map(dict)
+np.where(cond, true_val, false_val)
+pd.get_dummies(df, columns=["cat"])
+pd.cut(df["col"], bins=3)</div>
+
+<h3>Aggregation</h3>
+<div class="prompt">df.groupby("col")["val"].mean()
+df.groupby("col").agg(...)
+df.pivot_table(values, index, columns)
+df["col"].value_counts()
+df.sum()  df.mean()  df.std()</div>
+
+<h3>Combining</h3>
+<div class="prompt">pd.merge(a, b, on="key", how="left")
+pd.concat([a, b], axis=0)  # rows
+pd.concat([a, b], axis=1)  # cols</div>
+
+<h3>Strings & Dates</h3>
+<div class="prompt">df["col"].str.lower()  .str.contains()
+df["col"].str.split("@").str[0]
+df["date"].dt.year  .dt.month
+df.resample("M").mean()
+df["col"].rolling(7).mean()</div>
+
+</div>
+
+<h2>AI Translation Table</h2>
+<table>
+<tr><th>Pandas Concept</th><th>AI Interpretation</th><th>Specific Example</th></tr>
+<tr><td>DataFrame</td><td>Dataset / Training data</td><td>Each row = one sample, each column = one feature</td></tr>
+<tr><td>read_csv</td><td>Load training data</td><td>Every Kaggle competition starts with this</td></tr>
+<tr><td>isnull + fillna</td><td>Handle missing data</td><td>Models can't process NaN — must fix first</td></tr>
+<tr><td>get_dummies</td><td>Categorical encoding</td><td>"Red","Blue" → binary columns for model input</td></tr>
+<tr><td>groupby + agg</td><td>Feature aggregation</td><td>Avg transactions per customer as a feature</td></tr>
+<tr><td>merge</td><td>Combine data sources</td><td>Join user features with transaction history</td></tr>
+<tr><td>value_counts</td><td>Check class balance</td><td>70% no-churn / 30% churn → imbalanced dataset</td></tr>
+<tr><td>corr()</td><td>Feature selection hint</td><td>High correlation with target = useful feature</td></tr>
+<tr><td>.values / to_numpy()</td><td>Convert to model input</td><td>sklearn.fit() expects arrays, not DataFrames</td></tr>
+<tr><td>to_json (lines=True)</td><td>Export fine-tuning data</td><td>JSONL format for LLM instruction tuning</td></tr>
+<tr><td>query / boolean filter</td><td>Data subset selection</td><td>Filter only high-confidence predictions for analysis</td></tr>
+<tr><td>describe()</td><td>Quick EDA</td><td>Spot outliers, understand feature distributions</td></tr>
+</table>
+
+<h2>Mental Models Summary</h2>
+<div class="two-col">
+<ul>
+<li><b>DataFrame</b> — Excel sheet in code / .NET DataTable</li>
+<li><b>Series</b> — one column (labeled dictionary with superpowers)</li>
+<li><b>loc vs iloc</b> — dict["key"] vs array[index]</li>
+<li><b>Boolean filtering</b> — SQL WHERE clause</li>
+<li><b>GroupBy</b> — SQL GROUP BY / LINQ GroupBy().Select()</li>
+<li><b>Merge</b> — SQL JOIN (inner, left, right, outer)</li>
+<li><b>Concat</b> — UNION ALL (axis=0) or side-by-side (axis=1)</li>
+<li><b>Method chaining</b> — builder pattern / fluent API</li>
+<li><b>get_dummies</b> — one-hot encoding for ML</li>
+<li><b>apply()</b> — Array.map() but slower (last resort)</li>
+<li><b>fillna</b> — imputation (fill gaps with best guess)</li>
+<li><b>pivot_table</b> — Excel pivot table in one line</li>
+</ul>
+</div>
+
+<h2>Memory Map</h2>
+<div class="prompt">Loading (read_csv, read_excel, read_json)
+      │
+      ▼
+Inspection (shape, info, describe, isnull)
+      │
+      ▼
+Cleaning
+  ├── Missing: isnull → fillna / dropna
+  ├── Duplicates: drop_duplicates
+  ├── Types: astype, to_datetime
+  └── Strings: str.lower(), str.strip()
+      │
+      ▼
+Selection & Filtering
+  ├── Columns: df["col"], df[["a","b"]]
+  ├── Rows: loc (label) / iloc (position)
+  └── Boolean: df[df["a"] > 5], query()
+      │
+      ▼
+Transformation
+  ├── New columns: vectorized math
+  ├── Encoding: get_dummies (one-hot)
+  ├── Binning: pd.cut
+  └── Apply: custom functions (last resort)
+      │
+      ▼
+Aggregation & Analysis
+  ├── GroupBy: split-apply-combine
+  ├── Pivot: cross-tab summaries
+  └── Correlation: feature relationships
+      │
+      ▼
+Combining
+  ├── Merge: SQL JOINs
+  └── Concat: stack rows/columns
+      │
+      ▼
+Output
+  ├── .values / .to_numpy() → ML models
+  ├── .to_csv() → reporting
+  └── .to_json(lines=True) → fine-tuning data</div>
+
+<h2>Top Takeaways (Ranked)</h2>
+<table>
+<tr><th>#</th><th>Insight</th></tr>
+<tr><td>1</td><td>80% of data science is data preparation — Pandas is where you spend most of your time</td></tr>
+<tr><td>2</td><td>Always inspect data first: shape, info, describe, isnull().sum() — takes 30 seconds</td></tr>
+<tr><td>3</td><td>Use .loc for label-based access, .iloc for position — mixing them causes bugs</td></tr>
+<tr><td>4</td><td>Boolean filtering (df[df["a"] > 5]) is the most common selection pattern in ML workflows</td></tr>
+<tr><td>5</td><td>GroupBy is SQL GROUP BY — master it for feature engineering and EDA</td></tr>
+<tr><td>6</td><td>get_dummies(drop_first=True) is the standard way to encode categoricals for models</td></tr>
+<tr><td>7</td><td>Avoid apply() for simple math — vectorized operations are 100x faster</td></tr>
+<tr><td>8</td><td>Method chaining produces clean, readable analysis pipelines</td></tr>
+<tr><td>9</td><td>pd.merge() works exactly like SQL JOINs — same mental model transfers</td></tr>
+<tr><td>10</td><td>Every ML pipeline ends with df.drop("target").values → X, df["target"].values → y</td></tr>
+<tr><td>11</td><td>For fine-tuning LLMs (Module 3), export with to_json(orient="records", lines=True)</td></tr>
+</table>
+
+<h2>Ready to Move On?</h2>
+<div class="tip">
+<b>Self-Test Checklist:</b><br>
+☐ I can load CSV/Excel files and inspect with head(), info(), describe()<br>
+☐ I can filter rows with boolean conditions and select columns with loc/iloc<br>
+☐ I can handle missing values (detect, drop, fill)<br>
+☐ I can use groupby + agg for split-apply-combine analysis<br>
+☐ I can prepare a dataset for ML (encode categoricals, split X/y, handle NaN)<br><br>
+<b>All checked → move to Matplotlib.</b>
+</div>
+
+</body>
+</html>

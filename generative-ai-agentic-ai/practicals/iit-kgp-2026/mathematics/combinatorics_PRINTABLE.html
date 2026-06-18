@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Stage 2 — Combinatorics: Mathematics of Counting & Possibilities — Printable Notes</title>
+<style>
+  @page { margin: 0.5cm; size: A4; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+  h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+  h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+  h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+  ul { margin: 0 0 2px 12px; padding: 0; }
+  li { margin-bottom: 0.5px; }
+  .tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+  .prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+  .two-col { column-count: 2; column-gap: 10px; }
+  .three-col { column-count: 3; column-gap: 10px; }
+  code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+  table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+  th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+  th { background: #f3f4f6; font-weight: bold; }
+  .diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+  .diagram svg { max-width: 100%; }
+  .diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+  .diagram-row { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 8px; margin: 4px 0; break-inside: avoid; }
+  .diagram-row .diagram { flex: 1; min-width: 150px; max-width: 300px; }
+  .section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+  @media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+
+<h1>Stage 2 — Combinatorics: Mathematics of Counting & Possibilities</h1>
+<p><b>Summary:</b> Combinatorics answers "how many possible ways can something happen?" — the foundation for understanding why AI search spaces explode and why brute-force approaches fail.</p>
+
+<h2>Why This Matters for AI</h2>
+<ul>
+<li><b>LLM Token Generation</b> — is a combinatorial problem: with a 50,000-token vocabulary and 1000 positions, the possible sequences are 50000¹⁰⁰⁰ — astronomically large</li>
+<li><b>Combinatorial Explosion</b> — explains why AI needs heuristics, beam search, and pruning instead of exhaustive search</li>
+<li><b>Permutations & Combinations</b> — permutations model ordered generation (token sequences, ranked recommendations), combinations model unordered selection (feature subsets, document retrieval)</li>
+<li><b>Probability Foundation</b> — P(event) = favorable arrangements / total arrangements — built directly on combinatorics</li>
+<li><b>Agentic AI Planning</b> — involves counting possible action sequences and choosing efficiently among them</li>
+</ul>
+
+<h2>2.1 Counting Fundamentals</h2>
+<p class="section-intro">The most basic question in combinatorics: how do we count possibilities systematically? Two rules handle almost every counting scenario — one for "or" situations, one for "and" situations.</p>
+
+<h3>1. Addition Rule</h3>
+<ul>
+<li><b>Meaning</b> — When choosing between separate, non-overlapping alternatives (OR choices), add the counts. If there are m ways to do thing A OR n ways to do thing B, the total number of choices is m + n.</li>
+<li><b>Why It Exists</b> — Many decisions are "pick one from group A or pick one from group B." The addition rule counts these either/or scenarios.</li>
+<li><b>Formula</b> — <code>m + n</code> (when choices don't overlap)</li>
+<li><b>Example</b> — A café has 3 types of pizza OR 2 types of burgers. Total food choices: 3 + 2 = 5.</li>
+<li><b>Mental Model</b> — Separate doors. You walk through door A (3 options) OR door B (2 options). Total exits = 5.</li>
+<li><b>AI Connection</b> — An AI system might respond via retrieval (3 approaches) OR generation (2 approaches). Total response strategies = 5.</li>
+<li><b>Common Mistake</b> — The addition rule only works when alternatives don't overlap. If some items appear in both groups, you'd overcount.</li>
+</ul>
+
+<h3>2. Multiplication Rule</h3>
+<ul>
+<li><b>Meaning</b> — When making sequential decisions (AND choices), multiply the counts. If there are m ways to do step 1 AND n ways to do step 2, the total number of combined outcomes is m × n.</li>
+<li><b>Why It Exists</b> — Most real problems involve multiple decisions made in sequence. The multiplication rule captures how possibilities compound at each step.</li>
+<li><b>Formula</b> — <code>m × n</code> (for sequential/independent choices)</li>
+<li><b>Example</b> — 3 shirts AND 2 pants = 3 × 2 = 6 possible outfits. Each shirt can pair with each pant.</li>
+<li><b>Mental Model</b> — Branching tree. Each branch at step 1 splits into more branches at step 2. Total leaves = product of branches at each level.</li>
+<li><b>AI Connection</b> — This is why search spaces explode. An LLM choosing from 50,000 tokens at each of 100 positions has 50,000¹⁰⁰ possible sequences. Each step multiplies the space.</li>
+<li><b>Common Mistake</b> — Addition is for OR (alternatives). Multiplication is for AND (sequential steps). Mixing them up is the most common counting error.</li>
+</ul>
+<div class="tip"><b>In plain English:</b> Every time you add a new sequential decision, you don't add possibilities — you multiply them. This is why even small problems can have enormous search spaces.</div>
+
+<!-- SVG Diagram: Multiplication Rule Branching Tree -->
+<div class="diagram">
+<svg width="320" height="160" viewBox="0 0 320 160" xmlns="http://www.w3.org/2000/svg">
+  <text x="160" y="12" text-anchor="middle" font-size="8" font-weight="bold" fill="#1a1a1a">Multiplication Rule: 3 Shirts × 2 Pants = 6 Outfits</text>
+  <!-- Root -->
+  <circle cx="160" cy="30" r="4" fill="#4F46E5"/>
+  <text x="160" y="28" text-anchor="middle" font-size="6" fill="#4F46E5">Start</text>
+  <!-- Level 1: Shirts -->
+  <line x1="160" y1="34" x2="60" y2="65" stroke="#4F46E5" stroke-width="1"/>
+  <line x1="160" y1="34" x2="160" y2="65" stroke="#4F46E5" stroke-width="1"/>
+  <line x1="160" y1="34" x2="260" y2="65" stroke="#4F46E5" stroke-width="1"/>
+  <circle cx="60" cy="68" r="4" fill="#f59e0b"/>
+  <circle cx="160" cy="68" r="4" fill="#f59e0b"/>
+  <circle cx="260" cy="68" r="4" fill="#f59e0b"/>
+  <text x="60" y="80" text-anchor="middle" font-size="6" fill="#1a1a1a">Shirt A</text>
+  <text x="160" y="80" text-anchor="middle" font-size="6" fill="#1a1a1a">Shirt B</text>
+  <text x="260" y="80" text-anchor="middle" font-size="6" fill="#1a1a1a">Shirt C</text>
+  <!-- Level 2: Pants from Shirt A -->
+  <line x1="60" y1="72" x2="35" y2="110" stroke="#f59e0b" stroke-width="1"/>
+  <line x1="60" y1="72" x2="85" y2="110" stroke="#f59e0b" stroke-width="1"/>
+  <circle cx="35" cy="113" r="3" fill="#4F46E5"/>
+  <circle cx="85" cy="113" r="3" fill="#4F46E5"/>
+  <text x="35" y="125" text-anchor="middle" font-size="5.5" fill="#1a1a1a">A+P1</text>
+  <text x="85" y="125" text-anchor="middle" font-size="5.5" fill="#1a1a1a">A+P2</text>
+  <!-- Level 2: Pants from Shirt B -->
+  <line x1="160" y1="72" x2="135" y2="110" stroke="#f59e0b" stroke-width="1"/>
+  <line x1="160" y1="72" x2="185" y2="110" stroke="#f59e0b" stroke-width="1"/>
+  <circle cx="135" cy="113" r="3" fill="#4F46E5"/>
+  <circle cx="185" cy="113" r="3" fill="#4F46E5"/>
+  <text x="135" y="125" text-anchor="middle" font-size="5.5" fill="#1a1a1a">B+P1</text>
+  <text x="185" y="125" text-anchor="middle" font-size="5.5" fill="#1a1a1a">B+P2</text>
+  <!-- Level 2: Pants from Shirt C -->
+  <line x1="260" y1="72" x2="235" y2="110" stroke="#f59e0b" stroke-width="1"/>
+  <line x1="260" y1="72" x2="285" y2="110" stroke="#f59e0b" stroke-width="1"/>
+  <circle cx="235" cy="113" r="3" fill="#4F46E5"/>
+  <circle cx="285" cy="113" r="3" fill="#4F46E5"/>
+  <text x="235" y="125" text-anchor="middle" font-size="5.5" fill="#1a1a1a">C+P1</text>
+  <text x="285" y="125" text-anchor="middle" font-size="5.5" fill="#1a1a1a">C+P2</text>
+  <!-- Summary -->
+  <text x="160" y="145" text-anchor="middle" font-size="7" font-weight="bold" fill="#4F46E5">6 leaf nodes = 3 × 2 = 6 total outcomes</text>
+  <text x="160" y="155" text-anchor="middle" font-size="6" fill="#ccc">Each level multiplies choices</text>
+</svg>
+<div class="diagram-caption">Branching tree: each shirt branches into 2 pant options → 6 total combinations</div>
+</div>
+
+<h3>3. Slot Label Method</h3>
+<ul>
+<li><b>Meaning</b> — A practical technique: represent each position/decision as a "slot," determine how many choices exist for each slot, then multiply all slots together.</li>
+<li><b>Why It Exists</b> — Complex counting problems become manageable when broken into individual positions. Instead of reasoning about the whole, you reason about one slot at a time.</li>
+<li><b>Formula</b> — <code>[slot₁] × [slot₂] × [slot₃] × ...</code></li>
+<li><b>Example</b> — A 4-digit PIN with digits 0-9: <code>[10] × [10] × [10] × [10] = 10,000</code> possible PINs.</li>
+<li><b>Mental Model</b> — Empty boxes on a form. Fill each box independently, then multiply choices.</li>
+<li><b>AI Connection</b> — Each token position in an LLM is a "slot." The model fills slots left-to-right, with vocabulary-size choices at each slot (constrained by context).</li>
+</ul>
+
+<h2>2.2 Permutations (Order Matters)</h2>
+<p class="section-intro">When the arrangement order matters — "ABC" is different from "BCA" — we're in the world of permutations. Rankings, sequences, and ordered lists are all permutation problems.</p>
+
+<h3>4. Permutations of Distinct Elements</h3>
+<ul>
+<li><b>Meaning</b> — The number of ways to arrange ALL elements of a set into a specific order. Since every different ordering counts as a different arrangement, this number grows extremely fast.</li>
+<li><b>Why It Exists</b> — Many real problems care about order: race rankings, playlist sequences, seating arrangements. "Who comes first" matters.</li>
+<li><b>Formula</b> — <code>n!</code> (n factorial) = <code>n × (n-1) × (n-2) × ... × 1</code></li>
+<li><b>Example</b> — Arrange 3 letters A, B, C: <code>3! = 6</code> arrangements (ABC, ACB, BAC, BCA, CAB, CBA).</li>
+<li><b>Mental Model</b> — Filling seats in a row. First seat has n choices, second has n-1 (one person is seated), third has n-2, and so on. Choices shrink at each step.</li>
+<li><b>AI Connection</b> — Token ordering in sequences. The arrangement of words completely changes meaning: "dog bites man" ≠ "man bites dog." Order creates meaning.</li>
+</ul>
+
+<h3>5. Permutations Using Product Rule</h3>
+<ul>
+<li><b>Meaning</b> — Factorial is just the multiplication rule applied repeatedly with shrinking choices. Each slot has one fewer option than the previous because items don't repeat.</li>
+<li><b>Why It Exists</b> — This connection shows that permutations aren't a separate concept — they're a natural consequence of the multiplication rule with "no repetition" constraint.</li>
+<li><b>Formula</b> — <code>n! = n × (n-1) × (n-2) × ... × 1</code> (same as above, but derived from slot thinking)</li>
+<li><b>Example</b> — Arrange 4 books: Slot 1 has 4 choices, Slot 2 has 3, Slot 3 has 2, Slot 4 has 1. Total: <code>4 × 3 × 2 × 1 = 24</code>.</li>
+<li><b>Mental Model</b> — Each time you fill a slot, the remaining pool shrinks by one. The choices cascade downward.</li>
+<li><b>AI Connection</b> — Sequential planning in agents: once an action is taken, it's "used up" and the remaining action space shrinks.</li>
+</ul>
+
+<h3>6. Partial Permutations (k out of n)</h3>
+<ul>
+<li><b>Meaning</b> — Arrange only k objects out of a total of n available, where order still matters. You're selecting a subset AND arranging it.</li>
+<li><b>Why It Exists</b> — Often we don't arrange everything — just the top few. "Gold, Silver, Bronze from 8 athletes" is a partial permutation: choose 3 from 8, in order.</li>
+<li><b>Formula</b> — <code>nPk = n! / (n-k)!</code> = <code>n × (n-1) × ... × (n-k+1)</code> (k terms multiplied)</li>
+<li><b>Example</b> — Top 3 from 5 runners: <code>5P3 = 5 × 4 × 3 = 60</code> possible podium arrangements.</li>
+<li><b>Mental Model</b> — You have n candidates but only k slots. Fill slots from the full pool, shrinking each time, then stop.</li>
+<li><b>AI Connection</b> — Top-k ranking in search results, beam search (keep top k sequences at each step), ranked recommendation lists.</li>
+</ul>
+
+<h3>7. Permutations with Constraints</h3>
+<ul>
+<li><b>Meaning</b> — Arrangements where certain positions are restricted. Some elements can't go in certain slots, or specific patterns must be followed.</li>
+<li><b>Why It Exists</b> — Real problems have rules. "A can't be first," "vowels must be together," "no two managers adjacent." Constraints reduce the count from the unconstrained case.</li>
+<li><b>Example</b> — Arrange A, B, C, D where A cannot be first: Total = 4! = 24. With A first = 3! = 6. Valid = 24 - 6 = 18.</li>
+<li><b>Mental Model</b> — Count everything, then subtract the violations. Or: fill constrained slots first, then fill the rest freely.</li>
+<li><b>AI Connection</b> — Grammar-constrained decoding in LLMs (output must be valid JSON), safe workflow generation (certain actions forbidden in certain positions), dependency ordering.</li>
+</ul>
+
+<h3>8. Permutations with Repetition</h3>
+<ul>
+<li><b>Meaning</b> — When elements CAN be reused, choices don't shrink at each step. Every slot has the full set of options available.</li>
+<li><b>Why It Exists</b> — Many real sequences allow repetition: PINs reuse digits, passwords reuse characters, and LLMs reuse vocabulary tokens.</li>
+<li><b>Formula</b> — <code>nᵏ</code> (n choices at each of k positions)</li>
+<li><b>Example</b> — 2-digit codes using digits {1, 2, 3}: <code>3² = 9</code> possibilities (11, 12, 13, 21, 22, 23, 31, 32, 33).</li>
+<li><b>Mental Model</b> — Unlike regular permutations where the pool shrinks, here the pool resets to full at every position. Every slot sees ALL options.</li>
+<li><b>AI Connection</b> — This is exactly LLM token generation. At every position, the full vocabulary (50,000+ tokens) is available. The model can output "the" at position 5 AND "the" at position 12. That's why the space is <code>vocab_size^sequence_length</code> — astronomically large.</li>
+</ul>
+<div class="tip"><b>In plain English:</b> When repetition is allowed, the number of possibilities doesn't just grow — it explodes exponentially. This is why LLMs face such a vast output space.</div>
+
+<h3>9. Constrained Repetition Permutations</h3>
+<ul>
+<li><b>Meaning</b> — Repetition is allowed, but with additional constraints: no three identical in a row, first position restricted, specific patterns required, etc.</li>
+<li><b>Why It Exists</b> — Real generation isn't completely free. Passwords have rules, language has grammar, and AI outputs must be well-formed.</li>
+<li><b>Example</b> — 3-digit numbers where first digit can't be 0: <code>[9] × [10] × [10] = 900</code> (not 1000).</li>
+<li><b>Mental Model</b> — The pool is full at each slot, but some options are crossed out based on rules or previous choices.</li>
+<li><b>AI Connection</b> — Constrained decoding: LLM outputs valid JSON (braces must match), structured generation (function calls in correct format), repetition penalty (reduce probability of recently-used tokens).</li>
+</ul>
+
+<h3>10. Permutations of Identical Objects</h3>
+<ul>
+<li><b>Meaning</b> — When some elements are identical (indistinguishable), swapping them doesn't create a new arrangement. We divide out the overcounting caused by identical items.</li>
+<li><b>Why It Exists</b> — If you have the letters A, A, B, swapping the two A's gives the same word. We must correct for this "invisible" duplication.</li>
+<li><b>Formula</b> — <code>n! / (a! × b! × c! × ...)</code> where a, b, c are the counts of each repeated element</li>
+<li><b>Example</b> — Arrangements of "AAB": without correction, 3! = 6. But since the two A's are identical, divide by 2!: <code>6 / 2 = 3</code> unique arrangements (AAB, ABA, BAA).</li>
+<li><b>Mental Model</b> — If two items look the same, swapping them doesn't create something new. Divide out the invisible swaps.</li>
+<li><b>AI Connection</b> — NLP token redundancy: "the the" repeated tokens, compression algorithms that exploit repeated patterns, duplicate detection.</li>
+</ul>
+
+<h2>2.3 Combinations (Order Doesn't Matter)</h2>
+<p class="section-intro">When we only care about WHICH items are selected, not what order they come in, we use combinations. Team selection, feature subsets, and document retrieval are all combination problems.</p>
+
+<h3>11. Combinations</h3>
+<ul>
+<li><b>Meaning</b> — The number of ways to SELECT k items from n available, where the order of selection doesn't matter. {A, B, C} and {C, A, B} are the same combination.</li>
+<li><b>Why It Exists</b> — Many selection problems don't care about order: "which 3 features to use" doesn't depend on the order you list them. Combinations count unordered selections.</li>
+<li><b>Formula</b> — <code>nCk = n! / (k! × (n-k)!)</code></li>
+<li><b>Example</b> — Choose 2 from {A, B, C, D}: <code>4C2 = 4! / (2! × 2!) = 6</code> combinations (AB, AC, AD, BC, BD, CD).</li>
+<li><b>Mental Model</b> — Forming a committee. You pick who's on it — the order names are announced doesn't matter.</li>
+<li><b>AI Connection</b> — Feature selection (choose k best features from n available), document retrieval (select which documents to include, order handled separately), random sampling.</li>
+<li><b>Common Mistake</b> — If order matters, use permutations. If only the selection matters, use combinations. Ask: "would rearranging the same items give a different answer?" If no → combination.</li>
+</ul>
+
+<h3>12. Relationship Between Permutations & Combinations</h3>
+<ul>
+<li><b>Meaning</b> — A permutation is a combination followed by an arrangement. First you select (combination), then you arrange the selection (k! orderings). So <code>nPk = nCk × k!</code>.</li>
+<li><b>Why It Exists</b> — This relationship shows that permutations and combinations aren't separate tools — they're connected. Understanding one helps compute the other.</li>
+<li><b>Formula</b> — <code>nPk = nCk × k!</code> or equivalently <code>nCk = nPk / k!</code></li>
+<li><b>Example</b> — Choose and arrange 2 from {A, B, C}: Combinations = 3 (AB, AC, BC). Each can be arranged 2! = 2 ways. Permutations = 3 × 2 = 6 (AB, BA, AC, CA, BC, CB).</li>
+<li><b>Mental Model</b> — First pick the team (combination), then assign positions (arrange). Selection + Ordering = Permutation.</li>
+<li><b>AI Connection</b> — Retrieval + Ranking pipeline: first retrieve relevant documents (combination = which ones), then rank them (permutation = in what order to display).</li>
+</ul>
+
+<!-- SVG Diagram: Permutation vs Combination -->
+<div class="diagram">
+<svg width="380" height="140" viewBox="0 0 380 140" xmlns="http://www.w3.org/2000/svg">
+  <text x="190" y="12" text-anchor="middle" font-size="8" font-weight="bold" fill="#1a1a1a">Permutation vs Combination: Choose 2 from {A, B, C}</text>
+  <!-- Permutation side -->
+  <rect x="10" y="20" width="170" height="110" rx="4" fill="none" stroke="#4F46E5" stroke-width="1.5"/>
+  <text x="95" y="34" text-anchor="middle" font-size="7" font-weight="bold" fill="#4F46E5">PERMUTATION (Order Matters)</text>
+  <text x="95" y="47" text-anchor="middle" font-size="6.5" fill="#1a1a1a">3P2 = 6 arrangements</text>
+  <text x="40" y="62" font-size="6.5" fill="#1a1a1a">AB</text>
+  <text x="80" y="62" font-size="6.5" fill="#1a1a1a">BA</text>
+  <text x="120" y="62" font-size="6.5" fill="#f59e0b">← different!</text>
+  <text x="40" y="75" font-size="6.5" fill="#1a1a1a">AC</text>
+  <text x="80" y="75" font-size="6.5" fill="#1a1a1a">CA</text>
+  <text x="120" y="75" font-size="6.5" fill="#f59e0b">← different!</text>
+  <text x="40" y="88" font-size="6.5" fill="#1a1a1a">BC</text>
+  <text x="80" y="88" font-size="6.5" fill="#1a1a1a">CB</text>
+  <text x="120" y="88" font-size="6.5" fill="#f59e0b">← different!</text>
+  <text x="95" y="105" text-anchor="middle" font-size="6" fill="#1a1a1a">Use for: Rankings, sequences</text>
+  <text x="95" y="117" text-anchor="middle" font-size="6" fill="#4F46E5">AI: Token ordering, top-k results</text>
+  <!-- Combination side -->
+  <rect x="200" y="20" width="170" height="110" rx="4" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="285" y="34" text-anchor="middle" font-size="7" font-weight="bold" fill="#f59e0b">COMBINATION (Order Doesn't Matter)</text>
+  <text x="285" y="47" text-anchor="middle" font-size="6.5" fill="#1a1a1a">3C2 = 3 selections</text>
+  <text x="250" y="62" font-size="6.5" fill="#1a1a1a">{A, B}</text>
+  <text x="310" y="62" font-size="6.5" fill="#ccc">AB = BA (same)</text>
+  <text x="250" y="75" font-size="6.5" fill="#1a1a1a">{A, C}</text>
+  <text x="310" y="75" font-size="6.5" fill="#ccc">AC = CA (same)</text>
+  <text x="250" y="88" font-size="6.5" fill="#1a1a1a">{B, C}</text>
+  <text x="310" y="88" font-size="6.5" fill="#ccc">BC = CB (same)</text>
+  <text x="285" y="105" text-anchor="middle" font-size="6" fill="#1a1a1a">Use for: Teams, subsets</text>
+  <text x="285" y="117" text-anchor="middle" font-size="6" fill="#f59e0b">AI: Feature selection, retrieval</text>
+</svg>
+<div class="diagram-caption">Permutations count every ordering separately; Combinations collapse orderings into one selection</div>
+</div>
+
+<h2>2.4 Advanced Counting</h2>
+
+<h3>13. Multi-Stage Product Rule</h3>
+<ul>
+<li><b>Meaning</b> — When a problem has multiple independent stages, multiply the possibilities at each stage. This is the multiplication rule applied to complex multi-step scenarios.</li>
+<li><b>Why It Exists</b> — Most real problems aren't single-step. Choosing a meal involves starter × main × dessert × drink. Each stage is independent.</li>
+<li><b>Formula</b> — <code>stage₁ × stage₂ × stage₃ × ...</code></li>
+<li><b>Example</b> — 2 starters × 3 mains × 4 desserts = 24 possible complete meals.</li>
+<li><b>Mental Model</b> — Multi-level branching tree. At each level, every branch splits into more branches.</li>
+<li><b>AI Connection</b> — Prompt template combinations (2 system prompts × 3 temperature settings × 5 examples = 30 experiments). Hyperparameter search spaces. Agentic workflow branching.</li>
+</ul>
+
+<h3>14. Pigeonhole Principle</h3>
+<ul>
+<li><b>Meaning</b> — If you have more objects than containers, at least one container must hold more than one object. Repetition becomes mathematically guaranteed.</li>
+<li><b>Why It Exists</b> — This seemingly obvious principle proves powerful impossibility and existence results. It guarantees collisions, overlaps, and shared properties.</li>
+<li><b>Formula</b> — If n objects placed into k containers and n > k, then at least one container has ≥ 2 objects.</li>
+<li><b>Example</b> — 13 people, 12 birth months: at least 2 people must share a birth month. 367 people: at least 2 must share a birthday (only 366 possible days).</li>
+<li><b>Mental Model</b> — Musical chairs: more people than chairs means someone must share or be left out.</li>
+<li><b>AI Connection</b> — Hash collisions in data structures (inevitable with enough data), embedding space collisions (distinct concepts mapping to similar vectors), birthday attacks in security, why perfect hashing is impossible for large datasets.</li>
+</ul>
+<div class="tip"><b>In plain English:</b> Whenever there are more things to place than slots to place them in, overlap is guaranteed — not just possible, but certain. This has profound implications for any system with finite capacity (hash tables, embedding spaces, cache systems).</div>
+
+<!-- SVG Diagram: Pigeonhole Principle -->
+<div class="diagram">
+<svg width="300" height="100" viewBox="0 0 300 100" xmlns="http://www.w3.org/2000/svg">
+  <text x="150" y="12" text-anchor="middle" font-size="7.5" font-weight="bold" fill="#1a1a1a">Pigeonhole: 5 Items → 3 Slots (collision guaranteed)</text>
+  <!-- Slots (boxes) -->
+  <rect x="50" y="30" width="50" height="40" fill="none" stroke="#4F46E5" stroke-width="1.5" rx="3"/>
+  <rect x="120" y="30" width="50" height="40" fill="none" stroke="#4F46E5" stroke-width="1.5" rx="3"/>
+  <rect x="190" y="30" width="50" height="40" fill="none" stroke="#4F46E5" stroke-width="1.5" rx="3"/>
+  <text x="75" y="76" text-anchor="middle" font-size="6" fill="#4F46E5">Slot 1</text>
+  <text x="145" y="76" text-anchor="middle" font-size="6" fill="#4F46E5">Slot 2</text>
+  <text x="215" y="76" text-anchor="middle" font-size="6" fill="#4F46E5">Slot 3</text>
+  <!-- Items (circles) -->
+  <circle cx="62" cy="45" r="5" fill="#f59e0b"/>
+  <circle cx="82" cy="45" r="5" fill="#f59e0b"/>
+  <circle cx="132" cy="45" r="5" fill="#f59e0b"/>
+  <circle cx="152" cy="45" r="5" fill="#f59e0b"/>
+  <circle cx="202" cy="45" r="5" fill="#f59e0b"/>
+  <text x="62" y="48" text-anchor="middle" font-size="5" fill="#1a1a1a">1</text>
+  <text x="82" y="48" text-anchor="middle" font-size="5" fill="#1a1a1a">2</text>
+  <text x="132" y="48" text-anchor="middle" font-size="5" fill="#1a1a1a">3</text>
+  <text x="152" y="48" text-anchor="middle" font-size="5" fill="#1a1a1a">4</text>
+  <text x="202" y="48" text-anchor="middle" font-size="5" fill="#1a1a1a">5</text>
+  <!-- Annotation -->
+  <text x="150" y="92" text-anchor="middle" font-size="6.5" fill="#1a1a1a">At least one slot must have ≥ 2 items → collision is <tspan font-weight="bold" fill="#f59e0b">certain</tspan></text>
+</svg>
+<div class="diagram-caption">With more items than containers, sharing is mathematically inevitable</div>
+</div>
+
+<h2>Quick Reference Tables</h2>
+
+<h3>Table 1 — Formula Cheat Sheet</h3>
+<table>
+<tr><th>Concept</th><th>Formula</th><th>When To Use</th></tr>
+<tr><td>Addition Rule</td><td><code>m + n</code></td><td>Either/or alternatives (no overlap)</td></tr>
+<tr><td>Multiplication Rule</td><td><code>m × n</code></td><td>Sequential independent steps</td></tr>
+<tr><td>Factorial</td><td><code>n! = n × (n-1) × ... × 1</code></td><td>Arrange all n items</td></tr>
+<tr><td>Partial Permutation</td><td><code>nPk = n! / (n-k)!</code></td><td>Arrange k items from n (order matters)</td></tr>
+<tr><td>Repetition Permutation</td><td><code>nᵏ</code></td><td>k positions, n choices each (reuse allowed)</td></tr>
+<tr><td>Identical Object Permutation</td><td><code>n! / (a! × b! × c!)</code></td><td>Arrange with duplicate elements</td></tr>
+<tr><td>Combination</td><td><code>nCk = n! / (k! × (n-k)!)</code></td><td>Select k from n (order doesn't matter)</td></tr>
+<tr><td>P-C Relationship</td><td><code>nPk = nCk × k!</code></td><td>Convert between permutation and combination</td></tr>
+</table>
+
+<h3>Table 2 — Permutation vs Combination</h3>
+<table>
+<tr><th>Question</th><th>Permutation</th><th>Combination</th></tr>
+<tr><td>Does order matter?</td><td>YES</td><td>NO</td></tr>
+<tr><td>What are we counting?</td><td>Arrangements</td><td>Selections</td></tr>
+<tr><td>Real-life example</td><td>Race podium (1st, 2nd, 3rd)</td><td>Team selection (just who's on it)</td></tr>
+<tr><td>AI example</td><td>Token sequence ordering</td><td>Feature subset selection</td></tr>
+<tr><td>Formula</td><td><code>nPk = n!/(n-k)!</code></td><td><code>nCk = n!/(k!(n-k)!)</code></td></tr>
+<tr><td>Always larger?</td><td>Yes (nPk ≥ nCk)</td><td>No (always ≤ nPk)</td></tr>
+</table>
+
+<h3>Table 3 — Growth Patterns</h3>
+<table>
+<tr><th>Type</th><th>Growth Style</th><th>Example</th><th>Result</th></tr>
+<tr><td>Addition</td><td>Linear</td><td><code>5 + 5</code></td><td>10</td></tr>
+<tr><td>Multiplication</td><td>Polynomial</td><td><code>5 × 5 × 5</code></td><td>125</td></tr>
+<tr><td>Factorial</td><td>Super-exponential</td><td><code>10!</code></td><td>3,628,800</td></tr>
+<tr><td>Exponential (repetition)</td><td>Exponential</td><td><code>10³</code></td><td>1,000</td></tr>
+<tr><td>Vocabulary power</td><td>Astronomical</td><td><code>50000¹⁰⁰⁰</code></td><td>Incomprehensibly large</td></tr>
+</table>
+
+<h3>Table 4 — AI Connections</h3>
+<table>
+<tr><th>Combinatorics Concept</th><th>AI Application</th><th>Why It Matters</th></tr>
+<tr><td>Multiplication Rule</td><td>Search space growth</td><td>Explains why brute-force fails</td></tr>
+<tr><td>Permutations</td><td>Token ordering, rankings</td><td>Sequence generation</td></tr>
+<tr><td>Permutations with Repetition</td><td>LLM token generation</td><td>Full vocabulary at each position</td></tr>
+<tr><td>Constrained Permutations</td><td>Structured/safe decoding</td><td>Grammar and format enforcement</td></tr>
+<tr><td>Combinations</td><td>Feature selection, retrieval</td><td>Choose subset regardless of order</td></tr>
+<tr><td>Multi-Stage Product Rule</td><td>Hyperparameter search</td><td>Experiment space sizing</td></tr>
+<tr><td>Pigeonhole Principle</td><td>Hash/embedding collisions</td><td>Guarantees overlap in finite systems</td></tr>
+<tr><td>Factorials</td><td>Computational complexity</td><td>Why exact solutions are often impossible</td></tr>
+</table>
+
+<h3>Table 5 — Decision Guide: Which Formula?</h3>
+<table>
+<tr><th>Scenario</th><th>Order Matters?</th><th>Repetition?</th><th>Formula</th></tr>
+<tr><td>Arrange all items</td><td>Yes</td><td>No</td><td><code>n!</code></td></tr>
+<tr><td>Arrange k from n</td><td>Yes</td><td>No</td><td><code>nPk</code></td></tr>
+<tr><td>Arrange with repetition</td><td>Yes</td><td>Yes</td><td><code>nᵏ</code></td></tr>
+<tr><td>Arrange with identical items</td><td>Yes</td><td>Has duplicates</td><td><code>n!/(a!b!...)</code></td></tr>
+<tr><td>Select k from n</td><td>No</td><td>No</td><td><code>nCk</code></td></tr>
+<tr><td>Choose with constraints</td><td>Depends</td><td>Depends</td><td>Slot method + subtract invalid</td></tr>
+</table>
+
+<h2>Memory Map</h2>
+<div class="prompt">Counting Fundamentals
+  ├── Addition Rule (OR → Add)
+  ├── Multiplication Rule (AND → Multiply)
+  └── Slot Label Method (position-by-position)
+      ↓
+Permutations (ORDER MATTERS)
+  ├── All items: n!
+  ├── k from n: nPk = n!/(n-k)!
+  ├── With repetition: nᵏ
+  ├── With constraints: subtract violations
+  └── Identical objects: n!/(a!b!c!)
+      ↓
+Combinations (ORDER DOESN'T MATTER)
+  ├── nCk = n!/(k!(n-k)!)
+  └── Relationship: nPk = nCk × k!
+      ↓
+Key Insights
+  ├── Search spaces grow multiplicatively (explosive)
+  ├── AI CANNOT explore everything (needs heuristics)
+  ├── Pigeonhole: collisions are guaranteed in finite systems
+  └── Constraints reduce (but rarely eliminate) explosion
+      ↓
+Foundation for:
+  ├── Probability (favorable/total = counting)
+  ├── LLM generation (vocabulary^positions)
+  ├── Feature selection (nCk subsets)
+  ├── Planning (action sequences = permutations)
+  └── Search (pruning = reducing combinations)</div>
+
+<h2>Interview / Revision Summary</h2>
+<table>
+<tr><th>Concept</th><th>Remember This</th></tr>
+<tr><td>Addition Rule</td><td>OR → Add alternatives</td></tr>
+<tr><td>Multiplication Rule</td><td>AND → Multiply sequential steps</td></tr>
+<tr><td>Factorial</td><td>n! = arrange all n items; grows incredibly fast</td></tr>
+<tr><td>Permutation</td><td>Order matters: select AND arrange</td></tr>
+<tr><td>Combination</td><td>Order doesn't matter: select only</td></tr>
+<tr><td>Repetition Permutation</td><td>nᵏ: full choices at each position (LLM generation)</td></tr>
+<tr><td>P-C Relationship</td><td>Permutation = Combination × k! (select then arrange)</td></tr>
+<tr><td>Pigeonhole</td><td>More items than slots → collision guaranteed</td></tr>
+<tr><td>Key Insight</td><td>Small changes multiply into enormous search spaces</td></tr>
+<tr><td>AI Takeaway</td><td>Combinatorial explosion is why AI needs heuristics, not brute force</td></tr>
+</table>
+
+<h2>If Someone Asks: "Why does Combinatorics matter for AI?"</h2>
+<div class="tip"><b>Answer:</b> Combinatorics explains why AI is hard. An LLM with a 50,000-token vocabulary generating even a 100-token response faces 50,000¹⁰⁰ possible outputs — more than atoms in the universe. This combinatorial explosion means exhaustive search is impossible, which is why AI needs clever strategies: beam search (explore top-k permutations), sampling (probabilistic selection from combinations), and constraints (reduce the space via structured decoding). Feature selection is a combination problem (which k features from n?), recommendation ranking is a permutation problem (what order to show results?), and the Pigeonhole Principle guarantees that embedding collisions will occur in any finite-dimensional space. Understanding how possibilities grow — linearly, factorially, or exponentially — is essential for understanding why some AI problems are tractable and others require approximation.</div>
+
+</body>
+</html>

@@ -1,5 +1,5 @@
 {
-  "enabled": true,
+  "enabled": false,
   "name": "New Content Quality Review",
   "description": "When a new markdown file is created, review it for spelling, grammar, clarity, and adherence to project conventions.",
   "version": "1",

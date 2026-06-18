@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Learning Strategy — Printable Notes</title>
+<style>
+  @page { margin: 0.5cm; size: A4; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+  h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+  h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+  h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+  ul { margin: 0 0 2px 12px; padding: 0; }
+  li { margin-bottom: 0.5px; }
+  .tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+  .prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+  .two-col { column-count: 2; column-gap: 10px; }
+  code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+  table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 7pt; }
+  th, td { border: 1px solid #ccc; padding: 1.5px 4px; text-align: left; }
+  th { background: #f0f0f0; font-weight: bold; }
+  @media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+
+<h1>Learning Strategy</h1>
+
+<h2>Approach — Hybrid</h2>
+<p style="margin:1px 0; font-size:7pt;">Best for experienced Software Architect learning AI as a second specialization. Start from problems, not syntax.</p>
+<div class="prompt">Real World Problem → Why This Tool Exists → Mental Model → Architecture → Code → AI Use Cases → Production Patterns</div>
+
+<div class="tip"><strong>Key Insight:</strong> The bottleneck is not theory. It is converting abstract AI concepts into intuitive mental models and practical implementation skills.</div>
+
+<h2>Tool Roles</h2>
+<table>
+  <tr><th>Tool</th><th>When to Use</th><th>Strengths</th></tr>
+  <tr><td>ChatGPT</td><td>Learning & Revision</td><td>Teaching, analogies, simplification, Q&A, concepts</td></tr>
+  <tr><td>Kiro</td><td>Building & Shipping</td><td>Spec → Design → Tasks → Implementation</td></tr>
+</table>
+<ul>
+  <li>ChatGPT excels at nonlinear learning (Why? What if? Explain again. Compare.)</li>
+  <li>Kiro excels at structured execution (spec-driven projects, not learning)</li>
+</ul>
+
+<h2>Learning Sequence Per Topic</h2>
+<div class="prompt">Learn Concept → Learn Library → Build Mini Project → Build Real Project → Move Forward
+Example: Learn RAG → Learn LangChain → Build PDF Chatbot → Build Multi-document Assistant → Move to Agents</div>
+
+<h2>Python Prerequisites</h2>
+<table>
+  <tr><th>Category</th><th>Topics</th></tr>
+  <tr><td>Data Structures</td><td>list, tuple, dict, set</td></tr>
+  <tr><td>Functions</td><td>functions, lambda, comprehensions</td></tr>
+  <tr><td>OOP</td><td>classes, dataclasses</td></tr>
+  <tr><td>Advanced</td><td>typing, generators, decorators, context managers</td></tr>
+</table>
+
+<h2>Combined Workflow</h2>
+<table>
+  <tr><th>Phase</th><th>Tool</th><th>Purpose</th></tr>
+  <tr><td>Learning</td><td>ChatGPT</td><td>Teach concepts, analogies, Q&A</td></tr>
+  <tr><td>Revision</td><td>ChatGPT</td><td>Compact notes, comparisons</td></tr>
+  <tr><td>Building</td><td>Kiro</td><td>Spec → Design → Tasks → Code</td></tr>
+  <tr><td>Review</td><td>ChatGPT</td><td>Test understanding, find gaps</td></tr>
+</table>
+
+<h2>Retaining Deep Knowledge in the AI-Assisted Era</h2>
+
+<h3>The Problem</h3>
+<ul>
+  <li>AI tools accelerate output but bypass the <strong>generation effect</strong> — info you actively produce is retained far better than info passively reviewed</li>
+  <li>When AI writes code/content, you skip effortful encoding that builds deep mental models</li>
+  <li>Result: ship faster but retain less. Mental map becomes sparse and fragile.</li>
+</ul>
+
+<h3>When AI-First is Fine</h3>
+<ul>
+  <li>Routine/boilerplate tasks (CRUD, config, glue code)</li>
+  <li>Exploring unfamiliar territory quickly to decide if worth deeper investment</li>
+  <li>Working under time pressure on well-understood problems</li>
+  <li>AI handles the "how" while you own the "what" and "why"</li>
+</ul>
+
+<h3>When It is Not Okay</h3>
+<ul>
+  <li>You cannot explain or debug what was generated</li>
+  <li>You are building on foundations you do not understand</li>
+  <li>Your confidence drops because you could not reproduce the work</li>
+  <li>You stop growing as a practitioner</li>
+</ul>
+
+<h3>Practical Tactics</h3>
+<table>
+  <tr><th>Tactic</th><th>Description</th></tr>
+  <tr><td>AI as draft, not delivery</td><td>Let AI generate, then rewrite parts yourself. Rewriting even 30% builds significantly more retention than reviewing alone.</td></tr>
+  <tr><td>Explain-back practice</td><td>After accepting AI output, explain it as if teaching someone. If you cannot, dig deeper before moving on.</td></tr>
+  <tr><td>Selective depth</td><td>Decide upfront: "grow-through task or get-through task?" For grow-through tasks, slow down and write more yourself.</td></tr>
+  <tr><td>70/30 rule</td><td>For mastery domains: write 70%, AI handles 30%. For get-things-done domains: flip the ratio.</td></tr>
+  <tr><td>Active review</td><td>Instead of reading generated code top-to-bottom, predict what the next section does before reading it, or find one thing to change.</td></tr>
+  <tr><td>From-scratch practice</td><td>Periodically build something small without AI. Keeps foundational skills sharp and confidence grounded.</td></tr>
+  <tr><td>Document decisions</td><td>Write a one-line note about why you chose an approach. Decision-making compounds; typing speed does not.</td></tr>
+  <tr><td>Visual notepad alongside AI</td><td>Keep a physical notepad while working with AI. Sketch mental models, relationships, flows. Leverages dual coding theory (verbal + visual = two retrieval paths). Focus on connections, not details. Keep messy and fast. Skip for get-through tasks; use for grow-through tasks.</td></tr>
+</table>
+
+<h3>The Bigger Picture</h3>
+<div class="tip">The skill shift is upward — automation handles lower layers, freeing cognitive energy for architecture, trade-off analysis, debugging novel problems, and system thinking. Speed without understanding is debt. Build in small, intentional friction where growth matters.</div>
+
+</body>
+</html>

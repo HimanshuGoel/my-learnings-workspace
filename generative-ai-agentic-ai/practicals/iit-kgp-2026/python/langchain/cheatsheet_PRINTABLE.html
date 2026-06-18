@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>LangChain — Printable Learning Notes</title>
+<style>
+  @page { margin: 0.5cm; size: A4; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+  h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+  h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+  h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+  ul { margin: 0 0 2px 12px; padding: 0; }
+  li { margin-bottom: 0.5px; }
+  .tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+  .prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+  .two-col { column-count: 2; column-gap: 10px; }
+  code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+  table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+  th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+  th { background: #f3f4f6; font-weight: bold; }
+  .diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+  .diagram svg { max-width: 100%; }
+  .diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+  .section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+  @media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+<h1>LangChain — Complete Learning Notes</h1>
+<p><b>Summary:</b> LangChain orchestrates LLM-powered applications — chaining prompts, models, tools, memory, and retrieval into RAG pipelines and autonomous agents. It's Spring Framework for AI apps.</p>
+
+<h2>Why LangChain Exists</h2>
+<ul>
+<li><b>Problem</b> — a raw LLM API call is stateless, has no access to your data, can't use tools, and produces unstructured text. Building AI apps requires orchestrating many components.</li>
+<li><b>Solution</b> — composable building blocks: chains (prompt→model→parser), retrievers (search your docs), agents (model decides actions), memory (conversation state).</li>
+<li><b>Mental Model</b> — <b>Spring Framework for LLM Apps</b>. Chains = middleware pipeline. Retrievers = data access layer. Agents = controllers with tool-calling. Memory = session state. Or: <b>Express.js middleware</b> — each step processes data and passes it along.</li>
+<li><b>AI Connection</b> — the standard framework for RAG systems, AI chatbots, and agentic applications.</li>
+</ul>
+
+<h2>Where LangChain Fits</h2>
+<div class="diagram">
+<svg width="420" height="120" viewBox="0 0 420 120">
+<defs><marker id="arrLC" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto"><path d="M0,0 L6,2 L0,4 Z" fill="#999"/></marker></defs>
+<rect x="5" y="40" width="60" height="30" rx="3" fill="#f3f4f6" stroke="#ddd"/>
+<text x="35" y="58" text-anchor="middle" font-size="5.5pt" font-weight="bold">User Query</text>
+<line x1="65" y1="55" x2="85" y2="55" stroke="#999" stroke-width="1" marker-end="url(#arrLC)"/>
+<rect x="85" y="10" width="200" height="95" rx="4" fill="#ede9fe" stroke="#4F46E5" stroke-width="1.5"/>
+<text x="185" y="23" text-anchor="middle" font-size="7pt" font-weight="bold" fill="#4F46E5">LangChain (Orchestrator)</text>
+<rect x="95" y="30" width="55" height="20" rx="2" fill="#dbeafe" stroke="#3b82f6"/><text x="122" y="43" text-anchor="middle" font-size="5pt">Prompts</text>
+<rect x="155" y="30" width="55" height="20" rx="2" fill="#dbeafe" stroke="#3b82f6"/><text x="182" y="43" text-anchor="middle" font-size="5pt">LLM/Chat</text>
+<rect x="215" y="30" width="55" height="20" rx="2" fill="#dbeafe" stroke="#3b82f6"/><text x="242" y="43" text-anchor="middle" font-size="5pt">Parsers</text>
+<rect x="95" y="55" width="55" height="20" rx="2" fill="#dcfce7" stroke="#22c55e"/><text x="122" y="68" text-anchor="middle" font-size="5pt">Retriever</text>
+<rect x="155" y="55" width="55" height="20" rx="2" fill="#fef3c7" stroke="#f59e0b"/><text x="182" y="68" text-anchor="middle" font-size="5pt">Memory</text>
+<rect x="215" y="55" width="55" height="20" rx="2" fill="#fee2e2" stroke="#ef4444"/><text x="242" y="68" text-anchor="middle" font-size="5pt">Agents</text>
+<rect x="95" y="80" width="175" height="17" rx="2" fill="#f3f4f6" stroke="#ddd"/><text x="182" y="92" text-anchor="middle" font-size="5pt" fill="#666">LCEL: prompt | model | parser (pipe composition)</text>
+<line x1="285" y1="55" x2="305" y2="55" stroke="#999" stroke-width="1" marker-end="url(#arrLC)"/>
+<rect x="305" y="25" width="100" height="65" rx="3" fill="#f3f4f6" stroke="#ddd"/>
+<text x="355" y="38" text-anchor="middle" font-size="5.5pt" font-weight="bold">External</text>
+<text x="355" y="50" text-anchor="middle" font-size="5pt" fill="#666">ChromaDB (vectors)</text>
+<text x="355" y="60" text-anchor="middle" font-size="5pt" fill="#666">OpenAI API (model)</text>
+<text x="355" y="70" text-anchor="middle" font-size="5pt" fill="#666">Web APIs (tools)</text>
+<text x="355" y="80" text-anchor="middle" font-size="5pt" fill="#666">Databases</text>
+</svg>
+<div class="diagram-caption">LangChain orchestrates LLMs, retrieval, tools, and memory into complete applications</div>
+</div>
+
+<h2>1. LCEL Chains — The Core Pattern</h2>
+<p class="section-intro">LCEL (LangChain Expression Language) uses the pipe operator to compose steps. This is the modern way to build everything.</p>
+
+<div class="diagram">
+<svg width="380" height="50" viewBox="0 0 380 50">
+<defs><marker id="arrCh" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto"><path d="M0,0 L6,2 L0,4 Z" fill="#4F46E5"/></marker></defs>
+<rect x="5" y="10" width="80" height="28" rx="3" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="45" y="27" text-anchor="middle" font-size="6pt" font-weight="bold">Prompt</text>
+<text x="90" y="27" font-size="8pt" fill="#4F46E5" font-weight="bold">|</text>
+<line x1="95" y1="24" x2="105" y2="24" stroke="#4F46E5" stroke-width="1.2" marker-end="url(#arrCh)"/>
+<rect x="105" y="10" width="80" height="28" rx="3" fill="#ede9fe" stroke="#4F46E5"/>
+<text x="145" y="27" text-anchor="middle" font-size="6pt" font-weight="bold">LLM</text>
+<text x="190" y="27" font-size="8pt" fill="#4F46E5" font-weight="bold">|</text>
+<line x1="195" y1="24" x2="205" y2="24" stroke="#4F46E5" stroke-width="1.2" marker-end="url(#arrCh)"/>
+<rect x="205" y="10" width="80" height="28" rx="3" fill="#dcfce7" stroke="#22c55e"/>
+<text x="245" y="27" text-anchor="middle" font-size="6pt" font-weight="bold">Parser</text>
+<text x="295" y="27" font-size="7pt" fill="#666">→ result</text>
+<text x="5" y="47" font-size="5.5pt" fill="#4F46E5">chain = prompt | llm | StrOutputParser()</text>
+</svg>
+<div class="diagram-caption">LCEL: each step transforms data and passes to the next — like Express middleware</div>
+</div>
+
+<div class="prompt"># Basic chain
+chain = prompt | llm | StrOutputParser()
+result = chain.invoke({"question": "What is AI?"})
+
+# With retrieval (RAG)
+chain = {"context": retriever, "question": RunnablePassthrough()} | prompt | llm | parser</div>
+
+<h2>2. RAG Pipeline — The Core Architecture</h2>
+<p class="section-intro">RAG = Retrieval-Augmented Generation. Answer questions by first finding relevant documents, then generating with that context.</p>
+
+<div class="diagram">
+<svg width="420" height="70" viewBox="0 0 420 70">
+<defs><marker id="arrR2" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto"><path d="M0,0 L6,2 L0,4 Z" fill="#4F46E5"/></marker></defs>
+<rect x="5" y="20" width="50" height="28" rx="3" fill="#f3f4f6" stroke="#ddd"/>
+<text x="30" y="32" text-anchor="middle" font-size="5pt" font-weight="bold">Load</text>
+<text x="30" y="42" text-anchor="middle" font-size="4.5pt" fill="#666">PDF/txt</text>
+<line x1="55" y1="34" x2="70" y2="34" stroke="#4F46E5" stroke-width="1" marker-end="url(#arrR2)"/>
+<rect x="70" y="20" width="50" height="28" rx="3" fill="#f3f4f6" stroke="#ddd"/>
+<text x="95" y="32" text-anchor="middle" font-size="5pt" font-weight="bold">Split</text>
+<text x="95" y="42" text-anchor="middle" font-size="4.5pt" fill="#666">chunks</text>
+<line x1="120" y1="34" x2="135" y2="34" stroke="#4F46E5" stroke-width="1" marker-end="url(#arrR2)"/>
+<rect x="135" y="20" width="50" height="28" rx="3" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="160" y="32" text-anchor="middle" font-size="5pt" font-weight="bold">Embed</text>
+<text x="160" y="42" text-anchor="middle" font-size="4.5pt" fill="#666">vectors</text>
+<line x1="185" y1="34" x2="200" y2="34" stroke="#4F46E5" stroke-width="1" marker-end="url(#arrR2)"/>
+<rect x="200" y="20" width="50" height="28" rx="3" fill="#dcfce7" stroke="#22c55e"/>
+<text x="225" y="32" text-anchor="middle" font-size="5pt" font-weight="bold">Store</text>
+<text x="225" y="42" text-anchor="middle" font-size="4.5pt" fill="#666">ChromaDB</text>
+<line x1="250" y1="34" x2="265" y2="34" stroke="#4F46E5" stroke-width="1" marker-end="url(#arrR2)"/>
+<rect x="265" y="20" width="55" height="28" rx="3" fill="#fef3c7" stroke="#f59e0b"/>
+<text x="292" y="32" text-anchor="middle" font-size="5pt" font-weight="bold">Retrieve</text>
+<text x="292" y="42" text-anchor="middle" font-size="4.5pt" fill="#666">top-K</text>
+<line x1="320" y1="34" x2="335" y2="34" stroke="#4F46E5" stroke-width="1" marker-end="url(#arrR2)"/>
+<rect x="335" y="20" width="60" height="28" rx="3" fill="#ede9fe" stroke="#4F46E5"/>
+<text x="365" y="32" text-anchor="middle" font-size="5pt" font-weight="bold">Generate</text>
+<text x="365" y="42" text-anchor="middle" font-size="4.5pt" fill="#666">LLM+context</text>
+<text x="210" y="62" text-anchor="middle" font-size="5.5pt" fill="#4F46E5">Load → Split → Embed → Store → Retrieve → Generate</text>
+</svg>
+<div class="diagram-caption">RAG pipeline: ingest documents once, then retrieve and generate for each query</div>
+</div>
+
+<div class="prompt"># Complete RAG in ~10 lines
+docs = PyPDFLoader("doc.pdf").load()
+chunks = RecursiveCharacterTextSplitter(500, 50).split_documents(docs)
+vectorstore = Chroma.from_documents(chunks, OpenAIEmbeddings())
+retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
+
+rag_chain = (
+    {"context": retriever | format_docs, "question": RunnablePassthrough()}
+    | rag_prompt | llm | StrOutputParser()
+)
+answer = rag_chain.invoke("What is the return policy?")</div>
+
+<h2>3. Agents — LLMs That Use Tools</h2>
+<ul>
+<li><b>What</b> — an agent is an LLM that decides which tools to call and in what order, then synthesizes a final answer from tool outputs.</li>
+<li><b>How</b> — define tools with @tool decorator, create agent with create_tool_calling_agent(), execute with AgentExecutor.</li>
+<li><b>When</b> — when the model needs real-time info (search), calculations, database access, or multi-step reasoning.</li>
+</ul>
+<div class="prompt">@tool
+def search(query: str) -> str:
+    """Search the web."""
+    return "search results..."
+
+agent = create_tool_calling_agent(llm, [search], prompt)
+executor = AgentExecutor(agent=agent, tools=[search], max_iterations=5)
+result = executor.invoke({"input": "Latest AI news?"})</div>
+
+<h2>4. Key Components Quick Reference</h2>
+<div class="two-col">
+<h3>Chains (LCEL)</h3>
+<div class="prompt">chain = prompt | llm | parser
+chain.invoke({"key": "value"})
+chain.batch([...])
+chain.stream({...})</div>
+
+<h3>Prompts</h3>
+<div class="prompt">ChatPromptTemplate.from_messages([
+    ("system", "You are {role}"),
+    ("human", "{question}")
+])</div>
+
+<h3>Parsers</h3>
+<div class="prompt">StrOutputParser()         # → string
+JsonOutputParser(schema)  # → dict</div>
+
+<h3>Document Loaders</h3>
+<div class="prompt">TextLoader("f.txt")
+PyPDFLoader("f.pdf")
+WebBaseLoader(url)
+CSVLoader("f.csv")</div>
+
+<h3>Text Splitting</h3>
+<div class="prompt">RecursiveCharacterTextSplitter(
+    chunk_size=500, chunk_overlap=50)</div>
+
+<h3>Embeddings</h3>
+<div class="prompt">OpenAIEmbeddings()
+HuggingFaceEmbeddings(model_name="...")</div>
+
+<h3>Vector Stores</h3>
+<div class="prompt">Chroma.from_documents(chunks, embeddings)
+vectorstore.as_retriever(k=3)</div>
+
+<h3>Agents</h3>
+<div class="prompt">@tool decorator
+create_tool_calling_agent(llm, tools, prompt)
+AgentExecutor(agent, tools)</div>
+</div>
+
+<h2>5. AI/ML Connection</h2>
+<table>
+<tr><th>Pipeline Stage</th><th>LangChain Component</th><th>Concrete Example</th></tr>
+<tr><td>Prompt Engineering</td><td>ChatPromptTemplate</td><td>System + few-shot examples + user query</td></tr>
+<tr><td>Document Ingestion</td><td>Loaders + Splitters</td><td>Load 100 PDFs, chunk for retrieval</td></tr>
+<tr><td>Retrieval (RAG)</td><td>VectorStore + Retriever</td><td>Find 3 most relevant doc chunks for query</td></tr>
+<tr><td>Generation</td><td>LLM + Chain</td><td>Generate answer grounded in retrieved docs</td></tr>
+<tr><td>Tool Use</td><td>Agents + @tool</td><td>LLM calls search API, then synthesizes answer</td></tr>
+<tr><td>Structured Output</td><td>JsonOutputParser + Pydantic</td><td>Force LLM to return valid JSON matching schema</td></tr>
+<tr><td>Memory</td><td>ConversationBuffer / History</td><td>Chatbot remembers previous turns</td></tr>
+</table>
+
+<h3>IIT KGP Module Mapping</h3>
+<table>
+<tr><th>Module</th><th>How LangChain Is Used</th></tr>
+<tr><td>Module 2: RAG</td><td>Full RAG pipeline — load, split, embed, retrieve, generate with sources</td></tr>
+<tr><td>Module 4: Agentic AI</td><td>Agents with tools, multi-step reasoning, LangGraph for complex flows</td></tr>
+<tr><td>Module 5: Capstone</td><td>Production RAG or agent application architecture</td></tr>
+</table>
+
+<h2>6. Common Mistakes</h2>
+<table>
+<tr><th>#</th><th>Mistake</th><th>Fix</th></tr>
+<tr><td>1</td><td>Using deprecated syntax (LLMChain, SequentialChain)</td><td>Use LCEL pipe syntax for everything new</td></tr>
+<tr><td>2</td><td>Chunks too large or too small</td><td>Start with 500-1000 chars, 50-100 overlap</td></tr>
+<tr><td>3</td><td>Ignoring metadata in retrieval</td><td>Filter by source, date, section for precision</td></tr>
+<tr><td>4</td><td>Agent infinite loops</td><td>Set max_iterations in AgentExecutor</td></tr>
+<tr><td>5</td><td>Not handling LLM rate limits</td><td>Add .with_retry() on chains</td></tr>
+<tr><td>6</td><td>Over-engineering simple tasks</td><td>Single API call might be enough — don't force LangChain</td></tr>
+</table>
+
+<h2>7. When NOT to Use</h2>
+<table>
+<tr><th>Scenario</th><th>Use Instead</th><th>Why</th></tr>
+<tr><td>Simple single LLM call</td><td>Direct OpenAI SDK</td><td>Less overhead, simpler</td></tr>
+<tr><td>Model training/fine-tuning</td><td>HuggingFace Trainer</td><td>LangChain doesn't train models</td></tr>
+<tr><td>Latency-critical serving</td><td>Custom code + vLLM</td><td>LangChain adds abstraction overhead</td></tr>
+<tr><td>Static FAQ</td><td>Direct vector DB query</td><td>No need for chain orchestration</td></tr>
+</table>
+
+<h2>AI Translation Table</h2>
+<table>
+<tr><th>LangChain Concept</th><th>AI/Dev Interpretation</th><th>Example</th></tr>
+<tr><td>Chain (LCEL)</td><td>Middleware pipeline</td><td>prompt → model → parser → result</td></tr>
+<tr><td>Retriever</td><td>Data access layer (search)</td><td>Find relevant docs for a query</td></tr>
+<tr><td>Agent</td><td>Controller with tool-calling</td><td>LLM decides: search, calculate, or answer</td></tr>
+<tr><td>Memory</td><td>Session state</td><td>Remember conversation turns</td></tr>
+<tr><td>PromptTemplate</td><td>Parameterized instruction</td><td>Reusable prompt with {variables}</td></tr>
+<tr><td>OutputParser</td><td>Response deserializer</td><td>LLM text → typed Pydantic object</td></tr>
+<tr><td>VectorStore</td><td>Semantic index</td><td>ChromaDB: fast similarity search on embeddings</td></tr>
+<tr><td>DocumentLoader</td><td>Data ingestion adapter</td><td>Read PDFs, web pages, CSVs into Documents</td></tr>
+<tr><td>TextSplitter</td><td>Chunking strategy</td><td>Break long docs into retrieval-sized pieces</td></tr>
+<tr><td>RunnablePassthrough</td><td>Identity/passthrough step</td><td>Forward input unchanged to next step</td></tr>
+<tr><td>LCEL | operator</td><td>Pipe/compose</td><td>Chain steps like Unix pipes</td></tr>
+</table>
+
+<h2>Memory Map</h2>
+<div class="prompt">Foundation
+  ├── ChatPromptTemplate — define instructions with variables
+  ├── ChatOpenAI / LLM — the brain (generates text)
+  └── OutputParser — structure the response
+        │
+        ▼
+Chains (LCEL)
+  └── prompt | llm | parser — composable pipelines
+        │
+        ▼
+RAG (Retrieval-Augmented Generation)
+  ├── Loaders (PDF, txt, web) → Documents
+  ├── Splitters → Chunks (500 chars, 50 overlap)
+  ├── Embeddings → Vectors (384/768-dim)
+  ├── VectorStore (ChromaDB) → Storage + Search
+  └── Retriever → Top-K relevant chunks
+        │
+        ▼
+Agents (Autonomous)
+  ├── @tool decorator — define capabilities
+  ├── create_tool_calling_agent — LLM picks tools
+  └── AgentExecutor — runs the reason-act loop
+        │
+        ▼
+Production Patterns
+  ├── Memory — conversation history
+  ├── Streaming — token-by-token output
+  ├── Routing — conditional chain selection
+  └── Fallbacks — retry on failure</div>
+
+<h2>Top Takeaways (Ranked)</h2>
+<table>
+<tr><th>#</th><th>Insight</th></tr>
+<tr><td>1</td><td>LCEL (prompt | llm | parser) is the one pattern to know — everything builds on it</td></tr>
+<tr><td>2</td><td>RAG = Load → Split → Embed → Store → Retrieve → Generate (memorize this flow)</td></tr>
+<tr><td>3</td><td>Agents let LLMs use tools — the model DECIDES what actions to take</td></tr>
+<tr><td>4</td><td>Chunk size matters: too big = imprecise retrieval, too small = lost context (start at 500)</td></tr>
+<tr><td>5</td><td>Always use LCEL pipe syntax — old chain classes are deprecated</td></tr>
+<tr><td>6</td><td>OutputParser + Pydantic = guaranteed structured JSON from LLMs</td></tr>
+<tr><td>7</td><td>Not everything needs LangChain — a direct API call might be simpler</td></tr>
+<tr><td>8</td><td>Retriever quality determines RAG quality — garbage in, garbage out</td></tr>
+<tr><td>9</td><td>Source attribution (returning which docs were used) is critical for trust</td></tr>
+<tr><td>10</td><td>LangChain wraps many providers (OpenAI, HuggingFace, Anthropic) — switch models without rewriting</td></tr>
+</table>
+
+<h2>Ready to Move On?</h2>
+<div class="tip">
+<b>Self-Test Checklist:</b><br>
+☐ I can build a chain with LCEL (prompt | llm | parser)<br>
+☐ I understand the RAG pipeline (load → split → embed → retrieve → generate)<br>
+☐ I can create a simple agent with tools<br>
+☐ I know the difference between chains, retrievers, and agents<br>
+☐ I can use output parsers to get structured JSON from an LLM<br><br>
+<b>All checked → move to ChromaDB / LlamaIndex.</b>
+</div>
+
+</body>
+</html>

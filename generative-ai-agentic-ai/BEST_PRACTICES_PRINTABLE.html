@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>GenAI & Agentic AI — Best Practices (Printable Notes)</title>
+<style>
+  @page { margin: 0.5cm; size: A4; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+  h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+  h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+  h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+  ul { margin: 0 0 2px 12px; padding: 0; }
+  li { margin-bottom: 0.5px; }
+  .tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+  .prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+  .two-col { column-count: 2; column-gap: 10px; }
+  .three-col { column-count: 3; column-gap: 10px; }
+  code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+  @media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+
+<h1>GenAI & Agentic AI — Best Practices</h1>
+
+<h2>1. Prompt Engineering Fundamentals</h2>
+
+<h3>High-Quality Prompt Structure</h3>
+<ul>
+  <li><strong>Role:</strong> Define the AI's persona (e.g., "expert frontend developer and accessibility specialist")</li>
+  <li><strong>Task:</strong> Be specific about what is being built (e.g., "Create a responsive pricing card")</li>
+  <li><strong>Constraints:</strong> Provide strict rules (e.g., "Use Tailwind CSS, use hex code #4F46E5, and no external dependencies")</li>
+  <li><strong>Edge Cases:</strong> Explicitly ask for details like hover states or loading indicators</li>
+</ul>
+
+<h3>Key Principles</h3>
+<ul>
+  <li>Don't use ChatGPT to "generate apps." Use it to think better. Explaining tradeoffs. Reviewing architectural ideas. Stress testing decisions. Drafting docs and explanations. It's like rubber-duck debugging, except the duck answers back.</li>
+  <li>Plus is worth it if you ask good questions. Useless if you don't. Write your problem clearly. Half the solution appears before the answer does.</li>
+  <li>A big task deserves a big prompt (see migration example below)</li>
+  <li>During prompt start including "Rewrite our title to attract the attention of our executive team"</li>
+  <li>Before you start, ask me any questions you need so I can give you more context. Be extremely comprehensive.</li>
+  <li>To avoid hallucination write prompt like "are there credible studies suggesting multitasking improves cognitive performance? if so, summarize them and note any limitations."</li>
+</ul>
+
+<h3>Big Task Prompt Example (Migration)</h3>
+<div class="prompt">We need to migrate the frontend of this application from Blazor to React. The backend APIs and .Net Aspire orchestration must remain completely unchanged - only the rendering/UI layer changes.
+
+Before writing any code, I need you to:
+1. Analyze the existing Blazor frontend architecture - identify all pages, components, routes and shared UI elements.
+2. Map out every API dependency the frontend relies on (endpoints, auth flows, SignalR connections if any)
+3. Produce a detailed migration plan including: proposed React project structure, state management approach, authentication flow and routing strategy.
+4. Define a phased migration order that lets us validate incrementally - which slice do we migrate first and why?
+5. Identify risks, unknowns and decisions that need input.</div>
+
+<h2>2. AI Coding Assistants</h2>
+
+<h3>General</h3>
+<ul>
+  <li>Claude Sonnet is the leader model to understand code.</li>
+</ul>
+
+<h3>Claude Code Skills (Reusable Instruction Files)</h3>
+<div class="two-col">
+<ul>
+  <li><strong>Keep it focused:</strong> One skill = one job. Avoid "do everything" skills. Smaller skills are more accurate and reusable.</li>
+  <li><strong>Use clear role framing:</strong> Tell Claude exactly who it is acting as. Be specific (e.g., "UX researcher") instead of vague roles.</li>
+  <li><strong>Think of it as a mini-program:</strong> Don't just write instructions. Define: inputs, outputs, steps. Treat it like structured logic, not a casual prompt.</li>
+  <li><strong>Define clear input & output:</strong> Specify what data the skill expects, what result it should produce. Avoids confusion and randomness.</li>
+  <li><strong>Use structured steps:</strong> Break the process into clear steps. Helps Claude follow a consistent workflow. Makes results predictable.</li>
+  <li><strong>Keep it concise (avoid token bloat):</strong> Large skills = slower + worse performance. Only include what's necessary.</li>
+  <li><strong>Test and refine:</strong> Try the skill on real tasks. Improve based on output quality. Iteration is key.</li>
+</ul>
+</div>
+
+<h3>GitHub Copilot</h3>
+<ul>
+  <li>Before using it, make sure code is locally indexed using command <code>ctrl + shift + p -> Github Copilot: build local workspace index</code></li>
+  <li>Please create a project cheat sheet for me that contains: Architecture overview (main directories/files), Key components and patterns (React patterns used), APIs and data flow (frontend-backend communication), Reusable utilities and helpers.</li>
+  <li>Do you see any components used over and over?</li>
+  <li>Create a folder in root called .github and create copilot-instructions.md containing all contents from our project cheat sheet</li>
+  <li>Create the authentication context provider to use this authentication system. Wrapper your app with AuthProvider. Use the useAuth hook in components to access auth state and methods.</li>
+  <li>The auth state will persist through page reloads using localStorage. Token management is handled automatically.</li>
+  <li>Extend the document with common pitfalls and even links to external documentation.</li>
+</ul>
+
+<h3>Useful Copilot Prompts</h3>
+<div class="prompt">#file:UserInventory.js Show me how the sync functionality works
+#file:UserInventory.js This UI calls out to an API somewhere to sync. Where?
+/explain Show me how the sync functionality works. Just give me high level details.
+#file:userInventory.js Generate a summary of everything we talked about. I'm most interested in the function names, their input, output and how they call each other to get to the API call.</div>
+
+<h3>Copilot — Documentation & Diagrams</h3>
+<ul>
+  <li>Create a markdown file called sync_journey_map.md which contains an ASCII diagram of the functions used and their relationships where syncing user inventory.</li>
+  <li>Generate a UML diagram using the PlantUML syntax and showing the full dependency tree for the User Inventory Item Sync process. Include: Routes, Controllers, Services, External npm packages, Relationships between components.</li>
+  <li>When on the Catalog.js page and I add an item to a batch, how is that price calculated?</li>
+</ul>
+
+<h3>Copilot — Testing</h3>
+<div class="prompt">Write a Playwright E2E test suite in tests/e2e/ that tests the current running Blazor app. Use accessible selectors and test user-visible behavior only - not Blazor-specific DOM. Cover: catalog browsing and filtering, login/logout. Run them against the current app to confirm they all pass. These tests will be our validation contract for every phase of React migration.</div>
+
+<h2>3. Microsoft Copilot (M365)</h2>
+<ul>
+  <li>In MS Teams we can ask Copilot to recap the meeting or who are in the calls with their roles and titles.</li>
+  <li>In Chat window we can ask about our recent emails and chats for their summarization or tasks to do as per them.</li>
+  <li>In MS Word we can point to a company file or PPT and can tell to write a blog by referring those documents.</li>
+  <li>Ask the Copilot to prepare for me for today's meeting by generating relative content for those meetings.</li>
+  <li>To improve the prompt we should refer the Microsoft Prompt Gallery.</li>
+</ul>
+
+<h2>4. Productivity & Thinking Tools</h2>
+<ul>
+  <li><strong>Notion AI</strong> — Organized Thinking at Scale. Summarize long docs. Turn notes into action items. Refactor messy thoughts into clear writing.</li>
+</ul>
+
+<h2>5. Sample Prompts — Writing & Communication</h2>
+<ul>
+  <li>Rewrite this to be cleaner and more concise without changing the meaning.</li>
+  <li>Restructure this into headings and bullet points for easier scanning.</li>
+  <li>Draft a troubleshooting section for a technical audience. The topic is troubleshooting a printer error. Use a neutral tone. Do not invent features or behavior. Assume the reader is a hardware engineer.</li>
+  <li>Help me think through what should be included in a good onboarding plan for a new hire. Don't write the plan yet. Just outline the key components.</li>
+  <li>Rewrite this email using a professional but friendly tone, written at an 8th grade reading level and avoid passive voice, include three bullet points, don't use jargon, don't sound automated and include a clear call to action.</li>
+  <li>Rewrite this email to be clear and professional. The goal is to ask for a status update without sounding pushy. Keep it concise.</li>
+  <li><strong>ELI5</strong> (explain like I'm 5), <strong>tl;dr</strong> (too long; didn't read) — instant summaries</li>
+  <li><strong>Humanize</strong> (remove AI voice)</li>
+  <li>Rewrite like a sarcastic Redditor / Rewrite like Alex Hormozi and Steve Jobs</li>
+</ul>
+
+<h2>6. Sample Prompts — Interview Preparation</h2>
+<div class="prompt">Act as an expert technical interviewer specializing in senior-level cybersecurity roles. Create one strong hybrid behavioral-scenario interview question focused on risk prioritization, stakeholder management under high pressure, and continuous learnability (ability to learn from past experiences, reflect on outcomes and apply lessons to improve future decisions). Start with a behavioral opener: 'tell me about a time when you had to...'</div>
+
+<div class="tip">
+<strong>Remember:</strong> AI is a thinking partner, not a code generator. Write your problem clearly. Ask good questions. Iterate on outputs. The quality of your prompt determines the quality of the response.
+</div>
+
+</body>
+</html>

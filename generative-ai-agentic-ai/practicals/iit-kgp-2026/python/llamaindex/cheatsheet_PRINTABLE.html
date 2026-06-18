@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>LlamaIndex — Printable Learning Notes</title>
+<style>
+  @page { margin: 0.5cm; size: A4; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+  h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+  h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+  h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+  ul { margin: 0 0 2px 12px; padding: 0; }
+  li { margin-bottom: 0.5px; }
+  .tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+  .prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+  .two-col { column-count: 2; column-gap: 10px; }
+  code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+  table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+  th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+  th { background: #f3f4f6; font-weight: bold; }
+  .diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+  .diagram svg { max-width: 100%; }
+  .diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+  .section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+  @media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+<h1>LlamaIndex — Complete Learning Notes</h1>
+<p><b>Summary:</b> LlamaIndex is the database access layer for LLMs — it ingests, indexes, and queries your private data so LLMs can answer questions about it. Purpose-built for RAG.</p>
+
+<h2>Why LlamaIndex Exists</h2>
+<ul>
+<li><b>Problem</b> — LLMs don't know your private data (docs, databases, internal wikis). Connecting them requires parsing, chunking, embedding, indexing, retrieving, and synthesizing — lots of plumbing.</li>
+<li><b>Solution</b> — a purpose-built data framework: load documents → create index → query with natural language. Five lines to a working RAG system.</li>
+<li><b>Mental Model</b> — <b>ORM for LLMs</b> (like Entity Framework or Hibernate). Just as an ORM abstracts SQL into objects, LlamaIndex abstracts chunking/embedding/retrieval into <code>index.as_query_engine().query("question")</code>. Or: if LangChain is Spring Framework (general), LlamaIndex is <b>Spring Data</b> (data-focused).</li>
+<li><b>AI Connection</b> — the fastest path to production RAG. Better retrieval quality out-of-the-box than manual LangChain RAG chains.</li>
+</ul>
+
+<h2>Where LlamaIndex Fits</h2>
+<div class="diagram">
+<svg width="380" height="100" viewBox="0 0 380 100">
+<defs><marker id="arrLI" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto"><path d="M0,0 L6,2 L0,4 Z" fill="#4F46E5"/></marker></defs>
+<rect x="5" y="35" width="55" height="30" rx="3" fill="#f3f4f6" stroke="#ddd"/>
+<text x="32" y="48" text-anchor="middle" font-size="5.5pt" font-weight="bold">Your Data</text>
+<text x="32" y="58" text-anchor="middle" font-size="5pt" fill="#666">PDF, docs, DB</text>
+<line x1="60" y1="50" x2="78" y2="50" stroke="#4F46E5" stroke-width="1" marker-end="url(#arrLI)"/>
+<rect x="78" y="15" width="180" height="70" rx="4" fill="#ede9fe" stroke="#4F46E5" stroke-width="1.5"/>
+<text x="168" y="28" text-anchor="middle" font-size="7pt" font-weight="bold" fill="#4F46E5">LlamaIndex</text>
+<rect x="88" y="35" width="50" height="18" rx="2" fill="#dbeafe" stroke="#3b82f6"/><text x="113" y="47" text-anchor="middle" font-size="5pt">Readers</text>
+<line x1="138" y1="44" x2="148" y2="44" stroke="#4F46E5" stroke-width="0.8" marker-end="url(#arrLI)"/>
+<rect x="148" y="35" width="45" height="18" rx="2" fill="#dbeafe" stroke="#3b82f6"/><text x="170" y="47" text-anchor="middle" font-size="5pt">Nodes</text>
+<line x1="193" y1="44" x2="203" y2="44" stroke="#4F46E5" stroke-width="0.8" marker-end="url(#arrLI)"/>
+<rect x="203" y="35" width="45" height="18" rx="2" fill="#dbeafe" stroke="#3b82f6"/><text x="225" y="47" text-anchor="middle" font-size="5pt">Index</text>
+<rect x="128" y="58" width="85" height="18" rx="2" fill="#dcfce7" stroke="#22c55e"/><text x="170" y="70" text-anchor="middle" font-size="5.5pt" font-weight="bold">Query Engine</text>
+<text x="168" y="82" text-anchor="middle" font-size="5pt" fill="#666">(you are here)</text>
+<line x1="258" y1="50" x2="278" y2="50" stroke="#4F46E5" stroke-width="1" marker-end="url(#arrLI)"/>
+<rect x="278" y="35" width="80" height="30" rx="3" fill="#dcfce7" stroke="#22c55e"/>
+<text x="318" y="48" text-anchor="middle" font-size="5.5pt" font-weight="bold" fill="#166534">Answer</text>
+<text x="318" y="58" text-anchor="middle" font-size="5pt" fill="#666">+ source attribution</text>
+</svg>
+<div class="diagram-caption">Data → Readers → Nodes → Index → Query Engine → Answer (the LlamaIndex pipeline)</div>
+</div>
+
+<h2>1. The 5-Line RAG</h2>
+<p class="section-intro">The fastest path from "I have documents" to "I can ask questions about them."</p>
+
+<div class="prompt">from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
+
+docs = SimpleDirectoryReader("./my_docs").load_data()   # 1. Load
+index = VectorStoreIndex.from_documents(docs)            # 2. Index (embed + store)
+engine = index.as_query_engine()                         # 3. Create engine
+response = engine.query("What is the return policy?")    # 4. Query
+print(response)                                          # 5. Answer!</div>
+
+<div class="tip"><b>That's it.</b> Behind those 5 lines: document parsing, chunking, embedding, vector storage, retrieval, prompt construction, LLM call, and response synthesis — all handled automatically.</div>
+
+<h2>2. Documents → Nodes → Index</h2>
+
+<div class="diagram">
+<svg width="380" height="65" viewBox="0 0 380 65">
+<defs><marker id="arrD2" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto"><path d="M0,0 L6,2 L0,4 Z" fill="#4F46E5"/></marker></defs>
+<rect x="5" y="15" width="80" height="35" rx="3" fill="#f3f4f6" stroke="#ddd"/>
+<text x="45" y="30" text-anchor="middle" font-size="5.5pt" font-weight="bold">Documents</text>
+<text x="45" y="42" text-anchor="middle" font-size="5pt" fill="#666">Raw input (PDFs, txt)</text>
+<line x1="85" y1="32" x2="105" y2="32" stroke="#4F46E5" stroke-width="1" marker-end="url(#arrD2)"/>
+<rect x="105" y="15" width="80" height="35" rx="3" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="145" y="30" text-anchor="middle" font-size="5.5pt" font-weight="bold">Nodes</text>
+<text x="145" y="42" text-anchor="middle" font-size="5pt" fill="#666">Chunks (embedded)</text>
+<line x1="185" y1="32" x2="205" y2="32" stroke="#4F46E5" stroke-width="1" marker-end="url(#arrD2)"/>
+<rect x="205" y="15" width="80" height="35" rx="3" fill="#ede9fe" stroke="#4F46E5"/>
+<text x="245" y="30" text-anchor="middle" font-size="5.5pt" font-weight="bold">Index</text>
+<text x="245" y="42" text-anchor="middle" font-size="5pt" fill="#666">Searchable structure</text>
+<line x1="285" y1="32" x2="305" y2="32" stroke="#4F46E5" stroke-width="1" marker-end="url(#arrD2)"/>
+<rect x="305" y="15" width="65" height="35" rx="3" fill="#dcfce7" stroke="#22c55e"/>
+<text x="337" y="30" text-anchor="middle" font-size="5.5pt" font-weight="bold">Engine</text>
+<text x="337" y="42" text-anchor="middle" font-size="5pt" fill="#666">query() → answer</text>
+<text x="190" y="60" text-anchor="middle" font-size="5.5pt" fill="#4F46E5">from_documents() handles the entire middle pipeline automatically</text>
+</svg>
+</div>
+
+<h2>3. Query Engine vs Chat Engine</h2>
+<table>
+<tr><th>Feature</th><th>Query Engine</th><th>Chat Engine</th></tr>
+<tr><td>Purpose</td><td>Single-turn Q&A</td><td>Multi-turn conversation</td></tr>
+<tr><td>Memory</td><td>None (stateless)</td><td>Remembers previous turns</td></tr>
+<tr><td>Follow-ups</td><td>Can't resolve "it", "they"</td><td>Handles pronouns via history</td></tr>
+<tr><td>Create</td><td><code>index.as_query_engine()</code></td><td><code>index.as_chat_engine()</code></td></tr>
+<tr><td>Use</td><td><code>engine.query("...")</code></td><td><code>engine.chat("...")</code></td></tr>
+</table>
+
+<h2>4. Response Modes</h2>
+<table>
+<tr><th>Mode</th><th>How It Works</th><th>Best For</th></tr>
+<tr><td><code>compact</code></td><td>Stuff all context in one LLM call</td><td>Small retrievals (fast, default)</td></tr>
+<tr><td><code>refine</code></td><td>Process chunks one by one, refine answer</td><td>Many chunks, detailed answers</td></tr>
+<tr><td><code>tree_summarize</code></td><td>Summarize in tree structure</td><td>Very long contexts</td></tr>
+<tr><td><code>no_text</code></td><td>Return nodes only (no LLM call)</td><td>Just retrieval, no generation</td></tr>
+</table>
+
+<h2>5. LlamaIndex vs LangChain</h2>
+<table>
+<tr><th>Aspect</th><th>LlamaIndex</th><th>LangChain</th></tr>
+<tr><td>Focus</td><td>Data indexing & RAG (specialized)</td><td>General LLM orchestration</td></tr>
+<tr><td>RAG quality</td><td>Better out-of-box (purpose-built)</td><td>More configuration needed</td></tr>
+<tr><td>Agents</td><td>Basic support</td><td>Comprehensive framework</td></tr>
+<tr><td>Code needed for RAG</td><td>5 lines</td><td>15-20 lines</td></tr>
+<tr><td>Flexibility</td><td>Opinionated (good defaults)</td><td>Very flexible (more decisions)</td></tr>
+<tr><td>Best for</td><td>"Chat with my docs" apps</td><td>Multi-step agents, tool chains</td></tr>
+<tr><td>Together?</td><td colspan="2">Yes! LlamaIndex for retrieval + LangChain for orchestration</td></tr>
+</table>
+
+<div class="tip"><b>Rule of thumb:</b> Use LlamaIndex when your primary task is RAG (question answering over documents). Use LangChain when you need agents, tools, or complex multi-step orchestration. Use both together for production apps.</div>
+
+<h2>6. Key Configuration Options</h2>
+<div class="prompt"># Global settings
+Settings.llm = OpenAI(model="gpt-4o-mini")
+Settings.embed_model = OpenAIEmbedding(model="text-embedding-3-small")
+Settings.chunk_size = 512
+Settings.chunk_overlap = 50
+
+# Query engine options
+engine = index.as_query_engine(
+    similarity_top_k=5,              # how many chunks to retrieve
+    response_mode="compact",         # how to synthesize
+    streaming=True,                  # stream tokens
+    output_cls=PydanticModel,        # structured output
+)</div>
+
+<h2>7. AI/ML Connection</h2>
+<table>
+<tr><th>Pipeline Stage</th><th>LlamaIndex Component</th><th>Example</th></tr>
+<tr><td>Data Loading</td><td>Readers (100+ on LlamaHub)</td><td>Load PDFs, Notion pages, Slack threads</td></tr>
+<tr><td>Chunking</td><td>Node Parsers (SentenceSplitter)</td><td>Split docs into 512-token chunks</td></tr>
+<tr><td>Indexing</td><td>VectorStoreIndex</td><td>Embed + store in one call</td></tr>
+<tr><td>Retrieval</td><td>Query Engine (similarity_top_k)</td><td>Find 5 most relevant chunks</td></tr>
+<tr><td>Synthesis</td><td>Response Modes</td><td>compact/refine/tree_summarize</td></tr>
+<tr><td>Conversation</td><td>Chat Engine</td><td>Multi-turn with follow-up handling</td></tr>
+<tr><td>Multi-source</td><td>Router Query Engine</td><td>Auto-route to correct doc collection</td></tr>
+</table>
+
+<h3>IIT KGP Module Mapping</h3>
+<table>
+<tr><th>Module</th><th>How LlamaIndex Is Used</th></tr>
+<tr><td>Module 2: RAG</td><td>Primary framework for building retrieval pipelines</td></tr>
+<tr><td>Module 4: Agents</td><td>Multi-index routing, sub-question engines for complex queries</td></tr>
+<tr><td>Module 5: Capstone</td><td>Production RAG application with persistence and routing</td></tr>
+</table>
+
+<h2>8. Common Mistakes</h2>
+<table>
+<tr><th>#</th><th>Mistake</th><th>Fix</th></tr>
+<tr><td>1</td><td>Chunk size too large (imprecise retrieval)</td><td>Try 256-512 tokens instead of default 1024</td></tr>
+<tr><td>2</td><td>Not persisting index (re-embeds every time)</td><td><code>index.storage_context.persist()</code></td></tr>
+<tr><td>3</td><td>Using "compact" mode with many chunks (overflow)</td><td>Switch to "refine" or "tree_summarize"</td></tr>
+<tr><td>4</td><td>Wrong similarity_top_k (too few=miss info, too many=noise)</td><td>Start with 3-5, adjust based on results</td></tr>
+<tr><td>5</td><td>Not checking source_nodes (can't debug bad answers)</td><td>Always inspect response.source_nodes</td></tr>
+<tr><td>6</td><td>One giant index for everything</td><td>Separate indexes + router for different doc types</td></tr>
+</table>
+
+<h2>9. When NOT to Use</h2>
+<table>
+<tr><th>Scenario</th><th>Use Instead</th><th>Why</th></tr>
+<tr><td>General agent orchestration</td><td>LangChain</td><td>LlamaIndex is data-focused, not agent-focused</td></tr>
+<tr><td>Simple LLM call (no retrieval)</td><td>Direct OpenAI SDK</td><td>No need for indexing infrastructure</td></tr>
+<tr><td>Keyword search (exact match)</td><td>Elasticsearch</td><td>Vector search ≠ keyword search</td></tr>
+<tr><td>Model training</td><td>HuggingFace / PyTorch</td><td>LlamaIndex queries, doesn't train</td></tr>
+<tr><td>Real-time streaming data</td><td>Custom pipeline</td><td>LlamaIndex is for static/batch docs</td></tr>
+</table>
+
+<h2>Quick Reference</h2>
+<div class="two-col">
+<h3>Load</h3>
+<div class="prompt">SimpleDirectoryReader("./docs").load_data()
+Document(text="...", metadata={...})</div>
+
+<h3>Index</h3>
+<div class="prompt">VectorStoreIndex.from_documents(docs)
+SummaryIndex.from_documents(docs)</div>
+
+<h3>Query</h3>
+<div class="prompt">engine = index.as_query_engine(
+    similarity_top_k=5,
+    response_mode="compact")
+response = engine.query("question")</div>
+
+<h3>Chat</h3>
+<div class="prompt">chat = index.as_chat_engine(
+    chat_mode="condense_question")
+r = chat.chat("question")
+chat.reset()</div>
+
+<h3>Persist</h3>
+<div class="prompt">index.storage_context.persist("./storage")
+index = load_index_from_storage(
+    StorageContext.from_defaults(
+        persist_dir="./storage"))</div>
+
+<h3>Response</h3>
+<div class="prompt">response.response       # answer text
+response.source_nodes   # retrieved chunks
+node.text, node.metadata, node.score</div>
+</div>
+
+<h2>Memory Map</h2>
+<div class="prompt">Data Loading
+  ├── SimpleDirectoryReader (auto-detect file types)
+  ├── LlamaHub readers (Notion, Slack, GitHub, DBs...)
+  └── Manual: Document(text, metadata)
+        │
+        ▼
+Processing
+  ├── Node Parsers: SentenceSplitter(chunk_size, overlap)
+  └── Documents → Nodes (chunks with embeddings)
+        │
+        ▼
+Indexing
+  ├── VectorStoreIndex (similarity search — default)
+  ├── SummaryIndex (summarize everything)
+  └── Can use ChromaDB/FAISS as backend
+        │
+        ▼
+Querying
+  ├── as_query_engine() → single-turn Q&A
+  │     ├── similarity_top_k (how many chunks)
+  │     └── response_mode (compact/refine/tree)
+  ├── as_chat_engine() → multi-turn conversation
+  └── RouterQueryEngine → auto-route to correct index
+        │
+        ▼
+Response
+  ├── response.response (answer text)
+  ├── response.source_nodes (attribution)
+  └── Structured output (Pydantic model)</div>
+
+<h2>Top Takeaways</h2>
+<table>
+<tr><th>#</th><th>Insight</th></tr>
+<tr><td>1</td><td>5 lines from documents to working RAG — LlamaIndex abstracts all the plumbing</td></tr>
+<tr><td>2</td><td>Documents → Nodes → Index → Engine is the mental model to remember</td></tr>
+<tr><td>3</td><td>Always persist your index — re-embedding is expensive and slow</td></tr>
+<tr><td>4</td><td>Chat engine handles multi-turn conversations (follow-ups, pronouns)</td></tr>
+<tr><td>5</td><td>Router query engine handles multiple document collections automatically</td></tr>
+<tr><td>6</td><td>Check response.source_nodes to debug bad answers (wrong retrieval = wrong answer)</td></tr>
+<tr><td>7</td><td>LlamaIndex for RAG, LangChain for agents — use both together in production</td></tr>
+<tr><td>8</td><td>Chunk size 256-512 > default 1024 for most retrieval tasks</td></tr>
+</table>
+
+<h2>Ready to Move On?</h2>
+<div class="tip">
+<b>Self-Test Checklist:</b><br>
+☐ I can load documents and create a VectorStoreIndex in 5 lines<br>
+☐ I understand Documents → Nodes → Index → Query Engine pipeline<br>
+☐ I can configure chunk size, top_k, and response mode<br>
+☐ I know how to persist and reload an index<br>
+☐ I understand when to use LlamaIndex vs LangChain vs both<br><br>
+<b>All checked → move to Pydantic.</b>
+</div>
+
+</body>
+</html>

@@ -47,6 +47,30 @@ A practical reference for taking visual/learning notes on paper while working wi
 
 ---
 
+## Highlighting Printed Notes
+
+When reviewing printed `_PRINTABLE.html` pages, keep it minimal — just 2 tools:
+
+| Tool | Use For |
+| ---- | ------- |
+| **Yellow highlighter** | Formulas + AI Connections (the "what to remember") |
+| **Pen (any color)** | Star ⭐ in the margin for "must know for exam" (max 3 per page) |
+
+**Rules:**
+- First read: don't highlight anything — just read and absorb
+- Second read: highlight selectively (formulas, key AI use cases)
+- Star only the critical items — if everything is starred, nothing is
+- Skip highlighting "Why It Exists" and section intros — they're context, not recall material
+- Tables at the bottom: star 3-4 most important rows, don't highlight entire tables
+
+**The Blank Paper Test (after reading a section):**
+1. Take a blank sheet
+2. Try to redraw the Memory Map from that section
+3. Write down every formula you remember
+4. Any gaps = exactly what you need to review
+
+---
+
 ## Visual Note Techniques by Scenario
 
 ### 1. Understanding a System/Architecture

@@ -1,0 +1,101 @@
+# Executive Post Graduate Certificate in Generative AI & Agentic AI
+
+**Institution:** IIT Kharagpur (Department of CSE)
+**Program:** Generative AI & Agentic AI — Live Session Calendar
+
+---
+
+## Orientation
+
+| Live Session No | Session Title | Date | Day | Time | Instructor |
+|---|---|---|---|---|---|
+| 0 | Welcome Webinar | 16-May-26 | Saturday | 3:30 pm - 5:00 pm | All IIT-KGP Faculty |
+
+---
+
+## upGrad-led Foundation Bridge (Non-Mandatory)
+
+| Live Session No | Session Title | Date | Day | Time | Instructor |
+|---|---|---|---|---|---|
+| 1 | AI Engineering Environment Setup | 17-May-26 | Sunday | 7 pm - 10 pm | upGrad Instructor |
+| 2 | Mathematical Foundations for AI Systems | 23-May-26 | Saturday | 9 am -12 pm | upGrad Instructor |
+| 3 | Python Engineering for AI Workflows | 24-May-26 | Sunday | 9 am -12 pm | upGrad Instructor |
+| 4 | Data Engineering for AI Applications | 27-May-26 | Wednesday | 9 am -12 pm | upGrad Instructor |
+| 5 | Basic Machine Learning - I | 31-May-26 | Sunday | 9 am -12 pm | upGrad Instructor |
+| 6 | Basic Machine Learning - II | 07-Jun-26 | Sunday | 9 am -12 pm | upGrad Instructor |
+| 7 | Deep Learning Basics | 14-Jun-26 | Sunday | 9 am -12 pm | upGrad Instructor |
+| 8 | NLP Basics | 21-Jun-26 | Sunday | 9 am -12 pm | upGrad Instructor |
+
+---
+
+## Faculty-Led Live Sessions
+
+### Module 1: Foundations of GenAI LLMs
+
+| Live Session No | Session Title | Date | Day | Time | Instructor |
+|---|---|---|---|---|---|
+| 1 | AI & Deep Learning Essentials | 30-May-26 | Saturday | 9 am -12 pm | Prof. Niloy Ganguly |
+| 2 | Transformer Architecture, Attention, Tokenization | 06-Jun-26 | Saturday | 9 am -12 pm | Prof. Niloy Ganguly |
+| 3 | Context window, Decoding, Metrics | 13-Jun-26 | Saturday | 9 am -12 pm | Prof. Niloy Ganguly |
+| 4 | Models and APIs - OpenAI, Anthropic, HuggingFace, structured outputs | 20-Jun-26 | Saturday | 9 am -12 pm | Prof. Sourangshu Bhattacharya |
+| 5 | Prompting - 0-shot, few-shot, role-prompting, optimization | 27-Jun-26 | Saturday | 9 am -12 pm | Prof. Sourangshu Bhattacharya |
+| 6 | Prompt security, performance evaluation, and budgeting | 04-Jul-26 | Saturday | 9 am -12 pm | Prof. Sourangshu Bhattacharya |
+| — | Hands-on based on overall Sessions | 11-Jul-26 | Saturday | 9 am -12 pm | — |
+| — | Assignment and grading doubt-clearing session | 18-Jul-26 | Saturday | 9 am -12 pm | — |
+
+### Module 2: Advanced Prompting RAG
+
+| Live Session No | Session Title | Date | Day | Time | Instructor |
+|---|---|---|---|---|---|
+| 7 | Advanced Prompting: Chain-of-Thought, Self-consistency, ReAct | 25-Jul-26 | Saturday | 9 am -12 pm | Prof. Koustav Rudra |
+| 8 | Advanced Prompting: Prompt optimization, Prompt security, Verbalized Sampling | 01-Aug-26 | Saturday | 9 am -12 pm | Prof. Koustav Rudra |
+| 9 | RAG: Motivation, architecture, and sparse retrieval | 08-Aug-26 | Saturday | 9 am -12 pm | Prof. Koustav Rudra |
+| 10 | RAG: Dense Retrieval, Semantic Search | 15-Aug-26** | Saturday | 9 am -12 pm | Prof. Pawan Goyal |
+| 11 | RAG for Production: query routing, retrieval gateways | 22-Aug-26 | Saturday | 9 am -12 pm | Prof. Pawan Goyal |
+| 12 | Agentic Orchestration: Planners vs executors, Context and Memory | 29-Aug-26 | Saturday | 9 am -12 pm | Prof. Pawan Goyal |
+| — | Proctored Test - 1 | 05-Sep-26 | Saturday | 9 am -12 pm | — |
+
+### Module 3: Fine-Tuning Alignment
+
+| Live Session No | Session Title | Date | Day | Time | Instructor |
+|---|---|---|---|---|---|
+| 13 | Decision Frameworks, Fine-tuning Approaches, and Full Fine-Tuning | 12-Sep-26 | Saturday | 9 am -12 pm | Prof. Jiaul Paik |
+| 14 | Data Preparation and Training Mechanisms for Finetuning | 19-Sep-26 | Saturday | 9 am -12 pm | Prof. Jiaul Paik |
+| 15 | Additive and Soft prompting PEFT | 26-Sep-26 | Saturday | 9 am -12 pm | Prof. Plaban Bhowmik |
+| 16 | Reparameterization-based PEFT | 03-Oct-26 | Saturday | 9 am -12 pm | Prof. Plaban Bhowmik |
+| 17 | LLM Alignment: RLHF, DPO | 10-Oct-26 | Saturday | 9 am -12 pm | Prof. Plaban Bhowmik |
+| 18 | Revision of fine-tuning concepts and hands-on Small Language models | 24-Oct-26 | Saturday | 9 am -12 pm | Prof. Jiaul Paik |
+| — | Assignment and grading doubt-clearing session | 31-Oct-26 | Saturday | 9 am -12 pm | — |
+
+### Module 4: Multimodal Agentic AI
+
+| Live Session No | Session Title | Date | Day | Time | Instructor |
+|---|---|---|---|---|---|
+| 19 | VLM Architectures | 14-Nov-26 | Saturday | 9 am -12 pm | Prof. Somak Aditya |
+| 20 | Applications and Multimodal Prompting | 21-Nov-26 | Saturday | 9 am -12 pm | Prof. Somak Aditya |
+| 21 | Multimodal RAG | 28-Nov-26 | Saturday | 9 am -12 pm | Prof. Somak Aditya |
+| 22 | RAG to Assistants and Agents | 05-Dec-26 | Saturday | 9 am -12 pm | Prof. Debaditya Roy |
+| 23 | Tool Use and Function Calling | 12-Dec-26 | Saturday | 9 am -12 pm | Prof. Debaditya Roy |
+| 24 | LangChain and LangGraph | 19-Dec-26 | Saturday | 9 am -12 pm | Prof. Debaditya Roy |
+| — | Proctored Test - 2 | 26-Dec-26 | Saturday | 9 am -12 pm | — |
+
+### Module 5: Deployment Issues & Term Project
+
+| Live Session No | Session Title | Date | Day | Time | Instructor |
+|---|---|---|---|---|---|
+| 25 | REST APIs with Fast API, Real-time vs. Batch Inference | 02-Jan-27 | Saturday | 9 am -12 pm | Prof. Abhijnan Chakraborty |
+| 26 | Model Context Protocol, Orchestration Frameworks | 09-Jan-27 | Saturday | 9 am -12 pm | Prof. Abhijnan Chakraborty |
+| 27 | Responsible & Trusted AI Essentials | 16-Jan-27 | Saturday | 9 am -12 pm | Prof. Sundar Narayanan |
+| 28 | Public Case Studies on Implementations & Pitfalls to Avoid | 23-Jan-27 | Saturday | 9 am -12 pm | Prof. Sundar Narayanan |
+| 29 | Feedback on Capstone Challenge Problems and Solution Ideas | 30-Jan-27 | Saturday | 9 am -12 pm | Prof. Abhijnan Chakraborty / Prof. Sundar Narayanan |
+| 30 | Evaluation of Capstone Challenge | 06-Feb-27 | Saturday | 9 am -12 pm | TBD |
+
+> **Top 10 teams come to IIT Kharagpur to present their capstone projects**
+
+---
+
+## Notes
+
+- `**` next to 15-Aug-26 (Live Session 10) flags it in the original sheet — likely a public holiday clash to double check.
+- The dates and timelines mentioned are tentative and may be subject to change based on faculty availability or public holidays. Any such changes will be communicated to learners well in advance.
+- Rows marked "—" in the Live Session No / Instructor columns (Hands-on session, Assignment/doubt-clearing sessions, Proctored Tests) had no session number or instructor listed in the source sheet.

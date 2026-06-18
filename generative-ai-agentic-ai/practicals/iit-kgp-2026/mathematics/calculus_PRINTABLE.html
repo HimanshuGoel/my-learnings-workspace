@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Stage 8 — Calculus & AI Learning Mechanics — Printable Notes</title>
+<style>
+  @page { margin: 0.5cm; size: A4; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+  h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+  h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+  h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+  ul { margin: 0 0 2px 12px; padding: 0; }
+  li { margin-bottom: 0.5px; }
+  .tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+  .prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+  .two-col { column-count: 2; column-gap: 10px; }
+  .three-col { column-count: 3; column-gap: 10px; }
+  code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+  table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+  th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+  th { background: #f3f4f6; font-weight: bold; }
+  .diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+  .diagram svg { max-width: 100%; }
+  .diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+  .diagram-row { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 8px; margin: 4px 0; break-inside: avoid; }
+  .diagram-row .diagram { flex: 1; min-width: 120px; max-width: 250px; }
+  .section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+  @media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+
+<h1>Stage 8 — Calculus & AI Learning Mechanics</h1>
+<p><b>Summary:</b> Calculus is the mathematics of optimization and learning — it gives AI models the ability to measure error, find the direction to improve, and iteratively train themselves by updating parameters millions of times.</p>
+
+<h2>Why This Matters for AI</h2>
+<ul>
+<li><b>Gradient Descent</b> — THE training algorithm for all neural networks is pure calculus: compute derivatives, follow them downhill</li>
+<li><b>Backpropagation</b> — the chain rule applied repeatedly through every layer of a network</li>
+<li><b>Loss Functions</b> — measure "how wrong" the model is; calculus tells us how to reduce that wrongness</li>
+<li><b>Without calculus</b> — a model can make predictions but CANNOT improve itself</li>
+<li><b>LLM Training</b> — every time an LLM is trained (billions of parameter updates), each update uses derivatives to decide which direction to move</li>
+</ul>
+
+<!-- SVG DIAGRAMS -->
+<div class="diagram-row">
+<div class="diagram">
+<svg width="200" height="140" viewBox="0 0 200 140">
+  <path d="M 20 120 Q 60 110 100 60 Q 140 10 180 30" fill="none" stroke="#1a1a1a" stroke-width="1.5"/>
+  <!-- Tangent line at x=100 -->
+  <line x1="60" y1="95" x2="140" y2="25" stroke="#4F46E5" stroke-width="1.2" stroke-dasharray="3,2"/>
+  <circle cx="100" cy="60" r="3" fill="#4F46E5"/>
+  <!-- Slope annotation -->
+  <line x1="100" y1="60" x2="130" y2="60" stroke="#f59e0b" stroke-width="0.8"/>
+  <line x1="130" y1="60" x2="130" y2="39" stroke="#f59e0b" stroke-width="0.8"/>
+  <text x="133" y="52" font-size="6" fill="#f59e0b">Δy</text>
+  <text x="108" y="68" font-size="6" fill="#f59e0b">Δx</text>
+  <text x="60" y="135" font-size="7" fill="#4F46E5" font-weight="bold">slope = derivative</text>
+</svg>
+<div class="diagram-caption">Derivative as tangent line slope</div>
+</div>
+
+<div class="diagram">
+<svg width="200" height="140" viewBox="0 0 200 140">
+  <!-- Loss curve -->
+  <path d="M 20 40 Q 50 120 90 100 Q 120 85 140 95 Q 165 110 180 60" fill="none" stroke="#1a1a1a" stroke-width="1.5"/>
+  <!-- Gradient descent steps -->
+  <circle cx="35" cy="70" r="3" fill="#4F46E5"/>
+  <line x1="35" y1="70" x2="55" y2="100" stroke="#4F46E5" stroke-width="1" marker-end="url(#arrow1)"/>
+  <circle cx="55" cy="100" r="3" fill="#4F46E5"/>
+  <line x1="55" y1="100" x2="72" y2="107" stroke="#4F46E5" stroke-width="1" marker-end="url(#arrow1)"/>
+  <circle cx="72" cy="107" r="3" fill="#4F46E5"/>
+  <line x1="72" y1="107" x2="85" y2="103" stroke="#4F46E5" stroke-width="1"/>
+  <circle cx="85" cy="103" r="3" fill="#f59e0b"/>
+  <!-- Minimum marker -->
+  <text x="78" y="120" font-size="6" fill="#f59e0b">minimum</text>
+  <text x="50" y="135" font-size="7" fill="#4F46E5" font-weight="bold">Gradient Descent</text>
+  <defs><marker id="arrow1" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="#4F46E5"/></marker></defs>
+</svg>
+<div class="diagram-caption">Steps moving downhill on loss curve</div>
+</div>
+
+<div class="diagram">
+<svg width="200" height="140" viewBox="0 0 200 140">
+  <!-- Chain rule: layers as boxes -->
+  <rect x="10" y="50" width="40" height="25" rx="3" fill="none" stroke="#4F46E5" stroke-width="1.2"/>
+  <text x="18" y="66" font-size="7" fill="#4F46E5">h(x)</text>
+  <rect x="70" y="50" width="40" height="25" rx="3" fill="none" stroke="#4F46E5" stroke-width="1.2"/>
+  <text x="78" y="66" font-size="7" fill="#4F46E5">g(·)</text>
+  <rect x="130" y="50" width="40" height="25" rx="3" fill="none" stroke="#4F46E5" stroke-width="1.2"/>
+  <text x="140" y="66" font-size="7" fill="#4F46E5">f(·)</text>
+  <!-- Arrows between boxes -->
+  <line x1="50" y1="62" x2="70" y2="62" stroke="#1a1a1a" stroke-width="1" marker-end="url(#arrow2)"/>
+  <line x1="110" y1="62" x2="130" y2="62" stroke="#1a1a1a" stroke-width="1" marker-end="url(#arrow2)"/>
+  <!-- Backward arrows (chain rule) -->
+  <line x1="130" y1="80" x2="110" y2="80" stroke="#f59e0b" stroke-width="1" marker-end="url(#arrow3)" stroke-dasharray="2,1"/>
+  <line x1="70" y1="80" x2="50" y2="80" stroke="#f59e0b" stroke-width="1" marker-end="url(#arrow3)" stroke-dasharray="2,1"/>
+  <text x="108" y="90" font-size="5.5" fill="#f59e0b">f' × g'</text>
+  <text x="42" y="90" font-size="5.5" fill="#f59e0b">× h'</text>
+  <!-- Labels -->
+  <text x="55" y="30" font-size="6" fill="#1a1a1a">Forward →</text>
+  <text x="55" y="105" font-size="6" fill="#f59e0b">← Backward (chain rule)</text>
+  <text x="35" y="135" font-size="7" fill="#4F46E5" font-weight="bold">Chain Rule = Backprop</text>
+  <defs><marker id="arrow2" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="#1a1a1a"/></marker>
+  <marker id="arrow3" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="#f59e0b"/></marker></defs>
+</svg>
+<div class="diagram-caption">Chain rule through composed layers</div>
+</div>
+
+<div class="diagram">
+<svg width="200" height="140" viewBox="0 0 200 140">
+  <!-- Curve -->
+  <path d="M 30 110 Q 60 30 100 50 Q 140 70 170 20" fill="none" stroke="#1a1a1a" stroke-width="1.5"/>
+  <!-- Shaded area under curve -->
+  <path d="M 50 110 L 50 72 Q 70 40 90 52 Q 110 62 130 45 L 130 110 Z" fill="#4F46E5" fill-opacity="0.15" stroke="none"/>
+  <!-- Bounds -->
+  <line x1="50" y1="110" x2="50" y2="72" stroke="#4F46E5" stroke-width="0.8" stroke-dasharray="2,1"/>
+  <line x1="130" y1="110" x2="130" y2="45" stroke="#4F46E5" stroke-width="0.8" stroke-dasharray="2,1"/>
+  <text x="47" y="120" font-size="6" fill="#4F46E5">a</text>
+  <text x="127" y="120" font-size="6" fill="#4F46E5">b</text>
+  <!-- Axis -->
+  <line x1="20" y1="110" x2="185" y2="110" stroke="#ccc" stroke-width="0.8"/>
+  <text x="70" y="90" font-size="7" fill="#4F46E5" font-weight="bold">∫ₐᵇ f(x)dx</text>
+  <text x="45" y="135" font-size="7" fill="#4F46E5" font-weight="bold">Area = Integration</text>
+</svg>
+<div class="diagram-caption">Area under curve = definite integral</div>
+</div>
+</div>
+
+<h2>8.1 Understanding Change</h2>
+<p class="section-intro">Calculus starts with a simple question: "How fast is something changing?" The answer to this question — the derivative — is what allows neural networks to learn.</p>
+
+<div class="two-col">
+<h3>1. Average Rate of Change</h3>
+<ul>
+<li><b>Meaning</b> — Measures how much a function's output changed over an interval. It's the "big picture" view of change — the slope of a line connecting two points.</li>
+<li><b>Why It Exists</b> — Before we can understand instantaneous change (derivatives), we need to understand change over an interval. This is the stepping stone.</li>
+<li><b>Formula</b> — <code>(f(b) - f(a)) / (b - a)</code> — change in output divided by change in input</li>
+<li><b>Example</b> — If a model's loss drops from 5.0 at epoch 1 to 1.0 at epoch 10: average rate of change = <code>(1.0 - 5.0) / (10 - 1) = -0.44 per epoch</code>. On average, loss decreased by 0.44 each epoch.</li>
+<li><b>Mental Model</b> — Average speed on a road trip. You drove 300km in 3 hours → 100km/h average, even if you sometimes went 60 and sometimes 140.</li>
+<li><b>AI Connection</b> — "How much did the model improve between epoch 1 and epoch 100?" gives the average learning rate. Useful for high-level progress tracking.</li>
+</ul>
+
+<h3>2. Instantaneous Rate of Change</h3>
+<ul>
+<li><b>Meaning</b> — How fast something is changing at a single specific moment — not over an interval, but at one exact point. This IS the derivative.</li>
+<li><b>Why It Exists</b> — Average rate tells us the big picture, but we need to know "how fast am I changing RIGHT NOW?" to make immediate decisions. A speedometer reads instantaneous speed, not average speed.</li>
+<li><b>Example</b> — At exactly epoch 50, is the loss still decreasing rapidly, or has training plateaued? Instantaneous rate tells you the current learning signal.</li>
+<li><b>Mental Model</b> — A speedometer reading at one exact instant. Not "average speed over the trip" but "speed right now."</li>
+<li><b>AI Connection</b> — The current gradient at any point during training. It tells the optimizer: "right now, which direction reduces loss fastest, and by how much?"</li>
+</ul>
+</div>
+
+<h2>8.2 Derivatives</h2>
+<p class="section-intro">The derivative is the core concept of calculus and the single most important mathematical tool for AI training. It tells you the slope (rate of change) at any point — and in AI, this slope IS the learning signal.</p>
+
+<div class="two-col">
+<h3>3. Derivative</h3>
+<ul>
+<li><b>Meaning</b> — The derivative of a function at a point is its instantaneous rate of change — the slope of the tangent line at that point. It answers: "if I nudge the input a tiny bit, how much does the output change?"</li>
+<li><b>Why It Exists</b> — To train a model, we need to know: "if I adjust this weight slightly, does the loss go up or down, and by how much?" The derivative answers exactly this question.</li>
+<li><b>Formula</b> — <code>f'(x)</code> or <code>df/dx</code> — the derivative of f with respect to x</li>
+<li><b>Example</b> — For <code>f(x) = x²</code>, the derivative is <code>f'(x) = 2x</code>. At x=3, the slope is 2(3) = 6. The function is increasing at rate 6 at that point.</li>
+<li><b>Mental Model</b> — A slope sensor attached to a curve. At every point, it reads: "how steep is the hill here, and which direction is it tilting?"</li>
+<li><b>AI Connection</b> — The derivative IS the gradient in 1D. When we compute "the gradient of the loss with respect to a weight," we're computing a derivative. This gradient tells the optimizer which direction to update each weight.</li>
+</ul>
+
+<h3>4. Derivative as a Function</h3>
+<ul>
+<li><b>Meaning</b> — The derivative of a function is itself a function — it gives you the slope at EVERY point, not just one. It's a complete map of slopes across the entire domain.</li>
+<li><b>Why It Exists</b> — We don't just need the slope at one point; we need to know how the slope changes everywhere. This is how we understand the full landscape of a loss function.</li>
+<li><b>Formula</b> — If <code>f(x) = x²</code>, then <code>f'(x) = 2x</code> (a new function that gives slope at any x)</li>
+<li><b>Example</b> — <code>f(x) = x²</code> → <code>f'(x) = 2x</code>. At x=1: slope=2. At x=5: slope=10. At x=-3: slope=-6. The derivative function tells us all slopes at once.</li>
+<li><b>Mental Model</b> — A "slope map" of the entire function — like a terrain map showing steepness at every location.</li>
+<li><b>AI Connection</b> — The loss landscape is a function over all parameters. Its gradient (derivative) is also a function of parameters — at each point in parameter space, it tells you which way to step.</li>
+</ul>
+
+<h3>5. Conditions for Differentiability</h3>
+<ul>
+<li><b>Meaning</b> — A derivative only exists where the function is smooth and continuous — no sharp corners, cusps, or breaks. At these problem points, the "slope" is ambiguous.</li>
+<li><b>Why It Exists</b> — Not every function is differentiable everywhere. Knowing where derivatives DON'T exist helps us understand limitations of gradient-based optimization.</li>
+<li><b>Example</b> — The absolute value function <code>|x|</code> has a sharp corner at x=0. The slope is -1 for x&lt;0 and +1 for x&gt;0, but at exactly x=0, there's no single well-defined slope.</li>
+<li><b>Mental Model</b> — You can find the slope on smooth curves, but at a sharp corner, the "slope sensor" gets confused — it reads different values from the left and right.</li>
+<li><b>AI Connection</b> — ReLU has a non-differentiable point at x=0 (technically). In practice, this is handled by defining the gradient as 0 at that point (subgradient). Smooth alternatives like GELU and Swish avoid this issue.</li>
+</ul>
+
+<h3>6. Derivative of Constants</h3>
+<ul>
+<li><b>Meaning</b> — The derivative of any constant is zero. Constants don't change, so their rate of change is nothing.</li>
+<li><b>Why It Exists</b> — This simple rule appears constantly in calculus and has a practical implication: biases in neural networks have simple gradients, and integration always adds an unknown constant (+C).</li>
+<li><b>Formula</b> — <code>d/dx(c) = 0</code> for any constant c</li>
+<li><b>Example</b> — <code>d/dx(7) = 0</code>. The function f(x) = 7 is a flat horizontal line — zero slope everywhere.</li>
+<li><b>Mental Model</b> — A flat road has no incline. Constants are perfectly flat — no change = zero derivative.</li>
+<li><b>AI Connection</b> — When computing gradients, constant terms (like fixed hyperparameters) contribute zero gradient. Only learnable parameters have non-zero gradients.</li>
+</ul>
+</div>
+
+<h2>8.3 Derivative Rules</h2>
+<p class="section-intro">These rules are the "calculation toolkit" for finding derivatives. The Chain Rule is by far the most important for AI — it's the mathematical foundation of backpropagation.</p>
+
+<div class="two-col">
+<h3>7. Power Rule</h3>
+<ul>
+<li><b>Meaning</b> — The most commonly used derivative rule: bring the power down as a coefficient, then reduce the power by 1.</li>
+<li><b>Why It Exists</b> — Polynomial functions (powers of x) appear everywhere. The power rule gives an instant formula for their derivatives without limit calculations.</li>
+<li><b>Formula</b> — <code>d/dx(xⁿ) = nxⁿ⁻¹</code></li>
+<li><b>Example</b> — <code>d/dx(x³) = 3x²</code>. <code>d/dx(x⁵) = 5x⁴</code>. <code>d/dx(x) = 1</code>.</li>
+<li><b>Mental Model</b> — "Bring the power down, subtract one from the exponent." Mechanical and fast.</li>
+<li><b>AI Connection</b> — Appears in polynomial loss functions and when computing gradients of activation functions.</li>
+</ul>
+
+<h3>8. Sum Rule</h3>
+<ul>
+<li><b>Meaning</b> — The derivative of a sum is the sum of derivatives. You can differentiate each term separately and add the results.</li>
+<li><b>Formula</b> — <code>d/dx(f + g) = f' + g'</code></li>
+<li><b>Example</b> — <code>d/dx(x² + 3x) = 2x + 3</code>. Each term differentiated independently.</li>
+<li><b>AI Connection</b> — Loss functions often sum many terms (one per training example). The sum rule means we can compute each gradient separately and add them — enabling batched training.</li>
+</ul>
+
+<h3>9. Product Rule</h3>
+<ul>
+<li><b>Meaning</b> — When two functions multiply together, the derivative accounts for both of them changing simultaneously.</li>
+<li><b>Formula</b> — <code>d/dx(f × g) = f' × g + f × g'</code></li>
+<li><b>Mental Model</b> — Both functions are changing at the same time. The derivative captures: "g stays while f changes" + "f stays while g changes."</li>
+<li><b>AI Connection</b> — Appears in attention mechanisms (Q × K products), regularization terms, and any layer where signals multiply.</li>
+</ul>
+
+<h3>10. Chain Rule</h3>
+<ul>
+<li><b>Meaning</b> — THE most important rule for AI. When a function is inside another function (composition), the derivative is: outer derivative × inner derivative. It "chains" through layers.</li>
+<li><b>Why It Exists</b> — Neural networks are composed functions: <code>f(g(h(x)))</code>. To find how changing x affects the final output, we need to chain through each layer. The chain rule provides this mechanism.</li>
+<li><b>Formula</b> — <code>d/dx[f(g(x))] = f'(g(x)) × g'(x)</code> — derivative of outside × derivative of inside</li>
+<li><b>Example</b> — For <code>(x² + 1)³</code>: outside = ( )³, inside = x²+1. Derivative = <code>3(x²+1)² × 2x</code>.</li>
+<li><b>Mental Model</b> — A relay race of change: how does a change in x affect g, and how does that change in g affect f? Multiply the effects together.</li>
+<li><b>AI Connection</b> — <b>Backpropagation IS the chain rule applied repeatedly.</b> A 100-layer network uses the chain rule 100 times to compute how each weight affects the final loss. This single mathematical rule enables ALL of deep learning.</li>
+</ul>
+</div>
+
+<div class="tip"><b>In plain English:</b> When a neural network has layers L₁ → L₂ → L₃ → Loss, the chain rule says: "how does L₁ affect Loss? By affecting L₂, which affects L₃, which affects Loss." Multiply all these effects together.</div>
+
+<h2>8.4 Optimization</h2>
+<p class="section-intro">This is where calculus directly serves AI: finding the minimum of a loss function. The derivative tells us the direction, critical points tell us where to stop, and the second derivative tells us what kind of stopping point we've found.</p>
+
+<div class="two-col">
+<h3>11. Critical Points</h3>
+<ul>
+<li><b>Meaning</b> — Points where the derivative equals zero (flat slope). These are CANDIDATES for maximum, minimum, or neither. The function "pauses" here — neither increasing nor decreasing.</li>
+<li><b>Why It Exists</b> — To find the best parameters (lowest loss), we look for points where the loss function stops decreasing. These flat spots are where optimal solutions might live.</li>
+<li><b>Formula</b> — Find x where <code>f'(x) = 0</code></li>
+<li><b>Example</b> — For <code>f(x) = x² - 4x + 3</code>: <code>f'(x) = 2x - 4 = 0</code> → x = 2. This is a critical point (and in this case, the minimum).</li>
+<li><b>Mental Model</b> — The top of a hill or bottom of a valley — places where a rolling ball would momentarily stop.</li>
+<li><b>AI Connection</b> — Gradient descent seeks critical points of the loss function. When the gradient reaches (near) zero, training converges.</li>
+<li><b>Common Mistake</b> — Critical point ≠ minimum! It's only a candidate. It could be a maximum, minimum, or saddle point. We need further tests to classify it.</li>
+</ul>
+
+<h3>12. Local vs Absolute Extrema</h3>
+<ul>
+<li><b>Meaning</b> — A local minimum is the lowest point in a neighborhood (valley). An absolute minimum is the lowest point EVERYWHERE (deepest valley). Similarly for maxima.</li>
+<li><b>Why It Exists</b> — Real loss landscapes have many valleys. We need to know: did we find THE best solution, or just A good-enough local solution?</li>
+<li><b>Example</b> — Mountain terrain: each valley is a local minimum. The Dead Sea is the absolute minimum (lowest point on Earth).</li>
+<li><b>Mental Model</b> — Local = best in your neighborhood. Absolute = best everywhere. A hiker in a valley can't see other deeper valleys.</li>
+<li><b>AI Connection</b> — Deep learning typically finds local minima, NOT the absolute minimum. Fortunately, research shows most local minima in high-dimensional spaces are nearly as good as the global minimum. This is why deep learning works despite not guaranteeing optimality.</li>
+</ul>
+
+<h3>13. First Derivative Test</h3>
+<ul>
+<li><b>Meaning</b> — Determines whether a critical point is a local maximum, local minimum, or neither by examining the sign of the derivative on both sides.</li>
+<li><b>Formula</b> — At critical point: if f' changes from negative to positive → local minimum. If f' changes from positive to negative → local maximum.</li>
+<li><b>Example</b> — Pattern <code>- → 0 → +</code> (decreasing, flat, increasing) = valley = minimum. Pattern <code>+ → 0 → -</code> = peak = maximum.</li>
+<li><b>Mental Model</b> — Going downhill, reaching flat ground, then going uphill = you're at the bottom (minimum).</li>
+<li><b>AI Connection</b> — Conceptually what gradient descent does: it keeps moving until the gradient changes sign (from "decreasing loss" to "increasing loss"), indicating a minimum.</li>
+</ul>
+
+<h3>14. Second Derivative Test</h3>
+<ul>
+<li><b>Meaning</b> — Uses the second derivative (derivative of the derivative) to classify critical points. The second derivative measures CURVATURE — whether the function curves upward (bowl) or downward (hill).</li>
+<li><b>Formula</b> — At critical point where f'(x) = 0: if <code>f''(x) &gt; 0</code> → local minimum (bowl). If <code>f''(x) &lt; 0</code> → local maximum (hill). If <code>f''(x) = 0</code> → inconclusive.</li>
+<li><b>Example</b> — For <code>f(x) = x²</code>: <code>f'(x) = 2x</code>, <code>f''(x) = 2 &gt; 0</code> → the critical point at x=0 is a minimum (bowl shape confirmed).</li>
+<li><b>Mental Model</b> — First derivative = steering wheel (direction). Second derivative = road shape (are you in a valley or on a hilltop?).</li>
+<li><b>AI Connection</b> — Second-order optimization methods (Newton's method, Adam optimizer partially) use curvature information to take smarter steps — larger steps in flat regions, smaller steps in curved regions.</li>
+</ul>
+
+<h3>15. Gradient Descent</h3>
+<ul>
+<li><b>Meaning</b> — THE algorithm for training neural networks. Start at a random point, compute the gradient (derivative), move in the opposite direction (downhill), repeat until you reach a minimum.</li>
+<li><b>Why It Exists</b> — For simple functions, we can solve <code>f'(x) = 0</code> analytically. But neural networks have millions of parameters — no closed-form solution exists. We must iteratively walk downhill.</li>
+<li><b>Formula</b> — <code>new_weight = old_weight - learning_rate × gradient</code></li>
+<li><b>Example</b> — If gradient = +3 (function increasing), move left: <code>weight = weight - 0.01 × 3 = weight - 0.03</code>. If gradient = -2 (function decreasing), move right: <code>weight = weight - 0.01 × (-2) = weight + 0.02</code>.</li>
+<li><b>Mental Model</b> — A blind person on a mountain trying to find the lowest valley. They feel the slope under their feet (gradient) and step in the downhill direction. Repeat thousands of times.</li>
+<li><b>AI Connection</b> — This is literally how ChatGPT was trained. Take billions of text examples, compute how wrong predictions are (loss), compute gradients via backpropagation (chain rule), update weights via gradient descent. Repeat millions of times.</li>
+</ul>
+</div>
+
+<table>
+<tr><th>Derivative Sign</th><th>Meaning</th><th>Gradient Descent Action</th></tr>
+<tr><td>Positive</td><td>Function increasing</td><td>Move left (decrease weight)</td></tr>
+<tr><td>Negative</td><td>Function decreasing</td><td>Move right (increase weight)</td></tr>
+<tr><td>Zero</td><td>Flat (critical point)</td><td>Stop — potential optimum</td></tr>
+</table>
+
+<h2>8.5 Integration</h2>
+<p class="section-intro">If derivatives break things into tiny pieces (rates), integration puts them back together (totals). It's the reverse of differentiation and appears in probability theory, area calculations, and accumulated effects.</p>
+
+<div class="two-col">
+<h3>16. Integration as Accumulation</h3>
+<ul>
+<li><b>Meaning</b> — Integration computes the total accumulated quantity when you know the rate. If the derivative goes from total → rate, integration goes from rate → total.</li>
+<li><b>Why It Exists</b> — Many problems give you rates but need totals: "Given speed at every moment, what's total distance?" "Given probability density, what's the actual probability?"</li>
+<li><b>Example</b> — Speed (rate) = 60 km/h for 3 hours → Distance (total) = ∫ 60 dt = 180 km.</li>
+<li><b>Mental Model</b> — Derivative = break apart (rate from total). Integration = put together (total from rate).</li>
+<li><b>AI Connection</b> — Probability distributions: to get P(a ≤ x ≤ b), you integrate the probability density function from a to b. Expected value is an integral. Cumulative distribution functions are integrals.</li>
+</ul>
+
+<h3>17. Area Under Curves</h3>
+<ul>
+<li><b>Meaning</b> — The definite integral geometrically represents the area between the function and the x-axis over an interval. This area equals the accumulated quantity.</li>
+<li><b>Why It Exists</b> — Many real-world quantities (probability, total work, total revenue) are naturally represented as areas under curves.</li>
+<li><b>Formula</b> — <code>∫ₐᵇ f(x) dx</code> = area under f(x) from x=a to x=b</li>
+<li><b>Example</b> — Speed-time graph: area under curve = distance traveled. Probability density: area under curve = probability.</li>
+<li><b>Mental Model</b> — Filling in the space between the curve and the x-axis with paint. The amount of paint used = the integral.</li>
+<li><b>AI Connection</b> — Total probability under a density curve must equal 1. Computing probabilities for continuous distributions requires integration (area under the bell curve).</li>
+</ul>
+
+<h3>18. Fundamental Theorem of Calculus</h3>
+<ul>
+<li><b>Meaning</b> — Derivatives and integrals are inverses of each other. Differentiating an integral gives back the original function, and integrating a derivative gives back the original function (plus a constant).</li>
+<li><b>Why It Exists</b> — This theorem connects the two halves of calculus (differentiation and integration) into a unified whole. It tells us they're two sides of the same coin.</li>
+<li><b>Formula</b> — <code>d/dx[∫ₐˣ f(t) dt] = f(x)</code> and <code>∫ₐᵇ f'(x) dx = f(b) - f(a)</code></li>
+<li><b>Mental Model</b> — Taking something apart and putting it back together gives you the original. Breaking rate → total → rate returns where you started.</li>
+<li><b>AI Connection</b> — Connects optimization (derivatives) with probability theory (integrals). Understanding this connection helps bridge the gap between training (derivatives) and evaluation (probabilities).</li>
+</ul>
+
+<h3>19. Indefinite vs Definite Integrals</h3>
+<ul>
+<li><b>Meaning</b> — An indefinite integral produces a FUNCTION (general solution with +C constant). A definite integral produces a NUMBER (exact accumulated value between two bounds).</li>
+<li><b>Why It Exists</b> — Sometimes we need the general pattern (indefinite), sometimes we need a specific answer (definite). The constant C appears because derivatives destroy constants — integration can't recover them.</li>
+<li><b>Formula</b> — Indefinite: <code>∫ 2x dx = x² + C</code> (function). Definite: <code>∫₁³ 2x dx = [x²]₁³ = 9 - 1 = 8</code> (number).</li>
+<li><b>Example</b> — Indefinite: what function has derivative 2x? Answer: x² + any constant. Definite: what's the area under 2x from 1 to 3? Answer: exactly 8.</li>
+<li><b>AI Connection</b> — Definite integrals compute specific probabilities (P(1 ≤ x ≤ 3)). Indefinite integrals give cumulative distribution functions.</li>
+</ul>
+
+<h3>20. Integration of Exponential and Trigonometric Functions</h3>
+<ul>
+<li><b>Meaning</b> — Special integration rules for <code>eˣ</code> and trigonometric functions that appear constantly in AI mathematics.</li>
+<li><b>Key Rules:</b>
+  <ul>
+    <li><code>∫ eˣ dx = eˣ + C</code> (eˣ is its own integral — the magical self-replicating property)</li>
+    <li><code>∫ cos(x) dx = sin(x) + C</code></li>
+    <li><code>∫ sin(x) dx = -cos(x) + C</code></li>
+  </ul>
+</li>
+<li><b>AI Connection — Exponential:</b> Softmax uses eˣ, probability distributions involve eˣ, learning curves show exponential decay. The self-replicating property (<code>d/dx(eˣ) = eˣ</code> and <code>∫eˣ = eˣ</code>) makes it mathematically elegant and computationally convenient.</li>
+<li><b>AI Connection — Trigonometric:</b> Positional encodings in Transformers use sine and cosine functions to encode token positions. Fourier transforms (decomposing signals into sine/cosine components) power audio AI, image processing, and frequency analysis.</li>
+</ul>
+</div>
+
+<h2>Quick Reference Tables</h2>
+
+<h3>Table 1 — Derivative Rules</h3>
+<table>
+<tr><th>Rule</th><th>Formula</th><th>Memory Trick</th><th>AI Importance</th></tr>
+<tr><td>Constant</td><td><code>d/dx(c) = 0</code></td><td>Constants don't change</td><td>Fixed params have zero gradient</td></tr>
+<tr><td>Power</td><td><code>d/dx(xⁿ) = nxⁿ⁻¹</code></td><td>Bring power down, subtract 1</td><td>Polynomial losses</td></tr>
+<tr><td>Sum</td><td><code>d/dx(f+g) = f'+g'</code></td><td>Differentiate separately</td><td>Batched loss computation</td></tr>
+<tr><td>Product</td><td><code>d/dx(fg) = f'g + fg'</code></td><td>Both parts can change</td><td>Attention, regularization</td></tr>
+<tr><td>Chain</td><td><code>d/dx[f(g(x))] = f'(g(x))×g'(x)</code></td><td>Outside × Inside</td><td>BACKPROPAGATION</td></tr>
+</table>
+
+<h3>Table 2 — Optimization Concepts</h3>
+<table>
+<tr><th>Concept</th><th>Meaning</th><th>Neural Network Interpretation</th></tr>
+<tr><td>Loss Function</td><td>Error measurement</td><td>Training objective to minimize</td></tr>
+<tr><td>Gradient</td><td>Direction of steepest increase</td><td>Learning signal (negate to descend)</td></tr>
+<tr><td>Critical Point</td><td>f'(x) = 0, flat spot</td><td>Candidate optimum</td></tr>
+<tr><td>Local Minimum</td><td>Best nearby solution</td><td>Typical training result</td></tr>
+<tr><td>Absolute Minimum</td><td>Best possible solution</td><td>Ideal but often unnecessary</td></tr>
+<tr><td>Curvature (f'')</td><td>Shape of landscape</td><td>Training difficulty</td></tr>
+<tr><td>Gradient Descent</td><td>Move opposite to gradient</td><td>THE training algorithm</td></tr>
+</table>
+
+<h3>Table 3 — Gradient Descent Cheat Sheet</h3>
+<table>
+<tr><th>Situation</th><th>Derivative</th><th>Action</th><th>Meaning</th></tr>
+<tr><td>Loss increasing</td><td>f' &gt; 0</td><td>Move left (decrease weight)</td><td>We're going uphill</td></tr>
+<tr><td>Loss decreasing</td><td>f' &lt; 0</td><td>Move right (increase weight)</td><td>We're going downhill</td></tr>
+<tr><td>Loss flat</td><td>f' = 0</td><td>Stop</td><td>Potential optimum found</td></tr>
+<tr><td>Large gradient</td><td>|f'| is big</td><td>Take bigger step</td><td>Far from optimum</td></tr>
+<tr><td>Small gradient</td><td>|f'| is small</td><td>Take smaller step</td><td>Near optimum</td></tr>
+</table>
+
+<h3>Table 4 — Backpropagation Connection</h3>
+<table>
+<tr><th>Neural Network Component</th><th>Calculus Concept</th></tr>
+<tr><td>Layer</td><td>Function</td></tr>
+<tr><td>Multiple Layers</td><td>Composite function f(g(h(x)))</td></tr>
+<tr><td>Error/Loss</td><td>Loss function</td></tr>
+<tr><td>Learning Signal</td><td>Gradient (derivative of loss)</td></tr>
+<tr><td>Backpropagation Algorithm</td><td>Repeated chain rule</td></tr>
+<tr><td>Weight Update</td><td>Gradient descent step</td></tr>
+<tr><td>Training</td><td>Millions of gradient descent iterations</td></tr>
+</table>
+
+<h3>Table 5 — Integration Concepts</h3>
+<table>
+<tr><th>Concept</th><th>Meaning</th><th>AI Relevance</th></tr>
+<tr><td>Integration</td><td>Accumulation (reverse of derivative)</td><td>Probability, expected value</td></tr>
+<tr><td>Area Under Curve</td><td>Accumulated quantity</td><td>P(a ≤ x ≤ b) from density</td></tr>
+<tr><td>Indefinite Integral</td><td>General solution (function + C)</td><td>Cumulative distributions</td></tr>
+<tr><td>Definite Integral</td><td>Exact number (specific bounds)</td><td>Specific probability values</td></tr>
+<tr><td>Fundamental Theorem</td><td>Derivative and integral are inverses</td><td>Connects optimization &amp; probability</td></tr>
+<tr><td>∫eˣ = eˣ</td><td>Self-replicating property</td><td>Softmax, probability math</td></tr>
+<tr><td>∫cos(x) = sin(x)</td><td>Trig integration</td><td>Positional encodings</td></tr>
+</table>
+
+<h3>Table 6 — Derivative vs Integration</h3>
+<table>
+<tr><th>Derivative</th><th>Integration</th></tr>
+<tr><td>Measures change (rate)</td><td>Measures accumulation (total)</td></tr>
+<tr><td>Break apart</td><td>Put together</td></tr>
+<tr><td>Local view (one point)</td><td>Global view (interval)</td></tr>
+<tr><td>Gradient</td><td>Area under curve</td></tr>
+<tr><td>Used for: Optimization</td><td>Used for: Probability</td></tr>
+<tr><td>How to improve</td><td>Total effect</td></tr>
+</table>
+
+<h3>Table 7 — AI Mapping</h3>
+<table>
+<tr><th>Calculus Concept</th><th>ML Equivalent</th></tr>
+<tr><td>Function f(x)</td><td>Model</td></tr>
+<tr><td>Input x</td><td>Features</td></tr>
+<tr><td>Output y</td><td>Prediction</td></tr>
+<tr><td>Derivative f'(x)</td><td>Gradient</td></tr>
+<tr><td>f'(x) = 0</td><td>Convergence point</td></tr>
+<tr><td>Minimum</td><td>Best weights</td></tr>
+<tr><td>Loss Function</td><td>Error measure (MSE, cross-entropy)</td></tr>
+<tr><td>Gradient Descent</td><td>Training algorithm</td></tr>
+<tr><td>Chain Rule</td><td>Backpropagation</td></tr>
+<tr><td>Curvature f''(x)</td><td>Loss landscape shape</td></tr>
+<tr><td>Integration</td><td>Accumulated probability</td></tr>
+<tr><td>eˣ</td><td>Softmax, probability distributions</td></tr>
+<tr><td>sin/cos</td><td>Positional encodings in Transformers</td></tr>
+</table>
+
+<h2>Memory Map</h2>
+<div class="prompt">DIFFERENTIATION (Breaking Apart)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Change (how fast?)
+      ↓
+Average Rate (over interval)
+      ↓
+Instantaneous Rate (at a point)
+      ↓
+DERIVATIVE (slope at every point)
+      ↓
+Derivative Rules
+  ├── Power Rule (xⁿ → nxⁿ⁻¹)
+  ├── Sum Rule (differentiate separately)
+  ├── Product Rule (both change)
+  └── CHAIN RULE (outside × inside = BACKPROPAGATION)
+      ↓
+OPTIMIZATION
+  ├── Critical Points (f' = 0)
+  ├── First Derivative Test (classify min/max)
+  ├── Second Derivative Test (curvature)
+  └── GRADIENT DESCENT (follow gradient downhill)
+      ↓
+Neural Network Training:
+  Loss → Gradient → Update Weights → Lower Loss → Repeat
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+INTEGRATION (Putting Together)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Rate → Accumulation → Area Under Curve
+      ↓
+Fundamental Theorem (derivative ↔ integral are inverses)
+      ↓
+Applications: Probability, Expected Value, Distributions</div>
+
+<h2>Interview / Revision Summary</h2>
+<table>
+<tr><th>Concept</th><th>Remember This</th></tr>
+<tr><td>Derivative</td><td>Instantaneous rate of change = slope = gradient</td></tr>
+<tr><td>Power Rule</td><td><code>xⁿ → nxⁿ⁻¹</code> (bring power down)</td></tr>
+<tr><td>Chain Rule</td><td><code>f(g(x))' = f'(g(x)) × g'(x)</code> = backpropagation</td></tr>
+<tr><td>Critical Point</td><td>Where f'(x) = 0; candidate for min/max</td></tr>
+<tr><td>Local Minimum</td><td>Valley; where f' goes from negative to positive</td></tr>
+<tr><td>Second Derivative</td><td>Curvature; f'' &gt; 0 means bowl (minimum)</td></tr>
+<tr><td>Gradient Descent</td><td><code>w = w - lr × gradient</code>; THE training algorithm</td></tr>
+<tr><td>Loss Function</td><td>Measures "how wrong"; we minimize it</td></tr>
+<tr><td>Backpropagation</td><td>Chain rule applied through every layer</td></tr>
+<tr><td>Integration</td><td>Reverse of derivative; computes totals from rates</td></tr>
+<tr><td>Fundamental Theorem</td><td>Differentiation and integration are inverses</td></tr>
+<tr><td>eˣ</td><td>Self-replicating; derivative = integral = eˣ</td></tr>
+<tr><td>sin/cos</td><td>Positional encodings in Transformers</td></tr>
+<tr><td>The Big Picture</td><td>Calculus = how AI models learn to improve themselves</td></tr>
+</table>
+
+<h2>If Someone Asks: "What role does Calculus play in AI?"</h2>
+<div class="tip">Calculus provides the mathematics of optimization — it's how neural networks learn. The derivative (gradient) measures how much the loss changes when you adjust a weight. Gradient descent uses this information to iteratively update parameters in the direction that reduces error. Backpropagation, the algorithm that makes deep learning tractable, is simply the chain rule applied repeatedly through the network's layers — computing how each weight contributes to the final error. Critical points identify where the loss function flattens (potential optima), and the second derivative reveals the shape of the loss landscape (bowls vs. hilltops). On the integration side, probability theory relies heavily on integrals (computing P(a ≤ x ≤ b) from density functions), and special functions like eˣ (softmax, probabilities) and sin/cos (Transformer positional encodings) connect calculus to modern architectures. In essence, without calculus, a model can make predictions but cannot improve — it's the mathematics that gives AI the ability to learn.</div>
+
+</body>
+</html>

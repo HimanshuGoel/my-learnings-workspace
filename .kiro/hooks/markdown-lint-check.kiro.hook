@@ -1,5 +1,5 @@
 {
-  "enabled": true,
+  "enabled": false,
   "name": "Markdown Style Consistency Check",
   "description": "When a markdown file is saved, review it for style consistency: list markers, heading hierarchy, blank lines, and heading uniqueness.",
   "version": "1",

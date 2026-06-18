@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Stage 4 — Linear Algebra & Vectors — Printable Notes</title>
+<style>
+  @page { margin: 0.5cm; size: A4; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+  h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+  h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+  h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+  ul { margin: 0 0 2px 12px; padding: 0; }
+  li { margin-bottom: 0.5px; }
+  .tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+  .prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+  .two-col { column-count: 2; column-gap: 10px; }
+  .three-col { column-count: 3; column-gap: 10px; }
+  code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+  table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+  th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+  th { background: #f3f4f6; font-weight: bold; }
+  .diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+  .diagram svg { max-width: 100%; }
+  .diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+  .diagram-row { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 8px; margin: 4px 0; break-inside: avoid; }
+  .diagram-row .diagram { flex: 1; min-width: 120px; max-width: 250px; }
+  .section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+  @media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+
+<h1>Stage 4 — Linear Algebra & Vectors</h1>
+<p><b>Summary:</b> Linear Algebra teaches how AI represents meaning as vectors, measures similarity and distance between them, combines them into richer concepts, and discovers the fundamental directions that efficiently describe information.</p>
+
+<h2>Why This Matters for AI</h2>
+<ul>
+<li><b>Embeddings</b> — modern AI converts everything (words, sentences, images, users, products) into vectors called embeddings; without vectors, AI has no way to represent knowledge</li>
+<li><b>Attention & Search</b> — similarity search, recommendations, and transformer attention all rely on vector operations like dot products</li>
+<li><b>Neural Networks</b> — fundamentally linear algebra machines; every single layer performs vector transformations</li>
+<li><b>Dimensionality Reduction</b> — PCA, t-SNE, UMAP use basis, span, and orthogonality concepts to compress high-dimensional data</li>
+<li><b>Prerequisite</b> — understanding vectors is required for matrices, calculus gradients, backpropagation, and ultimately understanding how LLMs learn</li>
+</ul>
+
+<h2>4.1 Understanding Vectors</h2>
+<p class="section-intro">Everything in AI starts with representing information as numbers in space. This section builds the foundation: what vectors are, how they live in coordinate spaces, and what their basic properties mean.</p>
+
+<h3>1. 3D Coordinate Space</h3>
+<ul>
+<li><b>Meaning</b> — a coordinate system assigns a unique numerical address to every point in space. 1D = single number on a line, 2D = pair (x,y) on a flat plane, 3D = triple (x,y,z) in physical space</li>
+<li><b>Why It Exists</b> — without coordinates, we have no way to precisely describe where something is. Coordinates give us a shared language for location and position</li>
+<li><b>Formula</b> — <code>(x)</code> for 1D, <code>(x,y)</code> for 2D, <code>(x,y,z)</code> for 3D, <code>(x₁,x₂,...,xₙ)</code> for nD</li>
+<li><b>Example</b> — (3,5) in 2D means "go 3 units along x-axis and 5 units along y-axis." In a 768-dimensional embedding space, "king" would be a point with 768 coordinates</li>
+<li><b>Mental Model</b> — postal address. "Block 3, Floor 5" tells you exactly where an apartment is, just as (3,5) tells you exactly where a point is</li>
+<li><b>AI Connection</b> — AI embeddings are positions in high-dimensional meaning-space. When GPT converts "cat" into a vector, it assigns coordinates in a 1536-dimensional space. Similar words end up at nearby coordinates</li>
+<li><b>Common Mistake</b> — don't confuse dimensions with physical space. AI works in 768, 1536, 4096+ dimensions — abstract meaning directions, not physical</li>
+</ul>
+
+<h3>2. Vectors as Arrows</h3>
+<ul>
+<li><b>Meaning</b> — a vector represents movement with both a direction (which way) and a magnitude (how far). Unlike a point which marks a location, a vector describes displacement or relationship</li>
+<li><b>Why It Exists</b> — points tell us "where," but many real problems need "which way and how much." Velocity, force, and semantic relationships all require both direction and size</li>
+<li><b>Example</b> — point (3,2) says "I am here." Vector (3,2) says "move 3 right and 2 up from wherever you start"</li>
+<li><b>Mental Model</b> — a movement instruction or arrow. Doesn't care where it starts — only direction and length matter</li>
+<li><b>AI Connection</b> — word embeddings behave like directional meaning vectors. The vector from "king" to "queen" captures gender, regardless of absolute position</li>
+</ul>
+
+
+<div class="diagram">
+<svg width="220" height="140" viewBox="0 0 220 140">
+<defs><marker id="arr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#4F46E5"/></marker></defs>
+<line x1="20" y1="120" x2="200" y2="120" stroke="#ccc" stroke-width="0.5"/>
+<line x1="20" y1="120" x2="20" y2="10" stroke="#ccc" stroke-width="0.5"/>
+<text x="205" y="123" font-size="6pt" fill="#666">x</text>
+<text x="14" y="8" font-size="6pt" fill="#666">y</text>
+<circle cx="110" cy="50" r="3" fill="#f59e0b"/>
+<text x="115" y="48" font-size="6.5pt" fill="#f59e0b">Point (3,2) = location</text>
+<line x1="20" y1="120" x2="110" y2="50" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arr)"/>
+<text x="35" y="95" font-size="6.5pt" fill="#4F46E5">Vector (3,2) = movement</text>
+</svg>
+<div class="diagram-caption">A point marks a location; a vector marks movement (direction + magnitude)</div>
+</div>
+
+<h3>3. Plotting Vectors</h3>
+<ul>
+<li><b>Meaning</b> — a vector is drawn as an arrow from tail (start) to head (end), usually from origin (0,0)</li>
+<li><b>Why It Exists</b> — humans understand pictures better than numbers. Plotting vectors reveals relationships and patterns invisible in raw coordinate lists</li>
+<li><b>Example</b> — vector (4,3) drawn from (0,0) to (4,3): points northeast, about 5 units long</li>
+<li><b>Mental Model</b> — a dashboard where each arrow represents a concept. Arrows pointing similarly = similar meaning</li>
+<li><b>AI Connection</b> — PCA, t-SNE, UMAP take 768D embeddings and project to 2D/3D arrows so humans can visualize which concepts cluster together</li>
+</ul>
+
+<h3>4. Magnitude of a Vector</h3>
+<ul>
+<li><b>Meaning</b> — the length of a vector; measures how far the arrow stretches — the "amount" or "strength" independent of direction</li>
+<li><b>Why It Exists</b> — sometimes we need to know not just which way something points, but how strong or intense it is</li>
+<li><b>Formula</b> — 2D: <code>|v| = √(x² + y²)</code>. 3D: <code>|v| = √(x² + y² + z²)</code></li>
+<li><b>Example</b> — vector (3,4): magnitude = √(9+16) = √25 = <b>5</b>. This is the Pythagorean theorem applied to vectors</li>
+<li><b>Mental Model</b> — direction answers "which way?" and magnitude answers "how much?" Together they fully describe a vector</li>
+<li><b>AI Connection</b> — magnitude of an activation vector indicates confidence or signal strength. Larger embedding magnitude = more "certain" representation</li>
+</ul>
+
+<h3>5. Unit Vector</h3>
+<ul>
+<li><b>Meaning</b> — a vector whose magnitude = exactly 1. Preserves direction while removing size. Created by dividing vector by its magnitude</li>
+<li><b>Why It Exists</b> — without unit vectors, we can't compare directions independently of magnitude. "Are these two concepts pointing the same way?" requires stripping away different sizes first</li>
+<li><b>Formula</b> — <code>v̂ = v / |v|</code> (divide each coordinate by magnitude)</li>
+<li><b>Example</b> — vector (3,4) has magnitude 5. Unit vector = (3/5, 4/5) = (0.6, 0.8). Same direction, length exactly 1</li>
+<li><b>Mental Model</b> — compass needle: only tells direction (N, S, E, W), not how far to walk</li>
+<li><b>AI Connection</b> — before cosine similarity, embeddings are normalized to unit length. This ensures comparison measures only directional alignment, not magnitude</li>
+<li><b>Common Mistake</b> — zero vector (0,0) has no unit vector because you can't divide by zero magnitude</li>
+</ul>
+
+<h3>6. Zero Vector</h3>
+<ul>
+<li><b>Meaning</b> — (0,0) or (0,0,0): no direction, no magnitude, "no movement at all." The vector equivalent of number zero</li>
+<li><b>Why It Exists</b> — just as zero is needed in arithmetic, the zero vector is needed for vector algebra. It's the identity element for addition: v + 0 = v</li>
+<li><b>Example</b> — (5,3) + (0,0) = (5,3). Adding zero vector changes nothing</li>
+<li><b>Mental Model</b> — standing completely still. No direction, no distance</li>
+<li><b>AI Connection</b> — zero activation = "this neuron contributes nothing." Padding tokens in NLP are often zero vectors</li>
+</ul>
+
+<h2>4.2 Vector Operations</h2>
+<p class="section-intro">What can we do with vectors? These operations let us combine, compare, and transform vectors — exactly what neural networks do millions of times during a forward pass.</p>
+
+<div class="diagram-row">
+<div class="diagram">
+<svg width="180" height="130" viewBox="0 0 180 130">
+<defs><marker id="arr2" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5 Z" fill="#4F46E5"/></marker>
+<marker id="arr3" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5 Z" fill="#f59e0b"/></marker>
+<marker id="arr4" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5 Z" fill="#059669"/></marker></defs>
+<line x1="15" y1="115" x2="170" y2="115" stroke="#ccc" stroke-width="0.5"/>
+<line x1="15" y1="115" x2="15" y2="5" stroke="#ccc" stroke-width="0.5"/>
+<line x1="15" y1="115" x2="75" y2="75" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arr2)"/>
+<text x="30" y="85" font-size="6pt" fill="#4F46E5">A(2,3)</text>
+<line x1="75" y1="75" x2="95" y2="25" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#arr3)"/>
+<text x="82" y="45" font-size="6pt" fill="#f59e0b">B(1,4)</text>
+<line x1="15" y1="115" x2="95" y2="25" stroke="#059669" stroke-width="1.5" stroke-dasharray="3,2" marker-end="url(#arr4)"/>
+<text x="55" y="60" font-size="6pt" fill="#059669">A+B(3,7)</text>
+</svg>
+<div class="diagram-caption">Addition: tip-to-tail</div>
+</div>
+<div class="diagram">
+<svg width="180" height="130" viewBox="0 0 180 130">
+<defs><marker id="arr5" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5 Z" fill="#4F46E5"/></marker>
+<marker id="arr6" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5 Z" fill="#f59e0b"/></marker></defs>
+<line x1="15" y1="115" x2="170" y2="115" stroke="#ccc" stroke-width="0.5"/>
+<line x1="15" y1="115" x2="15" y2="5" stroke="#ccc" stroke-width="0.5"/>
+<line x1="15" y1="115" x2="55" y2="85" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arr5)"/>
+<text x="20" y="95" font-size="6pt" fill="#4F46E5">v(2,1)</text>
+<line x1="15" y1="115" x2="95" y2="55" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#arr6)"/>
+<text x="60" y="75" font-size="6pt" fill="#f59e0b">2v(4,2)</text>
+</svg>
+<div class="diagram-caption">Scalar ×: same direction, double length</div>
+</div>
+</div>
+
+<h3>7. Vector Addition</h3>
+<ul>
+<li><b>Meaning</b> — adding two vectors combines their movements by adding corresponding coordinates. Result = both movements applied together</li>
+<li><b>Why It Exists</b> — in the real world, forces combine. In AI, features combine. Vector addition merges information from multiple sources</li>
+<li><b>Formula</b> — <code>(a,b) + (c,d) = (a+c, b+d)</code></li>
+<li><b>Example</b> — walking (2,3) then (1,4) lands you at (3,7). Combined movement = sum of both vectors</li>
+<li><b>Mental Model</b> — two legs of a journey: go east 2 north 3, then east 1 north 4. Total: east 3, north 7</li>
+<li><b>AI Connection</b> — residual connections in ResNet/Transformers literally add vectors: <code>output = layer(x) + x</code>. This skip connection is just vector addition — one of the key innovations that made deep networks trainable</li>
+</ul>
+
+<h3>8. Vector Subtraction</h3>
+<ul>
+<li><b>Meaning</b> — finds the difference between vectors — the vector you'd need to add to one to reach the other. Answers: "what's the gap?"</li>
+<li><b>Why It Exists</b> — subtraction reveals relationships. The difference between embeddings captures what makes them distinct</li>
+<li><b>Formula</b> — <code>(a,b) - (c,d) = (a-c, b-d)</code></li>
+<li><b>Example</b> — (7,5) - (2,3) = (5,2). To get from (2,3) to (7,5), move (5,2)</li>
+<li><b>Mental Model</b> — "what change is needed to get from A to B?" Subtraction gives the arrow from A toward B</li>
+<li><b>AI Connection</b> — famous word embedding arithmetic: <code>king - man + woman ≈ queen</code>. Subtraction extracts the "gender" relationship. Gradients = predicted - actual = error</li>
+</ul>
+
+<h3>9. Scalar Multiplication</h3>
+<ul>
+<li><b>Meaning</b> — multiply vector by a number (scalar) to stretch/shrink without changing direction. Negative scalar flips direction</li>
+<li><b>Why It Exists</b> — control intensity without changing what it represents. "Same direction, but louder" or "quieter"</li>
+<li><b>Formula</b> — <code>k(x,y) = (kx, ky)</code></li>
+<li><b>Example</b> — 2×(3,2) = (6,4) [doubled]. -1×(3,2) = (-3,-2) [flipped]</li>
+<li><b>Mental Model</b> — volume knob: up (k>1) amplifies, down (0&lt;k&lt;1) reduces, negative reverses</li>
+<li><b>AI Connection</b> — every weight in a neural network is a scalar. w=0.8 means "keep this info but reduce influence by 20%." Learning = finding the right scalars</li>
+<li><b>Common Mistake</b> — scalar × changes magnitude, not direction (unless negative). Rotation requires matrix multiplication (→ See matrices.md)</li>
+</ul>
+
+
+<h2>4.3 Similarity & Direction</h2>
+<p class="section-intro">The most powerful question in AI: "how similar are these two things?" In vector space, similarity = how closely two vectors point the same direction.</p>
+
+<h3>10. Dot Product</h3>
+<ul>
+<li><b>Meaning</b> — takes two vectors, produces a single number measuring how much they point the same direction. Multiply corresponding coordinates and sum</li>
+<li><b>Why It Exists</b> — we need a mathematical way to ask "how similar?" The dot product is the simplest and most efficient answer</li>
+<li><b>Formula</b> — Algebraic: <code>A·B = x₁x₂ + y₁y₂</code>. Geometric: <code>A·B = |A||B|cosθ</code></li>
+<li><b>Example</b> — (1,0)·(0,1) = 0 (perpendicular, zero similarity). (1,0)·(1,0) = 1 (identical). (2,3)·(4,1) = 8+3 = 11 (somewhat similar)</li>
+<li><b>Mental Model</b> — shine a flashlight along A. The dot product = how much of B's shadow falls along A's direction. More shadow = more similarity</li>
+<li><b>AI Connection</b> — Transformer attention scores = dot products between Q and K vectors. Semantic search ranks by dot product. This single operation is the engine of modern AI</li>
+<li><b>Interpretation</b> — <b>Positive</b> → similar directions | <b>Zero</b> → perpendicular/independent | <b>Negative</b> → opposite directions</li>
+</ul>
+
+<div class="diagram">
+<svg width="240" height="120" viewBox="0 0 240 120">
+<defs><marker id="arrD" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5 Z" fill="#4F46E5"/></marker>
+<marker id="arrD2" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5 Z" fill="#f59e0b"/></marker></defs>
+<line x1="20" y1="100" x2="200" y2="100" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arrD)"/>
+<text x="195" y="95" font-size="6pt" fill="#4F46E5">A</text>
+<line x1="20" y1="100" x2="140" y2="40" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#arrD2)"/>
+<text x="142" y="38" font-size="6pt" fill="#f59e0b">B</text>
+<line x1="140" y1="40" x2="140" y2="100" stroke="#999" stroke-width="0.8" stroke-dasharray="2,2"/>
+<line x1="20" y1="100" x2="140" y2="100" stroke="#059669" stroke-width="2"/>
+<text x="60" y="112" font-size="6pt" fill="#059669">B's projection onto A (shadow) = similarity</text>
+<path d="M 40,100 A 20,20 0 0,0 35,88" fill="none" stroke="#666" stroke-width="0.5"/>
+<text x="42" y="92" font-size="5.5pt" fill="#666">θ</text>
+</svg>
+<div class="diagram-caption">Dot product measures how much B "shadows" onto A — more shadow = more similar</div>
+</div>
+
+<h3>11. Orthogonal Vectors</h3>
+<ul>
+<li><b>Meaning</b> — two vectors are orthogonal (perpendicular) when angle between them = 90°. Dot product = 0: they share zero directional information</li>
+<li><b>Why It Exists</b> — orthogonality tells us when information is completely independent. If features are orthogonal, knowing one tells you nothing about the other — ideal for efficiency</li>
+<li><b>Formula</b> — <code>A·B = 0</code> means orthogonal</li>
+<li><b>Example</b> — (1,0) and (0,1) are orthogonal: 1×0 + 0×1 = 0. But (1,1) and (1,0) are NOT: 1×1 + 1×0 = 1 ≠ 0</li>
+<li><b>Mental Model</b> — North and East: knowing how far north you are tells you nothing about how far east. Completely independent information</li>
+<li><b>AI Connection</b> — PCA produces orthogonal principal components, each capturing unique info with zero redundancy. Well-trained embeddings have near-orthogonal directions for unrelated concepts</li>
+<li><b>Common Mistake</b> — orthogonal ≠ opposite! Opposite = dot product of -1 (pointing away). Orthogonal = dot product of 0 (completely unrelated)</li>
+</ul>
+
+<h2>4.4 Measuring Vectors (Norms)</h2>
+<p class="section-intro">How do we measure "distance" between vectors? Different problems need different distance measures. Norms are mathematical rulers — and the choice of ruler affects ML results.</p>
+
+<h3>12. Norms (General)</h3>
+<ul>
+<li><b>Meaning</b> — a function assigning non-negative "size" to any vector. Different norms define "size" differently</li>
+<li><b>Why It Exists</b> — no single "correct" way to measure size. Straight-line distance vs driving distance? Different norms answer different versions</li>
+<li><b>Notation</b> — <code>||v||</code> (double bars around vector)</li>
+<li><b>Mental Model</b> — a ruler for vectors. Tailor's tape, straight ruler, and GPS all measure "distance" differently — norms are the math version</li>
+<li><b>AI Connection</b> — choice of norm affects loss functions (L1 vs L2), regularization (Lasso vs Ridge), distance metrics. It's a design decision</li>
+</ul>
+
+<h3>13. Euclidean Norm (L2)</h3>
+<ul>
+<li><b>Meaning</b> — straight-line distance (shortest path). Most intuitive, equivalent to magnitude</li>
+<li><b>Why It Exists</b> — matches physical intuition of "how far apart?"</li>
+<li><b>Formula</b> — <code>||v||₂ = √(x₁² + x₂² + ... + xₙ²)</code></li>
+<li><b>Example</b> — distance from (1,2) to (4,6): √((4-1)²+(6-2)²) = √(9+16) = √25 = 5</li>
+<li><b>Mental Model</b> — "as the crow flies" — straight line ignoring obstacles</li>
+<li><b>AI Connection</b> — KNN, K-Means clustering, MSE loss (mean squared error). Default metric in most ML algorithms</li>
+</ul>
+
+<h3>14. Manhattan Distance (L1)</h3>
+<ul>
+<li><b>Meaning</b> — distance along grid lines (sum of absolute differences). No diagonals allowed</li>
+<li><b>Why It Exists</b> — in many scenarios, can't travel straight. In high-D spaces, L1 is often more robust to outliers than L2</li>
+<li><b>Formula</b> — <code>||v||₁ = |x₁| + |x₂| + ... + |xₙ|</code></li>
+<li><b>Example</b> — vector (3,4): L1 = |3|+|4| = 7. Compare L2 = √(9+16) = 5. L1 always ≥ L2</li>
+<li><b>Mental Model</b> — "as the taxi drives" through city blocks, only horizontal/vertical moves</li>
+<li><b>AI Connection</b> — L1 regularization (Lasso) pushes weights to exactly zero → automatic feature selection. L1 loss (MAE) more robust to outliers than L2</li>
+</ul>
+
+<div class="diagram-row">
+<div class="diagram">
+<svg width="120" height="120" viewBox="0 0 120 120">
+<line x1="60" y1="0" x2="60" y2="120" stroke="#eee" stroke-width="0.5"/>
+<line x1="0" y1="60" x2="120" y2="60" stroke="#eee" stroke-width="0.5"/>
+<polygon points="60,10 110,60 60,110 10,60" fill="none" stroke="#4F46E5" stroke-width="1.2"/>
+<text x="35" y="118" font-size="6pt" fill="#4F46E5">L1: Diamond</text>
+</svg>
+</div>
+<div class="diagram">
+<svg width="120" height="120" viewBox="0 0 120 120">
+<line x1="60" y1="0" x2="60" y2="120" stroke="#eee" stroke-width="0.5"/>
+<line x1="0" y1="60" x2="120" y2="60" stroke="#eee" stroke-width="0.5"/>
+<circle cx="60" cy="60" r="50" fill="none" stroke="#4F46E5" stroke-width="1.2"/>
+<text x="38" y="118" font-size="6pt" fill="#4F46E5">L2: Circle</text>
+</svg>
+</div>
+<div class="diagram">
+<svg width="120" height="120" viewBox="0 0 120 120">
+<line x1="60" y1="0" x2="60" y2="120" stroke="#eee" stroke-width="0.5"/>
+<line x1="0" y1="60" x2="120" y2="60" stroke="#eee" stroke-width="0.5"/>
+<rect x="10" y="10" width="100" height="100" fill="none" stroke="#4F46E5" stroke-width="1.2"/>
+<text x="35" y="118" font-size="6pt" fill="#4F46E5">L∞: Square</text>
+</svg>
+</div>
+</div>
+<div class="diagram-caption" style="text-align:center">Unit balls: shape of "all points at distance 1 from origin" changes with p</div>
+
+<h3>15. p-Norms</h3>
+<ul>
+<li><b>Meaning</b> — generalized family where p controls how "size" is measured. L1 and L2 are special cases (p=1, p=2)</li>
+<li><b>Formula</b> — <code>||v||ₚ = (|x₁|ᵖ + |x₂|ᵖ + ... + |xₙ|ᵖ)^(1/p)</code></li>
+<li><b>Example</b> — for (3,4): L1=7, L2=5, L∞=max(3,4)=4. Same vector, different "sizes"</li>
+<li><b>AI</b> — p=1 for sparsity (Lasso), p=2 for smooth optimization (Ridge), p=∞ for worst-case bounds</li>
+</ul>
+
+
+<h2>4.5 Vector Spaces</h2>
+<p class="section-intro">AI works with entire spaces of vectors — learned worlds where concepts live. This section: how vectors combine, what they can reach, when they're redundant, and how to find the most efficient building blocks.</p>
+
+<h3>16. Linear Combinations</h3>
+<ul>
+<li><b>Meaning</b> — create a new vector by scaling existing vectors and adding them. The most fundamental operation for building new vectors from old ones</li>
+<li><b>Why It Exists</b> — most vectors are mixtures of simpler directions. Linear combinations give the formal language for describing these mixtures</li>
+<li><b>Formula</b> — <code>c₁A + c₂B + c₃C + ...</code> where c's are scalars</li>
+<li><b>Example</b> — A=(1,0), B=(0,1). Then 3A + 2B = 3(1,0) + 2(0,1) = (3,2). Built (3,2) by mixing A and B</li>
+<li><b>Mental Model</b> — mixing paint colors. Red + yellow = orange. The "amounts" are scalars, base colors are vectors</li>
+<li><b>AI Connection</b> — every neuron computes a linear combination: <code>output = w₁x₁ + w₂x₂ + ... + wₙxₙ + bias</code>. Weights = scalars, inputs = vectors. The entire forward pass is linear combinations + nonlinear activations</li>
+</ul>
+
+<h3>17. Span</h3>
+<ul>
+<li><b>Meaning</b> — the set of ALL possible vectors reachable via linear combinations. Defines the "reachable world" from a set of vectors</li>
+<li><b>Why It Exists</b> — given some vectors, what's the full set of things they can represent? If they span a plane, anything on that plane is reachable</li>
+<li><b>Example</b> — (1,0) alone spans only the x-axis (line). (1,0) and (0,1) together span the entire 2D plane</li>
+<li><b>Mental Model</b> — 1 vector = line (1D). 2 independent = plane (2D). n independent = nD space</li>
+<li><b>AI Connection</b> — embedding space = span of learned directions. If model learned only 50 independent directions, it can only represent concepts in that 50D span — everything else is invisible</li>
+<li><b>Common Mistake</b> — adding more vectors doesn't always increase span. If new vector is a combination of existing ones (dependent), span stays same</li>
+</ul>
+
+<h3>18. Linear Dependence</h3>
+<ul>
+<li><b>Meaning</b> — a vector is dependent if it can be perfectly recreated from others. It's redundant — adds no new information</li>
+<li><b>Why It Exists</b> — identifies which vectors are genuine new info vs repackaged versions of what we already have. Critical for efficiency</li>
+<li><b>Example</b> — A=(1,0), B=(0,1), C=(2,3). C is dependent: C = 2A + 3B. But A and B are independent</li>
+<li><b>Mental Model</b> — duplicate tool in toolbox. Hammer and mallet doing same job = one is redundant</li>
+<li><b>AI Connection</b> — PCA identifies redundant directions. If two features are perfectly correlated (one is linear combo of other), PCA collapses them into one direction</li>
+</ul>
+<div class="tip"><b>In plain English:</b> If you can build C by combining A and B, then C doesn't teach you anything new. It's just A and B in disguise.</div>
+
+<h3>19. Basis Vectors</h3>
+<ul>
+<li><b>Meaning</b> — minimum set of independent vectors that spans an entire space. Every vector uniquely expressed as a linear combination of basis vectors, with no redundancy</li>
+<li><b>Why It Exists</b> — answers: "What's the smallest toolkit to represent everything?" No gaps (spans everything) and no waste (nothing redundant)</li>
+<li><b>Rule</b> — n-dimensional space requires exactly n basis vectors</li>
+<li><b>Example</b> — 2D basis: {(1,0),(0,1)}. Any point (a,b) = a(1,0)+b(0,1). But {(1,0),(2,0)} is NOT a 2D basis — both along x-axis, can't reach y</li>
+<li><b>Mental Model</b> — smallest LEGO set that can construct anything. Too few = can't build everything. Too many = some redundant</li>
+<li><b>AI Connection</b> — 768-dim BERT embedding has 768 basis directions, each capturing some aspect of meaning. Quality of learned directions determines how well the model understands language</li>
+</ul>
+
+<div class="diagram">
+<svg width="240" height="100" viewBox="0 0 240 100">
+<defs><marker id="arrB" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5 Z" fill="#4F46E5"/></marker>
+<marker id="arrB2" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5 Z" fill="#f59e0b"/></marker></defs>
+<text x="10" y="10" font-size="6.5pt" fill="#1a1a1a" font-weight="bold">Independent basis → spans 2D ✓</text>
+<line x1="30" y1="80" x2="90" y2="80" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arrB)"/>
+<line x1="30" y1="80" x2="30" y2="25" stroke="#f59e0b" stroke-width="1.5" marker-end="url(#arrB2)"/>
+<text x="55" y="92" font-size="5.5pt" fill="#4F46E5">e₁</text>
+<text x="12" y="52" font-size="5.5pt" fill="#f59e0b">e₂</text>
+<text x="140" y="10" font-size="6.5pt" fill="#1a1a1a" font-weight="bold">Dependent → only spans line ✗</text>
+<line x1="160" y1="80" x2="220" y2="80" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arrB)"/>
+<line x1="160" y1="80" x2="195" y2="80" stroke="#f59e0b" stroke-width="1.2" marker-end="url(#arrB2)"/>
+<text x="185" y="92" font-size="5.5pt" fill="#4F46E5">e₁</text>
+<text x="165" y="72" font-size="5.5pt" fill="#f59e0b">e₂=2e₁</text>
+</svg>
+</div>
+
+<h3>20. Change of Basis</h3>
+<ul>
+<li><b>Meaning</b> — expressing the same vector using a different coordinate system. Vector unchanged; only its description changes</li>
+<li><b>Why It Exists</b> — some coordinate systems reveal structure better. Data looking random in standard basis might show clear patterns in a better basis</li>
+<li><b>Example</b> — (3,4) in standard basis could be (5,0) in a rotated basis aligned with the vector. Same arrow, different description</li>
+<li><b>Mental Model</b> — translating languages. Taj Mahal is the same building whether described in English, Hindi, or French</li>
+<li><b>AI Connection</b> — PCA is fundamentally change-of-basis. Finds new coordinates where axis 1 = most variance, axis 2 = next most. Reveals hidden structure that original coordinates obscured</li>
+</ul>
+
+<h3>21. Orthogonal Basis</h3>
+<ul>
+<li><b>Meaning</b> — basis where all vectors perpendicular (pairwise dot product = 0). Orthonormal = orthogonal + each has unit length</li>
+<li><b>Why It Exists</b> — the "cleanest" possible description. Each direction captures completely independent info with zero overlap. Simplifies computation, improves interpretability</li>
+<li><b>Formula</b> — <code>eᵢ · eⱼ = 0</code> for all i≠j. Additionally <code>|eᵢ|=1</code> for orthonormal</li>
+<li><b>Example</b> — standard {(1,0),(0,1)} is orthonormal. Basis {(1,1),(1,-1)} is orthogonal but not orthonormal (length √2 each)</li>
+<li><b>Mental Model</b> — North, East, Up: moving North tells you nothing about East or Up position. Perfectly independent</li>
+<li><b>AI Connection</b> — PCA produces orthogonal components. VAE latent spaces aim for orthogonal dimensions so each slider controls a single independent attribute</li>
+</ul>
+<div class="tip"><b>In plain English:</b> An orthogonal basis gives the cleanest possible set of independent directions. Each direction captures unique information no other direction duplicates.</div>
+
+
+<h2>Quick Reference Tables</h2>
+
+<h3>Formula Cheat Sheet</h3>
+<table>
+<tr><th>Topic</th><th>Formula</th><th>What It Computes</th></tr>
+<tr><td>Magnitude (2D)</td><td><code>|v| = √(x²+y²)</code></td><td>Vector length</td></tr>
+<tr><td>Magnitude (3D)</td><td><code>|v| = √(x²+y²+z²)</code></td><td>3D vector length</td></tr>
+<tr><td>Unit Vector</td><td><code>v̂ = v/|v|</code></td><td>Normalize to length 1</td></tr>
+<tr><td>Addition</td><td><code>(a,b)+(c,d) = (a+c, b+d)</code></td><td>Combine two vectors</td></tr>
+<tr><td>Subtraction</td><td><code>(a,b)-(c,d) = (a-c, b-d)</code></td><td>Difference between vectors</td></tr>
+<tr><td>Scalar ×</td><td><code>k(x,y) = (kx, ky)</code></td><td>Scale a vector</td></tr>
+<tr><td>Dot Product (Algebraic)</td><td><code>A·B = x₁x₂ + y₁y₂</code></td><td>Similarity measure</td></tr>
+<tr><td>Dot Product (Geometric)</td><td><code>A·B = |A||B|cosθ</code></td><td>Angle relationship</td></tr>
+<tr><td>Orthogonal Test</td><td><code>A·B = 0</code></td><td>Confirms perpendicularity</td></tr>
+<tr><td>L1 Norm</td><td><code>Σ|xᵢ|</code></td><td>Grid-walk distance</td></tr>
+<tr><td>L2 Norm</td><td><code>√(Σxᵢ²)</code></td><td>Straight-line distance</td></tr>
+<tr><td>p-Norm</td><td><code>(Σ|xᵢ|ᵖ)^(1/p)</code></td><td>Generalized distance</td></tr>
+<tr><td>Linear Combination</td><td><code>c₁A + c₂B + ...</code></td><td>Build new from existing</td></tr>
+</table>
+
+<h3>AI Translation Table</h3>
+<table>
+<tr><th>Math Concept</th><th>AI Interpretation</th><th>Specific Example</th></tr>
+<tr><td>Coordinate</td><td>Position in embedding space</td><td>"cat" → 1536 coordinates</td></tr>
+<tr><td>Vector</td><td>Embedding</td><td>Word2Vec, BERT output</td></tr>
+<tr><td>Magnitude</td><td>Confidence / activation strength</td><td>High magnitude = strong signal</td></tr>
+<tr><td>Unit Vector</td><td>Pure semantic direction</td><td>Normalized for cosine similarity</td></tr>
+<tr><td>Zero Vector</td><td>Empty / inactive</td><td>Padding token embedding</td></tr>
+<tr><td>Addition</td><td>Feature combination</td><td>ResNet: output = F(x) + x</td></tr>
+<tr><td>Subtraction</td><td>Relationship extraction</td><td>king - man + woman ≈ queen</td></tr>
+<tr><td>Scalar ×</td><td>Weight application</td><td>Network weight × input feature</td></tr>
+<tr><td>Dot Product</td><td>Similarity / Attention score</td><td>Q·K in Transformers</td></tr>
+<tr><td>Orthogonal</td><td>Independent features</td><td>Uncorrelated PCA components</td></tr>
+<tr><td>L2 Distance</td><td>Dissimilarity measure</td><td>KNN nearest neighbors</td></tr>
+<tr><td>L1 Distance</td><td>Sparse distance</td><td>Lasso pushes to exactly 0</td></tr>
+<tr><td>Linear Combination</td><td>Neuron computation</td><td>w₁x₁ + w₂x₂ + ... + bias</td></tr>
+<tr><td>Span</td><td>Model's concept coverage</td><td>What embedding space can represent</td></tr>
+<tr><td>Dependence</td><td>Redundant information</td><td>Correlated features = waste</td></tr>
+<tr><td>Basis</td><td>Fundamental learned directions</td><td>768 dims in BERT</td></tr>
+<tr><td>Change of Basis</td><td>Better representation</td><td>PCA rotates to reveal structure</td></tr>
+<tr><td>Orthogonal Basis</td><td>Efficient latent space</td><td>VAE independent dimensions</td></tr>
+</table>
+
+<h3>Mental Models Summary</h3>
+<div class="two-col">
+<ul>
+<li><b>Coordinate</b> — postal address</li>
+<li><b>Vector</b> — arrow (direction + length)</li>
+<li><b>Magnitude</b> — length of arrow</li>
+<li><b>Unit Vector</b> — compass needle</li>
+<li><b>Zero Vector</b> — standing still</li>
+<li><b>Addition</b> — two journey legs combined</li>
+<li><b>Subtraction</b> — gap between two points</li>
+<li><b>Scalar ×</b> — volume knob</li>
+<li><b>Dot Product</b> — flashlight shadow</li>
+<li><b>Orthogonal</b> — North vs East</li>
+<li><b>L2 Norm</b> — crow flying straight</li>
+<li><b>L1 Norm</b> — taxi on grid</li>
+<li><b>Linear Combo</b> — mixing paint colors</li>
+<li><b>Span</b> — reachable world</li>
+<li><b>Dependence</b> — duplicate tool</li>
+<li><b>Basis</b> — minimum LEGO set</li>
+<li><b>Change of Basis</b> — translating languages</li>
+<li><b>Orthogonal Basis</b> — independent blocks</li>
+</ul>
+</div>
+
+<h2>Memory Map</h2>
+<div class="prompt">Coordinates (Where things are)
+      ↓
+Vectors (Direction + Magnitude)
+      ↓
+Vector Operations
+  ├── Addition (Combine movements)
+  ├── Subtraction (Find difference)
+  └── Scalar × (Scale intensity)
+      ↓
+Similarity & Direction
+  ├── Dot Product (How similar? → Attention)
+  └── Orthogonality (Completely independent?)
+      ↓
+Distance & Size (Norms)
+  ├── L2 (Straight line — KNN, MSE)
+  ├── L1 (Grid walk — Lasso, sparsity)
+  └── Lp (Generalized family)
+      ↓
+Building Spaces
+  ├── Linear Combinations (Mix vectors → every neuron)
+  ├── Span (Reachable world → model capacity)
+  └── Dependence (Redundancy check → PCA removes)
+      ↓
+Efficient Representations
+  ├── Basis (Minimum building blocks)
+  ├── Change of Basis (Better coordinates → PCA)
+  └── Orthogonal Basis (Cleanest, zero overlap)
+      ↓
+AI Applications: Embeddings | PCA | Attention | Neural Networks</div>
+
+<h2>Top Takeaways (Ranked)</h2>
+<table>
+<tr><th>#</th><th>Insight</th></tr>
+<tr><td>1</td><td>AI represents ALL meaning using vectors (embeddings)</td></tr>
+<tr><td>2</td><td>Similar meanings → similar vector directions</td></tr>
+<tr><td>3</td><td>Dot product is the fundamental similarity operation (powers Transformer attention)</td></tr>
+<tr><td>4</td><td>Every neuron computes a linear combination (w₁x₁ + w₂x₂ + ... + b)</td></tr>
+<tr><td>5</td><td>Norm choice matters for ML: L1 for sparsity, L2 for smoothness</td></tr>
+<tr><td>6</td><td>Span defines what a model can possibly represent</td></tr>
+<tr><td>7</td><td>Dependence = wasted capacity (redundant features hurt performance)</td></tr>
+<tr><td>8</td><td>Basis = minimum building blocks for a space (768 in BERT)</td></tr>
+<tr><td>9</td><td>Change of basis (PCA) reveals hidden structure in data</td></tr>
+<tr><td>10</td><td>Orthogonal bases = cleanest representations (zero redundancy)</td></tr>
+<tr><td>11</td><td>Modern AI is fundamentally geometry in high-dimensional vector spaces</td></tr>
+</table>
+
+<h2>Interview Answer</h2>
+<div class="tip"><b>Q: What role does Linear Algebra play in AI?</b><br><br>
+Linear Algebra provides the mathematical foundation for how AI represents and processes information. Everything in modern AI — words, images, users, products — gets converted into vectors called embeddings that live in high-dimensional spaces. Neural networks transform these vectors through matrix multiplications (which are organized linear combinations). The dot product measures similarity between vectors, which is how attention mechanisms in Transformers decide what to focus on. Concepts like span and basis determine what a model can represent, while orthogonality ensures efficiency with minimal redundancy. Techniques like PCA use change-of-basis to find better coordinate systems that reveal hidden patterns. In essence, AI "thinks" in vectors and "acts" through linear transformations.</div>
+
+</body>
+</html>
