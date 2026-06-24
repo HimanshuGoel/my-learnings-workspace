@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Attention Mechanism — Printable Notes</title>
+<style>
+  @page { margin: 0.5cm; size: A4; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+  h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+  h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+  h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+  ul { margin: 0 0 2px 12px; padding: 0; }
+  li { margin-bottom: 0.5px; }
+  .tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+  .prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+  .two-col { column-count: 2; column-gap: 10px; }
+  code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+  table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+  th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+  th { background: #f3f4f6; font-weight: bold; }
+  .diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+  .diagram svg { max-width: 100%; }
+  .diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+  .section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+  @media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+<h1>Topic 4 — Attention Mechanism</h1>
+<p><b>Summary:</b> Attention lets every token look at every other token simultaneously, computing relevance scores to build context-aware representations. It's the core innovation that made Transformers possible.</p>
+
+<h2>Why It Exists</h2>
+<ul>
+<li><b>RNN problem</b> — processes one token at a time sequentially. Long-range info gets lost. Can't parallelize. Slow.</li>
+<li><b>Attention solution</b> — every token directly looks at every other token. No distance limitation. Fully parallel (GPU-friendly).</li>
+<li><b>Mental Model</b> — <b>a smart search engine inside the model</b>. For each token: "Which other tokens are relevant to me?" → get weighted combination of relevant ones.</li>
+<li><b>Software analogy</b> — like event listeners. Each token "listens" to all others, but only "responds" strongly to relevant ones. Or: a soft database JOIN (similarity-based, not exact key match).</li>
+</ul>
+
+<h2>The Core Idea: Q, K, V</h2>
+
+<div class="diagram">
+<svg width="400" height="110" viewBox="0 0 400 110">
+<defs><marker id="arrA" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto"><path d="M0,0 L6,2 L0,4 Z" fill="#4F46E5"/></marker></defs>
+<rect x="10" y="10" width="80" height="30" rx="3" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="50" y="28" text-anchor="middle" font-size="6.5pt" font-weight="bold">Query (Q)</text>
+<text x="50" y="50" font-size="5.5pt" fill="#3b82f6" text-anchor="middle">"What am I looking for?"</text>
+<rect x="160" y="10" width="80" height="30" rx="3" fill="#dcfce7" stroke="#22c55e"/>
+<text x="200" y="28" text-anchor="middle" font-size="6.5pt" font-weight="bold">Key (K)</text>
+<text x="200" y="50" font-size="5.5pt" fill="#22c55e" text-anchor="middle">"What do I contain?"</text>
+<rect x="310" y="10" width="80" height="30" rx="3" fill="#fef3c7" stroke="#f59e0b"/>
+<text x="350" y="28" text-anchor="middle" font-size="6.5pt" font-weight="bold">Value (V)</text>
+<text x="350" y="50" font-size="5.5pt" fill="#f59e0b" text-anchor="middle">"What info do I give?"</text>
+
+<text x="200" y":"70" font-size="7pt" fill="#4F46E5" font-weight="bold" text-anchor="middle">Attention = softmax(Q × K^T / √d) × V</text>
+
+<text x="10" y="88" font-size="5.5pt" fill="#495057">1. Q·K → score (how relevant?)</text>
+<text x="10" y="98" font-size="5.5pt" fill="#495057">2. softmax → probabilities (0-1, sum to 1)</text>
+<text x="10" y="108" font-size="5.5pt" fill="#495057">3. probs × V → weighted combination of relevant info</text>
+<text x="250" y="88" font-size="5.5pt" fill="#495057">Each token creates its own Q, K, V</text>
+<text x="250" y="98" font-size="5.5pt" fill="#495057">by multiplying embedding with</text>
+<text x="250" y="108" font-size="5.5pt" fill="#495057">learned weight matrices (W_Q, W_K, W_V)</text>
+</svg>
+<div class="diagram-caption">Every token asks a Query, offers a Key, and provides a Value. Scores = Q·K similarity. Output = weighted sum of Values.</div>
+</div>
+
+<h2>Step-by-Step Visual</h2>
+
+<div class="diagram">
+<svg width="420" height="130" viewBox="0 0 420 130">
+<defs><marker id="arrS" markerWidth="5" markerHeight="4" refX="5" refY="2" orient="auto"><path d="M0,0 L5,2 L0,4 Z" fill="#4F46E5"/></marker></defs>
+<text x="10" y="12" font-size="6.5pt" font-weight="bold">Example: "The cat sat on the mat" — processing "sat"</text>
+
+<rect x="15" y="22" width="35" height="20" rx="2" fill="#f3f4f6" stroke="#ced4da"/><text x="32" y="35" text-anchor="middle" font-size="5.5pt">The</text>
+<rect x="55" y="22" width="35" height="20" rx="2" fill="#dbeafe" stroke="#3b82f6"/><text x="72" y="35" text-anchor="middle" font-size="5.5pt" font-weight="bold">cat</text>
+<rect x="95" y="22" width="35" height="20" rx="2" fill="#ede9fe" stroke="#4F46E5" stroke-width="2"/><text x="112" y="35" text-anchor="middle" font-size="5.5pt" font-weight="bold">sat</text>
+<rect x="135" y="22" width="35" height="20" rx="2" fill="#f3f4f6" stroke="#ced4da"/><text x="152" y="35" text-anchor="middle" font-size="5.5pt">on</text>
+<rect x="175" y="22" width="35" height="20" rx="2" fill="#f3f4f6" stroke="#ced4da"/><text x="192" y="35" text-anchor="middle" font-size="5.5pt">the</text>
+<rect x="215" y="22" width="35" height="20" rx="2" fill="#dcfce7" stroke="#22c55e"/><text x="232" y="35" text-anchor="middle" font-size="5.5pt">mat</text>
+
+<text x="270" y="28" font-size="5.5pt" fill="#4F46E5">← Q("sat") asks:</text>
+<text x="270" y="38" font-size="5.5pt" fill="#4F46E5">"who/what is doing the sitting?"</text>
+
+<text x="15" y="60" font-size="6pt" font-weight="bold">Attention scores for "sat":</text>
+<rect x="15" y="65" width="35" height="15" rx="2" fill="#f3f4f6" stroke="#ced4da"/><text x="32" y="75" text-anchor="middle" font-size="5pt">0.05</text>
+<rect x="55" y="65" width="35" height="15" rx="2" fill="#4F46E5" stroke="#4F46E5"/><text x="72" y="75" text-anchor="middle" font-size="5pt" fill="#fff">0.65</text>
+<rect x="95" y="65" width="35" height="15" rx="2" fill="#dbeafe" stroke="#3b82f6"/><text x="112" y="75" text-anchor="middle" font-size="5pt">0.10</text>
+<rect x="135" y="65" width="35" height="15" rx="2" fill="#f3f4f6" stroke="#ced4da"/><text x="152" y="75" text-anchor="middle" font-size="5pt">0.03</text>
+<rect x="175" y="65" width="35" height="15" rx="2" fill="#f3f4f6" stroke="#ced4da"/><text x="192" y="75" text-anchor="middle" font-size="5pt">0.02</text>
+<rect x="215" y="65" width="35" height":"15" rx="2" fill="#dcfce7" stroke="#22c55e"/><text x="232" y="75" text-anchor="middle" font-size="5pt">0.15</text>
+
+<text x="270" y="75" font-size="5.5pt" fill="#495057">← "cat" gets highest score (subject)</text>
+<text x="270" y="85" font-size="5.5pt" fill="#495057">← "mat" gets some (location)</text>
+<text x="270" y="95" font-size="5.5pt" fill="#495057">← "the" gets almost nothing (irrelevant)</text>
+
+<text x="15" y="105" font-size="6pt" font-weight="bold">Output for "sat" = 0.65×V(cat) + 0.15×V(mat) + 0.10×V(sat) + ...</text>
+<text x="15" y="118" font-size="5.5pt" fill="#495057">→ "sat" now knows WHO is sitting and WHERE. Context captured without sequential processing.</text>
+</svg>
+<div class="diagram-caption">Attention computes relevance of each token to the current one, then combines their values proportionally.</div>
+</div>
+
+<h2>Multi-Head Attention</h2>
+<ul>
+<li><b>What</b> — run 12 (or more) parallel attention computations, each with its own Q/K/V weights.</li>
+<li><b>Why</b> — different heads learn different relationship types: one for syntax, one for semantics, one for proximity, etc.</li>
+<li><b>How</b> — concatenate all head outputs → linear projection → final output.</li>
+</ul>
+<div class="prompt">Multi-Head = [head_1 | head_2 | ... | head_12] × W_output
+Each head: Attention(Q×W_Qi, K×W_Ki, V×W_Vi)</div>
+
+<h2>Why O(n²) Matters</h2>
+<table>
+<tr><th>Sequence Length</th><th>Attention Pairs</th><th>Impact</th></tr>
+<tr><td>512 tokens</td><td>262K pairs</td><td>Fast (standard)</td></tr>
+<tr><td>4K tokens</td><td>16M pairs</td><td>Manageable</td></tr>
+<tr><td>128K tokens</td><td>16B pairs</td><td>Expensive! (why long-context models cost more)</td></tr>
+</table>
+<div class="tip"><b>This is why context windows have limits.</b> Doubling sequence length = 4× compute. Long-context models (128K) use optimizations like FlashAttention.</div>
+
+<h2>Before vs After Attention</h2>
+<table>
+<tr><th>Aspect</th><th>RNN/LSTM (before)</th><th>Attention (after)</th></tr>
+<tr><td>Processing</td><td>Sequential (one token at a time)</td><td>Parallel (all tokens at once)</td></tr>
+<tr><td>Long-range deps</td><td>Forgotten after ~20 tokens</td><td>Direct access to any token</td></tr>
+<tr><td>Speed</td><td>Slow (can't parallelize)</td><td>Fast on GPU (matrix multiply)</td></tr>
+<tr><td>Bottleneck</td><td>One fixed-size hidden state</td><td>No bottleneck — attends to everything</td></tr>
+</table>
+
+<h2>Common Misconceptions</h2>
+<table>
+<tr><th>Wrong</th><th>Correct</th></tr>
+<tr><td>Attention = understanding</td><td>It's a mathematical weighted average. No guaranteed "understanding."</td></tr>
+<tr><td>Each head has a specific role</td><td>Heads learn patterns empirically — not designed for specific purposes.</td></tr>
+<tr><td>Attention is O(n)</td><td>It's O(n²) in sequence length — why long contexts are expensive.</td></tr>
+<tr><td>Attention weights = explanation</td><td>Weights are intermediate computations. Don't over-interpret them.</td></tr>
+</table>
+
+<h2>Connection Map</h2>
+<div class="prompt">EMBEDDINGS (meaning vectors per token)
+    ↓
+ATTENTION (compute relevance between all tokens) ← you are here
+    ↓
+TRANSFORMER (stack attention + FF layers into full architecture)
+    ↓
+Used in: every LLM (GPT, BERT, LLaMA), semantic search, agents</div>
+
+<h2>Key Terminology</h2>
+<table>
+<tr><th>Term</th><th>Meaning</th></tr>
+<tr><td>Self-attention</td><td>Token attends to other tokens in the SAME sequence</td></tr>
+<tr><td>Cross-attention</td><td>Token attends to tokens in a DIFFERENT sequence (e.g., encoder→decoder)</td></tr>
+<tr><td>Multi-head</td><td>Multiple parallel attention computations (different perspectives)</td></tr>
+<tr><td>Causal/Masked attention</td><td>Can only attend to PREVIOUS tokens (used in GPT — can't peek ahead)</td></tr>
+<tr><td>Attention score</td><td>How relevant one token is to another (Q·K dot product)</td></tr>
+</table>
+
+<h2>Top Takeaways</h2>
+<table>
+<tr><th>#</th><th>Insight</th></tr>
+<tr><td>1</td><td>Attention = "which tokens should I focus on?" computed for every token simultaneously</td></tr>
+<tr><td>2</td><td>Q (what I want), K (what you are), V (what you give) — the three matrices per token</td></tr>
+<tr><td>3</td><td>It replaced RNNs: parallel, no distance limit, no information bottleneck</td></tr>
+<tr><td>4</td><td>Multi-head = multiple parallel perspectives on the same input</td></tr>
+<tr><td>5</td><td>O(n²) complexity: longer sequences = quadratically more compute</td></tr>
+<tr><td>6</td><td>Causal attention (GPT): can only look at previous tokens, not future ones</td></tr>
+</table>
+
+<h2>Ready to Move On?</h2>
+<div class="tip">
+☐ I can explain Q, K, V and what each represents<br>
+☐ I understand that attention computes pairwise relevance between all tokens<br>
+☐ I know why attention replaced RNNs (parallel, no distance limit)<br>
+☐ I can explain multi-head attention (multiple perspectives simultaneously)<br><br>
+<b>Next → Transformer Architecture (how attention + other layers form the complete model)</b>
+</div>
+
+</body>
+</html>

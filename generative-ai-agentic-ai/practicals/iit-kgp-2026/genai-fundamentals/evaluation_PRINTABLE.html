@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Evaluation — Printable Notes</title>
+<style>
+  @page { margin: 0.5cm; size: A4; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+  h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+  h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+  h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+  ul { margin: 0 0 2px 12px; padding: 0; }
+  li { margin-bottom: 0.5px; }
+  .tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+  .prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+  .two-col { column-count: 2; column-gap: 10px; }
+  code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+  table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+  th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+  th { background: #f3f4f6; font-weight: bold; }
+  .diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+  .diagram svg { max-width: 100%; }
+  .diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+  .section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+  @media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+<h1>Topic 12 — Evaluation</h1>
+<p><b>Summary:</b> Evaluation measures how well your LLM application works across multiple dimensions — accuracy, faithfulness, relevance, and safety — using automated metrics, LLM-as-judge, and human review.</p>
+
+<h2>Why It Exists</h2>
+<ul>
+<li><b>Problem</b> — unlike traditional ML (clear accuracy/F1), LLM outputs are open-ended, subjective, multi-dimensional. "It seems to work" isn't enough for production.</li>
+<li><b>Solution</b> — structured evaluation across dimensions (faithfulness, relevance, correctness, safety) using automated metrics, LLM-as-judge, and human evaluators.</li>
+<li><b>Mental Model</b> — <b>Code reviews + automated testing + QA combined.</b> Unit tests = automated metrics. Code review = LLM-as-judge. QA testing = human eval. CI/CD checks = continuous monitoring.</li>
+<li><b>Or:</b> Like observability for microservices. You need metrics (Prometheus), logs (structured evaluation), alerts (quality regression detection), and dashboards (evaluation reports).</li>
+</ul>
+
+<h2>How It Works</h2>
+<p class="section-intro">Multiple dimensions, multiple methods, continuous — not a one-time activity.</p>
+
+<div class="diagram">
+<svg width="420" height="100" viewBox="0 0 420 100">
+<defs><marker id="arr" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto"><path d="M0,0 L6,2 L0,4 Z" fill="#4F46E5"/></marker></defs>
+<!-- Evaluation pipeline -->
+<rect x="5" y="10" width="65" height="35" rx="3" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="37" y="23" text-anchor="middle" font-size="5.5pt" font-weight="bold">LLM Output</text>
+<text x="37" y="34" text-anchor="middle" font-size="5pt" fill="#666">response to eval</text>
+<line x1="70" y1="27" x2="88" y2="27" stroke="#4F46E5" stroke-width="1" marker-end="url(#arr)"/>
+<!-- Automated -->
+<rect x="88" y="5" width="75" height="20" rx="3" fill="#f3f4f6" stroke="#ddd"/>
+<text x="125" y="17" text-anchor="middle" font-size="5pt">Automated Metrics</text>
+<!-- LLM Judge -->
+<rect x="88" y="28" width="75" height="20" rx="3" fill="#ede9fe" stroke="#4F46E5"/>
+<text x="125" y="40" text-anchor="middle" font-size="5pt" fill="#4F46E5">LLM-as-Judge</text>
+<!-- Human -->
+<rect x="88" y="51" width="75" height="20" rx="3" fill="#fef3c7" stroke="#f59e0b"/>
+<text x="125" y="63" text-anchor="middle" font-size="5pt">Human Evaluation</text>
+<!-- Arrows to scores -->
+<line x1="163" y1="15" x2="195" y2="27" stroke="#999" stroke-width="0.8" marker-end="url(#arr)"/>
+<line x1="163" y1="38" x2="195" y2="30" stroke="#4F46E5" stroke-width="0.8" marker-end="url(#arr)"/>
+<line x1="163" y1="61" x2="195" y2="33" stroke="#f59e0b" stroke-width="0.8" marker-end="url(#arr)"/>
+<!-- Scores -->
+<rect x="195" y="15" width="60" height="30" rx="3" fill="#dcfce7" stroke="#059669"/>
+<text x="225" y="28" text-anchor="middle" font-size="5.5pt" font-weight="bold" fill="#166534">Scores</text>
+<text x="225" y="39" text-anchor="middle" font-size="5pt" fill="#666">per dimension</text>
+<line x1="255" y1="30" x2="275" y2="30" stroke="#4F46E5" stroke-width="1" marker-end="url(#arr)"/>
+<!-- Dimensions -->
+<rect x="275" y="5" width="140" height="70" rx="3" fill="#f3f4f6" stroke="#ddd"/>
+<text x="345" y="16" text-anchor="middle" font-size="5pt" font-weight="bold">Evaluation Dimensions</text>
+<text x="345" y="27" text-anchor="middle" font-size="5pt">✓ Faithfulness (grounded in context?)</text>
+<text x="345" y="37" text-anchor="middle" font-size="5pt">✓ Relevance (answers the question?)</text>
+<text x="345" y="47" text-anchor="middle" font-size="5pt">✓ Correctness (factually accurate?)</text>
+<text x="345" y="57" text-anchor="middle" font-size="5pt">✓ Harmlessness (safe and appropriate?)</text>
+<text x="345" y="67" text-anchor="middle" font-size="5pt">✓ Format compliance (valid JSON/schema?)</text>
+<text x="210" y="92" text-anchor="middle" font-size="5.5pt" fill="#495057">Multiple methods × multiple dimensions = comprehensive evaluation. No single metric is sufficient.</text>
+</svg>
+<div class="diagram-caption">Evaluation combines automated metrics, LLM-as-judge, and human review across multiple quality dimensions</div>
+</div>
+
+<h3>Evaluation Methods</h3>
+<table>
+<tr><th>Method</th><th>How</th><th>When</th><th>Cost</th></tr>
+<tr><td>Automated metrics</td><td>BLEU, ROUGE, exact match</td><td>Translation, summarization baselines</td><td>Free, fast</td></tr>
+<tr><td>LLM-as-Judge</td><td>Use GPT-4 to score outputs on criteria</td><td>Scalable quality evaluation</td><td>$$ (API cost)</td></tr>
+<tr><td>Human evaluation</td><td>Humans rate on 1-5 scale</td><td>Gold standard, final validation</td><td>$$$ (time + people)</td></tr>
+<tr><td>A/B testing</td><td>Compare two versions with real users</td><td>Production optimization</td><td>$$ (traffic needed)</td></tr>
+<tr><td>Reference-free</td><td>Evaluate without ground truth</td><td>When no "correct answer" exists</td><td>$ (LLM cost)</td></tr>
+</table>
+
+<h3>RAG-Specific Metrics</h3>
+<table>
+<tr><th>Metric</th><th>What It Measures</th><th>Formula Intuition</th></tr>
+<tr><td>Context Precision</td><td>Are retrieved docs relevant?</td><td>relevant_retrieved / total_retrieved</td></tr>
+<tr><td>Context Recall</td><td>Did we retrieve ALL relevant docs?</td><td>relevant_retrieved / total_relevant_in_DB</td></tr>
+<tr><td>Faithfulness</td><td>Is the answer grounded in context?</td><td>claims_supported_by_context / total_claims</td></tr>
+<tr><td>Answer Relevance</td><td>Does the answer address the question?</td><td>LLM-judged relevance score (1-5)</td></tr>
+</table>
+
+<h3>LLM-as-Judge Pattern</h3>
+<div class="prompt">System: You are an expert evaluator. Rate the following response on:
+1. Faithfulness (1-5): Is it supported by the context?
+2. Relevance (1-5): Does it answer the question?
+3. Completeness (1-5): Does it cover all aspects?
+
+Context: {retrieved_documents}
+Question: {user_question}
+Response: {model_response}
+
+Provide scores and brief justification for each.</div>
+<div class="tip"><b>LLM-as-Judge trade-off:</b> Scalable and consistent, but has biases (prefers verbose answers, may agree with itself). Calibrate against human ratings. Use as screening, not final verdict.</div>
+
+<div class="diagram">
+<svg width="400" height="90" viewBox="0 0 400 90">
+<defs><marker id="arr6" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto"><path d="M0,0 L6,2 L0,4 Z" fill="#4F46E5"/></marker></defs>
+<!-- Continuous eval loop -->
+<rect x="10" y="20" width="60" height="30" rx="3" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="40" y="33" text-anchor="middle" font-size="5.5pt" font-weight="bold">Deploy</text>
+<text x="40" y="43" text-anchor="middle" font-size="5pt" fill="#666">v1.0</text>
+<line x1="70" y1="35" x2="90" y2="35" stroke="#4F46E5" stroke-width="1" marker-end="url(#arr6)"/>
+<rect x="90" y="20" width="60" height="30" rx="3" fill="#f3f4f6" stroke="#ddd"/>
+<text x="120" y="33" text-anchor="middle" font-size="5.5pt">Monitor</text>
+<text x="120" y="43" text-anchor="middle" font-size="5pt" fill="#666">live traffic</text>
+<line x1="150" y1="35" x2="170" y2="35" stroke="#4F46E5" stroke-width="1" marker-end="url(#arr6)"/>
+<rect x="170" y="20" width="60" height="30" rx="3" fill="#fef3c7" stroke="#f59e0b"/>
+<text x="200" y="33" text-anchor="middle" font-size="5.5pt" font-weight="bold">Evaluate</text>
+<text x="200" y="43" text-anchor="middle" font-size="5pt" fill="#666">score samples</text>
+<line x1="230" y1="35" x2="250" y2="35" stroke="#4F46E5" stroke-width="1" marker-end="url(#arr6)"/>
+<rect x="250" y="20" width="60" height="30" rx="3" fill="#ede9fe" stroke="#4F46E5"/>
+<text x="280" y="33" text-anchor="middle" font-size="5.5pt" fill="#4F46E5">Improve</text>
+<text x="280" y="43" text-anchor="middle" font-size="5pt" fill="#666">fix issues</text>
+<line x1="310" y1="35" x2="330" y2="35" stroke="#4F46E5" stroke-width="1" marker-end="url(#arr6)"/>
+<rect x="330" y="20" width="60" height="30" rx="3" fill="#dcfce7" stroke="#059669"/>
+<text x="360" y="33" text-anchor="middle" font-size="5.5pt" font-weight="bold" fill="#166534">Deploy</text>
+<text x="360" y="43" text-anchor="middle" font-size="5pt" fill="#666">v1.1</text>
+<!-- Loop arrow -->
+<path d="M360,50 C360,70 200,75 40,70 L40,50" fill="none" stroke="#4F46E5" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#arr6)"/>
+<text x="200" y="82" text-anchor="middle" font-size="5pt" fill="#4F46E5">continuous improvement cycle</text>
+</svg>
+<div class="diagram-caption">Evaluation is continuous: deploy → monitor → evaluate → improve → redeploy. Not a one-time activity.</div>
+</div>
+
+<h3>Hallucination Detection Strategies</h3>
+<table>
+<tr><th>Strategy</th><th>How</th><th>Effectiveness</th></tr>
+<tr><td>Ground in context</td><td>"Answer ONLY from provided docs" (RAG pattern)</td><td>High — prevents knowledge hallucination</td></tr>
+<tr><td>Self-consistency</td><td>Ask same question 5 times, check if answers agree</td><td>Medium — detects uncertain claims</td></tr>
+<tr><td>Claim extraction</td><td>Extract individual claims, verify each against source</td><td>High — granular detection</td></tr>
+<tr><td>Confidence calibration</td><td>Model reports confidence (if trained for it)</td><td>Low-Medium — models are poorly calibrated</td></tr>
+</table>
+
+<h3>Evaluation Frameworks</h3>
+<table>
+<tr><th>Framework</th><th>What It Does</th><th>Best For</th></tr>
+<tr><td>RAGAS</td><td>Automated RAG evaluation (faithfulness, relevance)</td><td>Module 2 RAG pipeline quality</td></tr>
+<tr><td>DeepEval</td><td>General LLM evaluation with multiple metrics</td><td>Multi-dimensional scoring</td></tr>
+<tr><td>LangSmith</td><td>Tracing, evaluation, and monitoring</td><td>LangChain app debugging + eval</td></tr>
+<tr><td>OpenAI Evals</td><td>Evaluation harness for model comparison</td><td>Comparing model versions</td></tr>
+</table>
+
+<h2>IIT KGP Module Mapping</h2>
+<table>
+<tr><th>Module</th><th>How Evaluation Applies</th></tr>
+<tr><td>Module 2</td><td>Evaluate RAG quality (context precision/recall, faithfulness with RAGAS)</td></tr>
+<tr><td>Module 3</td><td>Compare fine-tuned vs base model — did fine-tuning actually help?</td></tr>
+<tr><td>Module 4</td><td>Agent evaluation — did it complete the task? In how many steps? Correctly?</td></tr>
+<tr><td>Module 5</td><td>Capstone evaluation — proving your system works to evaluators/judges</td></tr>
+</table>
+
+<h2>Common Misconceptions</h2>
+<table>
+<tr><th>Wrong</th><th>Correct</th></tr>
+<tr><td>"Accuracy is enough"</td><td>LLM outputs are multi-dimensional. Faithfulness, helpfulness, safety ALL matter.</td></tr>
+<tr><td>"Automated metrics are sufficient"</td><td>BLEU/ROUGE miss quality. Need LLM-as-judge or human eval for real quality assessment.</td></tr>
+<tr><td>"One test set is enough"</td><td>Need diverse cases: edge cases, adversarial inputs, multi-lingual, domain-specific.</td></tr>
+<tr><td>"Evaluation is one-time"</td><td>Continuous monitoring is essential. Model behavior changes with updates/data drift.</td></tr>
+<tr><td>"If it works in demos, it works in production"</td><td>Demo queries ≠ real user queries. Always evaluate on real usage patterns.</td></tr>
+</table>
+
+<h2>Connection Map</h2>
+<div class="prompt">RAG (measure retrieval precision/recall + generation faithfulness)
+        ↓
+Fine-tuning (measure: did fine-tuning improve over base model?)
+        ↓
+Agents (measure: task completion rate, step count, tool accuracy)
+        ↓
+Evaluation (THIS TOPIC — the meta-skill of measuring quality)
+        ↓
+    └── Deployment (continuous monitoring in production — Module 5)</div>
+
+<h2>Key Terminology</h2>
+<table>
+<tr><th>Term</th><th>Meaning</th></tr>
+<tr><td>Faithfulness</td><td>Is the answer supported by the provided context/source documents?</td></tr>
+<tr><td>Relevance</td><td>Does the answer actually address the user's question?</td></tr>
+<tr><td>Hallucination</td><td>Model generates confident but factually wrong content</td></tr>
+<tr><td>LLM-as-Judge</td><td>Using a powerful LLM (GPT-4) to evaluate outputs of another model</td></tr>
+<tr><td>RAGAS</td><td>Framework for automated RAG evaluation (faithfulness + retrieval quality)</td></tr>
+<tr><td>Context precision</td><td>What fraction of retrieved documents are actually relevant?</td></tr>
+<tr><td>Context recall</td><td>Did we retrieve all the relevant documents that exist?</td></tr>
+<tr><td>A/B testing</td><td>Compare two system versions with real users to measure which performs better</td></tr>
+</table>
+
+<h2>Top Takeaways</h2>
+<table>
+<tr><th>#</th><th>Insight</th></tr>
+<tr><td>1</td><td>LLM evaluation is multi-dimensional: faithfulness, relevance, correctness, safety, format compliance.</td></tr>
+<tr><td>2</td><td>No single metric is sufficient. Combine automated metrics + LLM-as-judge + human evaluation.</td></tr>
+<tr><td>3</td><td>RAG evaluation has specific metrics: context precision/recall + faithfulness of generated answer.</td></tr>
+<tr><td>4</td><td>LLM-as-Judge is scalable but biased. Calibrate against human ratings. Use as screening, not verdict.</td></tr>
+<tr><td>5</td><td>Evaluation is continuous (like monitoring), not one-time (like a unit test you write and forget).</td></tr>
+<tr><td>6</td><td>"Works in demo" ≠ "works in production." Always evaluate on real, diverse usage patterns.</td></tr>
+<tr><td>7</td><td>Hallucination detection: ground in context (RAG), self-consistency, claim extraction + verification.</td></tr>
+</table>
+
+<h2>Ready to Move On?</h2>
+<div class="tip">
+☐ I understand the key evaluation dimensions (faithfulness, relevance, correctness, safety)<br>
+☐ I know the difference between automated metrics, LLM-as-judge, and human eval<br>
+☐ I can explain RAG-specific metrics (context precision/recall, faithfulness)<br>
+☐ I understand why continuous evaluation matters (not just one-time testing)<br><br>
+🎉 <b>Congratulations! You've completed all 12 GenAI Fundamental topics!</b>
+</div>
+
+</body>
+</html>

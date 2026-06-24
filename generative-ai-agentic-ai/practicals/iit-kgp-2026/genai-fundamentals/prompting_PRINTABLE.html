@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Prompting — Printable Notes</title>
+<style>
+  @page { margin: 0.5cm; size: A4; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+  h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+  h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+  h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+  ul { margin: 0 0 2px 12px; padding: 0; }
+  li { margin-bottom: 0.5px; }
+  .tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+  .prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+  .two-col { column-count: 2; column-gap: 10px; }
+  code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+  table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+  th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+  th { background: #f3f4f6; font-weight: bold; }
+  .diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+  .diagram svg { max-width: 100%; }
+  .diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+  .section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+  @media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+<h1>Topic 7 — Prompting</h1>
+<p><b>Summary:</b> Prompting is configuring an LLM's behavior through natural language input — system instructions, examples, and reasoning hints — without changing the model's weights. It's the cheapest way to steer an expensive model.</p>
+
+<h2>Why It Exists</h2>
+<ul>
+<li><b>Problem</b> — you have a powerful pre-trained model. How to make it do YOUR specific task?</li>
+<li><b>Two options:</b> Fine-tune (expensive, slow, needs data) OR Prompt (free, instant, iterate in seconds).</li>
+<li><b>Mental Model</b> — <b>Writing a clear ticket for a smart but literal contractor.</b> Vague ticket → vague output. Specific, structured ticket → precise output. Or: configuring Spring Boot via application.yml — you don't change the framework, you configure it.</li>
+</ul>
+
+<h2>Prompting Strategies (Ladder of Power)</h2>
+
+<div class="diagram">
+<svg width="400" height="100" viewBox="0 0 400 100">
+<defs><marker id="arr" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto"><path d="M0,0 L6,2 L0,4 Z" fill="#4F46E5"/></marker></defs>
+<rect x="5" y="60" width="70" height="30" rx="3" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="40" y="78" text-anchor="middle" font-size="6pt" font-weight="bold">Zero-Shot</text>
+<rect x="85" y="45" width="70" height="30" rx="3" fill="#d0ebff" stroke="#3b82f6"/>
+<text x="120" y="63" text-anchor="middle" font-size="6pt" font-weight="bold">Few-Shot</text>
+<rect x="165" y="30" width="80" height="30" rx="3" fill="#ede9fe" stroke="#4F46E5"/>
+<text x="205" y":"48" text-anchor="middle" font-size="6pt" font-weight="bold">Chain-of-Thought</text>
+<rect x="255" y="15" width="75" height="30" rx="3" fill="#fef3c7" stroke="#f59e0b"/>
+<text x="292" y="33" text-anchor="middle" font-size="6pt" font-weight="bold">System Prompt</text>
+<rect x="340" y="5" width="55" height="30" rx="3" fill="#dcfce7" stroke="#22c55e"/>
+<text x="367" y="23" text-anchor="middle" font-size="6pt" font-weight="bold">Structured</text>
+<text x="200" y="97" text-anchor="middle" font-size="5.5pt" fill="#495057">← Simple tasks          Complex/production tasks →</text>
+<line x1="30" y1="92" x2="370" y2="92" stroke="#ced4da" stroke-width="0.5"/>
+</svg>
+<div class="diagram-caption">Prompting strategies increase in power and complexity from left to right</div>
+</div>
+
+<h3>Zero-Shot (just instructions)</h3>
+<div class="prompt">Classify the sentiment as positive, negative, or neutral:
+"The food was amazing but the service was terrible"</div>
+
+<h3>Few-Shot (show examples)</h3>
+<div class="prompt">Classify sentiment:
+"Loved it!" → positive
+"Terrible" → negative  
+"It was okay" → neutral
+"The food was amazing but service was terrible" →</div>
+
+<h3>Chain-of-Thought (think step by step)</h3>
+<div class="prompt">Solve step by step:
+If a shirt costs $20 and is 25% off, what's the final price?
+
+Step 1: Discount = $20 × 0.25 = $5
+Step 2: Final = $20 - $5 = $15
+Answer: $15</div>
+<div class="tip"><b>Magic phrase:</b> Adding "Let's think step by step" dramatically improves reasoning on math, logic, and multi-step problems.</div>
+
+<h3>System Prompt (set persona + constraints)</h3>
+<div class="prompt">System: You are a senior Python developer. Write clean, documented code with error handling and type hints.
+User: Write a function to validate an email address.</div>
+
+<h3>Structured Output (force format)</h3>
+<div class="prompt">Extract from this text. Return as JSON:
+{"name": "...", "email": "...", "sentiment": "...", "confidence": 0.0-1.0}
+
+Text: "Hi, I'm Alice (alice@example.com). I love your product!"</div>
+
+<h2>6 Key Principles</h2>
+<table>
+<tr><th>#</th><th>Principle</th><th>Bad</th><th>Good</th></tr>
+<tr><td>1</td><td>Be specific</td><td>"Summarize this"</td><td>"Summarize in 3 bullets, under 20 words each"</td></tr>
+<tr><td>2</td><td>Provide context</td><td>"Fix this code"</td><td>"Fix this Python FastAPI endpoint for a RAG system"</td></tr>
+<tr><td>3</td><td>Use examples</td><td>"Format nicely"</td><td>Show 2-3 examples of desired output</td></tr>
+<tr><td>4</td><td>Separate data</td><td>Mix instruction + text</td><td>Use delimiters: ```text```, XML tags</td></tr>
+<tr><td>5</td><td>Constrain output</td><td>"Tell me about X"</td><td>"In 2 sentences, for a beginner, no jargon"</td></tr>
+<tr><td>6</td><td>Iterate</td><td>Give up after 1 try</td><td>Test 3-5 variations, pick best</td></tr>
+</table>
+
+<h2>IIT KGP Module Mapping</h2>
+<table>
+<tr><th>Module</th><th>How Prompting Applies</th></tr>
+<tr><td>Module 1</td><td>Core skill — everything starts with a prompt</td></tr>
+<tr><td>Module 2</td><td>RAG prompts: "Answer based ONLY on this context: {docs}"</td></tr>
+<tr><td>Module 3</td><td>Instruction datasets for fine-tuning ARE prompt-response pairs</td></tr>
+<tr><td>Module 4</td><td>Agent prompts: "You have tools: [...]. Decide which to use."</td></tr>
+<tr><td>Module 5</td><td>Production prompts managed as code (versioned, tested)</td></tr>
+</table>
+
+<h2>Common Misconceptions</h2>
+<table>
+<tr><th>Wrong</th><th>Correct</th></tr>
+<tr><td>"One correct prompt exists"</td><td>Prompting is iterative — multiple phrasings work, test and compare</td></tr>
+<tr><td>"Longer = better"</td><td>Concise clarity often outperforms verbose prompts</td></tr>
+<tr><td>"CoT always helps"</td><td>Overkill for simple tasks (wastes tokens). Use for reasoning only.</td></tr>
+<tr><td>"Prompts are permanent"</td><td>Model updates can break them. Version and test continuously.</td></tr>
+<tr><td>"Prompting replaces fine-tuning"</td><td>For high-volume specific tasks, fine-tuning is cheaper per call</td></tr>
+</table>
+
+<h2>Top Takeaways</h2>
+<table>
+<tr><th>#</th><th>Insight</th></tr>
+<tr><td>1</td><td>Prompting = configuring the LLM without changing weights (free, instant)</td></tr>
+<tr><td>2</td><td>Same model gives 10x better answers with a well-crafted prompt vs vague one</td></tr>
+<tr><td>3</td><td>Few-shot examples are the easiest way to improve output quality</td></tr>
+<tr><td>4</td><td>"Think step by step" unlocks reasoning on complex problems (CoT)</td></tr>
+<tr><td>5</td><td>System prompts set persona + constraints — use in every production app</td></tr>
+<tr><td>6</td><td>Prompt engineering is iterative experimentation, not one-shot guessing</td></tr>
+</table>
+
+<h2>Ready to Move On?</h2>
+<div class="tip">
+☐ I understand zero-shot vs few-shot vs chain-of-thought prompting<br>
+☐ I can write a system prompt that constrains model behavior<br>
+☐ I know how to force structured output (JSON) from an LLM<br>
+☐ I understand that prompting is iterative — test, compare, refine<br><br>
+<b>Next → Decoding (how the model chooses which words to generate)</b>
+</div>
+
+</body>
+</html>

@@ -330,3 +330,59 @@
 - I tried reading book_name and found it too heavy. Suggest 3 alternative books that cover similar ideas in a lighter, more story-driven way.
 
 - Ten years ago: Know Angular = valuable. Today: Know Angular + Architecture = valuable. Tomorrow: Know Architecture + AI workflows + Product thinking = valuable. Framework knowledge is becoming a smaller percentage of total engineering value.
+
+## Rearrange
+
+You can ask AI:
+
+Why something works
+Alternative approaches
+Debugging help
+Personalized explanations
+
+7 important concept while understanding AI
+
+| Concept             | Your Experience                               |
+| ------------------- | --------------------------------------------- |
+| Tokens              | Prompt engineering with ChatGPT, Claude, Kiro |
+| Context Engineering | XMS specifications, Kiro steering files       |
+| Agents              | Kiro Angular upgrade POC                      |
+| Evals               | Regression testing, unit testing, validation  |
+| RAG                 | Next logical learning step                    |
+| Embeddings          | Foundation needed before RAG                  |
+
+The new SDLC shifts software engineering from "writing code" to "designing and governing AI-powered systems that produce code."
+
+>AI may not destroy the internet directly, but by reducing the rewards for sharing content publicly, it could gradually push creators, artists, and open-source developers toward more closed and private ecosystems, weakening the culture of openness that built the web.
+
+>The future of software engineering is not about becoming better prompt writers. It is about becoming better system designers, context engineers, and quality arbiters. Agentic Engineering = AI works within specs, tests, guardrails, and feedback loops. Context Engineering is the new Prompt Engineering as The quality of context matters more than clever prompts.
+
+>Agentic Engineering adds: Formal specifications, Architecture documents, Automated testing, CI/CD gates, Evaluations (Evals), Human oversight. Characteristics: High reliability, Production-ready, Scalable. Good for: Enterprise software, Large teams, Regulated industries
+
+
+Six Types of Context
+1. Instructions
+
+Role, goals, responsibilities.
+
+2. Knowledge
+
+Documentation, diagrams, business rules.
+
+3. Memory
+
+Session history and persistent knowledge.
+
+4. Examples
+
+Reference implementations and patterns.
+
+5. Tools
+
+Available APIs, scripts, services.
+
+6. Guardrails
+
+Safety and architectural constraints.
+
+>The winners in the AI era won't be the people who use AI the most—they'll be the people who use AI to amplify their own thinking rather than replace it.
