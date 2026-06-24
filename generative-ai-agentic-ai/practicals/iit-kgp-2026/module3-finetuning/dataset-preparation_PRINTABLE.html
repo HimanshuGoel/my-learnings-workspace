@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Dataset Preparation — Decision Guide</title>
+<style>
+  @page { margin: 0.5cm; size: A4; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+  h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+  h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+  h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+  ul { margin: 0 0 2px 12px; padding: 0; }
+  li { margin-bottom: 0.5px; }
+  .tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+  .prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+  .two-col { column-count: 2; column-gap: 10px; }
+  code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+  table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+  th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+  th { background: #f3f4f6; font-weight: bold; }
+  .diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+  .diagram svg { max-width: 100%; }
+  .diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+  .section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+  @media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+<h1>Module 3, Topic 4 — Dataset Preparation</h1>
+<p class="section-intro">Dataset quality is the single biggest determinant of fine-tuning success. Your model will confidently replicate every error in training data. "Garbage in, garbage out" applies more here than anywhere else in ML — the model learns by adjusting weights to predict YOUR outputs, so every training example is a signal about what correct behavior looks like. High-quality examples = clear signal; noisy examples = averaged noise. This topic covers collection strategies, quality filtering, format requirements, and validation.</p>
+<p><b>Problem:</b> Fine-tuning is only as good as your data. One contradictory example teaches contradictory behavior. Too few examples cause overfitting. Too many mediocre examples produce mediocre models. You need a systematic approach to building datasets that produce reliable fine-tuned models.</p>
+
+<h2>Data Quality Pipeline</h2>
+<div class="diagram">
+<svg width="480" height="95" viewBox="0 0 480 95">
+<defs><marker id="arrDP" markerWidth="5" markerHeight="4" refX="5" refY="2" orient="auto"><path d="M0,0 L5,2 L0,4 Z" fill="#4F46E5"/></marker></defs>
+<!-- Collect -->
+<rect x="5" y="25" width="70" height="40" rx="4" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="40" y="42" text-anchor="middle" font-size="5.5pt" font-weight="bold">Collect</text>
+<text x="40" y="52" text-anchor="middle" font-size="4.5pt">Prod logs, manual,</text>
+<text x="40" y="60" text-anchor="middle" font-size="4.5pt">synthetic (GPT-4o)</text>
+<line x1="75" y1="45" x2="95" y2="45" stroke="#4F46E5" marker-end="url(#arrDP)"/>
+<!-- Filter -->
+<rect x="95" y="25" width="70" height="40" rx="4" fill="#fef3c7" stroke="#f59e0b"/>
+<text x="130" y="42" text-anchor="middle" font-size="5.5pt" font-weight="bold">Filter</text>
+<text x="130" y="52" text-anchor="middle" font-size="4.5pt">Length, format,</text>
+<text x="130" y="60" text-anchor="middle" font-size="4.5pt">dedup, contradictions</text>
+<line x1="165" y1="45" x2="185" y2="45" stroke="#4F46E5" marker-end="url(#arrDP)"/>
+<!-- Validate -->
+<rect x="185" y="25" width="70" height="40" rx="4" fill="#dcfce7" stroke="#22c55e"/>
+<text x="220" y="42" text-anchor="middle" font-size="5.5pt" font-weight="bold">Validate</text>
+<text x="220" y="52" text-anchor="middle" font-size="4.5pt">Format check, token</text>
+<text x="220" y="60" text-anchor="middle" font-size="4.5pt">len, diversity audit</text>
+<line x1="255" y1="45" x2="275" y2="45" stroke="#4F46E5" marker-end="url(#arrDP)"/>
+<!-- Split -->
+<rect x="275" y="25" width="70" height="40" rx="4" fill="#ede9fe" stroke="#8b5cf6"/>
+<text x="310" y="42" text-anchor="middle" font-size="5.5pt" font-weight="bold">Split</text>
+<text x="310" y="52" text-anchor="middle" font-size="4.5pt">80% train / 10% val</text>
+<text x="310" y="60" text-anchor="middle" font-size="4.5pt">/ 10% test</text>
+<line x1="345" y1="45" x2="365" y2="45" stroke="#4F46E5" marker-end="url(#arrDP)"/>
+<!-- Train -->
+<rect x="365" y="25" width="70" height="40" rx="4" fill="#dcfce7" stroke="#059669" stroke-width="2"/>
+<text x="400" y="42" text-anchor="middle" font-size="5.5pt" font-weight="bold">Train</text>
+<text x="400" y="52" text-anchor="middle" font-size="4.5pt">Ready for</text>
+<text x="400" y="60" text-anchor="middle" font-size="4.5pt">fine-tuning!</text>
+<!-- Quality annotation -->
+<text x="240" y="15" text-anchor="middle" font-size="5.5pt" fill="#ef4444" font-weight="bold">Each stage removes ~20-40% of raw data. Only the best examples reach training.</text>
+<text x="240" y="85" text-anchor="middle" font-size="5pt" fill="#666">Typical journey: 500 raw → 350 filtered → 300 validated → 240 train / 30 val / 30 test</text>
+</svg>
+<div class="diagram-caption">Data quality pipeline: raw data passes through progressive quality gates before reaching the model.</div>
+</div>
+
+<h2>Data Format Standards</h2>
+<h3>OpenAI Chat Format (JSONL)</h3>
+<div class="prompt">{"messages": [
+  {"role": "system", "content": "You are a customer support classifier."},
+  {"role": "user", "content": "My payment was charged twice last week."},
+  {"role": "assistant", "content": "Category: billing\nSeverity: high\nSummary: Double charge on payment\nAction: escalate to billing team"}
+]}</div>
+<h3>HuggingFace Instruction Format</h3>
+<div class="prompt">{"instruction": "Classify this customer ticket.",
+ "input": "My payment was charged twice last week.",
+ "output": "Category: billing\nSeverity: high\nSummary: Double charge on payment"}</div>
+
+<h2>Minimum Dataset Sizes by Task</h2>
+<table>
+<tr><th>Task Type</th><th>Minimum</th><th>Recommended</th><th>Notes</th></tr>
+<tr><td>Format/structure change</td><td>50</td><td>200-500</td><td>Model just needs to learn output schema</td></tr>
+<tr><td>Classification</td><td>100</td><td>500-1000</td><td>10+ examples per category minimum</td></tr>
+<tr><td>Style/tone change</td><td>100</td><td>300-500</td><td>Diverse inputs, consistent output style</td></tr>
+<tr><td>Domain specialization</td><td>200</td><td>1000-5000</td><td>More complex = more data needed</td></tr>
+<tr><td>Multi-step reasoning</td><td>500</td><td>2000-5000</td><td>Needs diverse reasoning chains</td></tr>
+<tr><td>Code generation</td><td>200</td><td>1000+</td><td>Cover language features + edge cases</td></tr>
+</table>
+
+<h2>Quality Filtering Pattern</h2>
+<div class="prompt">def filter_dataset(examples: list[dict]) -> list[dict]:
+    filtered = []
+    seen_inputs = set()
+    for ex in examples:
+        assistant_msg = ex["messages"][-1]["content"]
+        user_msg = ex["messages"][-2]["content"]
+        
+        if len(assistant_msg) < 20: continue          # Too short (incomplete)
+        if len(assistant_msg) > 2000: continue        # Too long (verbose/off-topic)
+        if not has_expected_structure(assistant_msg): continue  # Wrong format
+        if hash(user_msg) in seen_inputs: continue    # Duplicate input
+        if contradicts_existing(ex, filtered): continue  # Conflicting signal
+        
+        seen_inputs.add(hash(user_msg))
+        filtered.append(ex)
+    return filtered</div>
+
+<h2>Synthetic Data Generation</h2>
+<div class="prompt">from openai import OpenAI
+
+def generate_synthetic_examples(task_desc: str, output_format: str, n: int = 200):
+    client = OpenAI()
+    examples = []
+    diversity_seeds = ["simple case", "edge case", "ambiguous", "multi-part", "error scenario"]
+    
+    for i in range(n):
+        seed = diversity_seeds[i % len(diversity_seeds)]
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": f"Generate diverse examples. Focus: {seed}"},
+                {"role": "user", "content": f"Task: {task_desc}\nFormat: {output_format}\n"
+                 "Generate ONE realistic example as JSON: {{\"input\": \"...\", \"output\": \"...\"}}"}
+            ],
+            temperature=0.9,  # High for diversity
+        )
+        examples.append(json.loads(response.choices[0].message.content))
+    return examples</div>
+<div class="tip"><b>Synthetic data tip:</b> Always include 10%+ real examples alongside synthetic data. Pure synthetic tends to be too uniform — real-world inputs are messier and more diverse.</div>
+
+<h2>Dataset Validation Script</h2>
+<div class="prompt">def validate_dataset(path: str) -> dict:
+    examples = [json.loads(line) for line in open(path)]
+    issues = []
+    
+    if len(examples) < 50: issues.append(f"Too few: {len(examples)} (need 50+)")
+    for i, ex in enumerate(examples):
+        if "messages" not in ex: issues.append(f"Ex {i}: missing 'messages'")
+        if len(ex.get("messages", [])) < 2: issues.append(f"Ex {i}: need user+assistant")
+    
+    lengths = [count_tokens(ex) for ex in examples]
+    if max(lengths) > 4096: issues.append(f"Max tokens too high: {max(lengths)}")
+    
+    inputs = [ex["messages"][-2]["content"] for ex in examples]
+    unique_ratio = len(set(inputs)) / len(inputs)
+    if unique_ratio < 0.9: issues.append(f"Low diversity: {unique_ratio:.0%}")
+    
+    return {"total": len(examples), "avg_tokens": sum(lengths)//len(lengths),
+            "unique_ratio": unique_ratio, "issues": issues, "valid": len(issues)==0}</div>
+
+<h2>Configuration & Requirements</h2>
+<table>
+<tr><th>Aspect</th><th>Minimum</th><th>Recommended</th><th>Notes</th></tr>
+<tr><td>Dataset size</td><td>50 examples</td><td>200-1000</td><td>More for complex tasks</td></tr>
+<tr><td>Quality bar</td><td>All correct</td><td>Expert-verified</td><td>One bad example teaches bad behavior</td></tr>
+<tr><td>Diversity</td><td>90% unique inputs</td><td>95%+</td><td>Prevents memorization</td></tr>
+<tr><td>Format consistency</td><td>Consistent structure</td><td>Template-enforced</td><td>Inconsistency confuses the model</td></tr>
+<tr><td>Max tokens/example</td><td>Fit in context</td><td>&lt; 2048</td><td>Longer = more memory, slower</td></tr>
+<tr><td>Train/val/test split</td><td>80/10/10</td><td>80/10/10</td><td>Always hold out a test set</td></tr>
+<tr><td>System prompt</td><td>Same across all</td><td>Consistent</td><td>Becomes model's default behavior</td></tr>
+</table>
+
+<h2>Data Strategy by Source</h2>
+<table>
+<tr><th>Scenario</th><th>Strategy</th><th>Data Source</th></tr>
+<tr><td>Format/structure task</td><td>Curate from production logs</td><td>Existing API calls with correct outputs</td></tr>
+<tr><td>Style/tone change</td><td>Rewrite base model outputs</td><td>Take model output → manually edit to target</td></tr>
+<tr><td>Domain specialization</td><td>Expert annotation</td><td>Domain experts write ideal responses</td></tr>
+<tr><td>Cold start (no data)</td><td>Synthetic generation</td><td>Use GPT-4o to generate training examples</td></tr>
+<tr><td>Instruction following</td><td>Combine datasets</td><td>Existing instruction datasets + custom</td></tr>
+</table>
+
+<h2>Failure Modes → Fixes</h2>
+<table>
+<tr><th>Problem</th><th>Symptom</th><th>Fix</th></tr>
+<tr><td>Contradictory examples</td><td>Model gives random/oscillating answers</td><td>Audit for conflicting input→output pairs</td></tr>
+<tr><td>Format inconsistency</td><td>Sometimes follows format, sometimes doesn't</td><td>Standardize ALL outputs to exact format before training</td></tr>
+<tr><td>Too few examples</td><td>Overfits — perfect on train, bad on new</td><td>Add synthetic, collect more, or reduce rank</td></tr>
+<tr><td>Too many low-quality</td><td>Model learns mediocre average behavior</td><td>Filter to top 20% quality, re-train</td></tr>
+<tr><td>Data leakage</td><td>Unrealistically high test accuracy</td><td>Strict split, verify no overlap</td></tr>
+<tr><td>Biased dataset</td><td>Model inherits biases</td><td>Audit representation, add diverse examples</td></tr>
+<tr><td>Synthetic too uniform</td><td>Can't handle real-world variation</td><td>Add diversity seeds, include real examples (10%+)</td></tr>
+</table>
+
+<h2>Cost Reference</h2>
+<table>
+<tr><th>Activity</th><th>Cost</th><th>Time</th></tr>
+<tr><td>Manual curation (100 examples)</td><td>Free (your time)</td><td>4-8 hours</td></tr>
+<tr><td>Synthetic generation (GPT-4o, 500 examples)</td><td>$5-15</td><td>1-2 hours</td></tr>
+<tr><td>Expert annotation (500 examples)</td><td>$500-2000</td><td>1-2 weeks</td></tr>
+<tr><td>Quality filtering + validation</td><td>Free (scripted)</td><td>30 minutes</td></tr>
+<tr><td>Iteration (fix issues, regenerate)</td><td>Variable</td><td>1-3 cycles typical</td></tr>
+</table>
+
+<h2>Decision Checkpoint</h2>
+<div class="tip">
+☐ Dataset format matches target model (messages array or instruction format)<br>
+☐ Every example is correct — I'd be happy if the model produced this exact output<br>
+☐ Dataset is diverse enough (90%+ unique inputs, covers all categories)<br>
+☐ No contradictions between examples (same input → same output)<br>
+☐ Proper train/val/test split with no leakage<br>
+☐ Validation script passes with zero issues<br>
+☐ Dataset size is appropriate for task complexity<br>
+☐ I have a plan to iterate if first training run shows data issues<br><br>
+<b>Next → Training Infrastructure (where and how to actually run training)</b>
+</div>
+
+</body>
+</html>
