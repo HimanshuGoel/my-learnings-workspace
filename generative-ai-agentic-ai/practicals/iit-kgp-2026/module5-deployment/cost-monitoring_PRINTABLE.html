@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Cost Monitoring — Deployment Runbook</title>
+<style>
+  @page { margin: 0.5cm; size: A4; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+  h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+  h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+  h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+  ul { margin: 0 0 2px 12px; padding: 0; }
+  li { margin-bottom: 0.5px; }
+  .tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+  .prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+  code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+  table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+  th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+  th { background: #f3f4f6; font-weight: bold; }
+  .diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+  .diagram svg { max-width: 100%; }
+  .diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+  .section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+  @media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+<h1>Module 5, Topic 6 — Cost Monitoring</h1>
+<p class="section-intro">LLM API costs scale linearly with usage and can spike unexpectedly — an agent that loops, a user who sends huge prompts, or a caching failure can turn a $5/day service into a $500/day bill overnight. Unlike traditional APIs (fixed infra cost), AI services have VARIABLE per-request costs determined by token count. You need real-time tracking, per-user budgets, and alerts BEFORE you hit the bill.</p>
+<p><b>What you're deploying:</b> Token usage tracking per request/user/endpoint, daily budget alerts, cost attribution dashboards, and automatic throttling when limits are reached.</p>
+
+<h2>Cost Structure</h2>
+<div class="diagram">
+<svg width="440" height="85" viewBox="0 0 440 85">
+<rect x="5" y="5" width="430" height="75" rx="3" fill="#f8fafc" stroke="#4F46E5"/>
+<text x="220" y="18" text-anchor="middle" font-size="6.5pt" font-weight="bold" fill="#4F46E5">Cost Per Request = Input Tokens × Input Price + Output Tokens × Output Price</text>
+<text x="30" y="35" font-size="5.5pt" font-weight="bold">Model Pricing (per 1M tokens):</text>
+<text x="30" y="47" font-size="5pt">gpt-4o-mini: $0.15 input / $0.60 output</text>
+<text x="30" y="57" font-size="5pt">gpt-4o: $2.50 input / $10.00 output</text>
+<text x="30" y="67" font-size="5pt">text-embedding-3-small: $0.02 input</text>
+<text x="240" y="35" font-size="5.5pt" font-weight="bold">Typical Request Cost:</text>
+<text x="240" y="47" font-size="5pt">Simple RAG (gpt-4o-mini): ~$0.0006/query</text>
+<text x="240" y="57" font-size="5pt">Agent 5-step (gpt-4o-mini): ~$0.003/query</text>
+<text x="240" y="67" font-size="5pt">Agent with GPT-4o: ~$0.03/query</text>
+<text x="220" y="78" text-anchor="middle" font-size="5pt" fill="#ef4444" font-weight="bold">At 10K queries/day: $6/day (mini) to $300/day (4o). Agents 5-50× more than simple RAG.</text>
+</svg>
+<div class="diagram-caption">AI costs are VARIABLE per request. Track tokens, not just request count. Output tokens cost 4× more than input.</div>
+</div>
+
+<h2>Implementation — Token Tracking</h2>
+<div class="prompt">from dataclasses import dataclass, field
+from collections import defaultdict
+from datetime import date
+import tiktoken
+
+@dataclass
+class UsageRecord:
+    input_tokens: int = 0
+    output_tokens: int = 0
+    cost_usd: float = 0.0
+    requests: int = 0
+
+class CostTracker:
+    PRICING = {
+        "gpt-4o-mini": {"input": 0.15e-6, "output": 0.60e-6},
+        "gpt-4o": {"input": 2.50e-6, "output": 10.00e-6},
+        "text-embedding-3-small": {"input": 0.02e-6, "output": 0},
+    }
+    
+    def __init__(self, daily_budget: float = 50.0):
+        self.daily_budget = daily_budget
+        self.usage: dict[str, dict[str, UsageRecord]] = defaultdict(lambda: defaultdict(UsageRecord))
+    
+    def record(self, user_id: str, model: str, input_tokens: int, output_tokens: int):
+        pricing = self.PRICING.get(model, {"input": 0, "output": 0})
+        cost = input_tokens * pricing["input"] + output_tokens * pricing["output"]
+        
+        today = str(date.today())
+        rec = self.usage[today][user_id]
+        rec.input_tokens += input_tokens
+        rec.output_tokens += output_tokens
+        rec.cost_usd += cost
+        rec.requests += 1
+        
+        # Check budget
+        total_today = sum(r.cost_usd for r in self.usage[today].values())
+        if total_today > self.daily_budget:
+            raise BudgetExceeded(f"Daily budget ${self.daily_budget} exceeded: ${total_today:.2f}")
+        
+        return cost</div>
+
+<h2>Implementation — Prometheus Metrics</h2>
+<div class="prompt">from prometheus_client import Counter, Histogram
+
+token_input = Counter("ai_tokens_input_total", "Input tokens", ["model", "endpoint", "user"])
+token_output = Counter("ai_tokens_output_total", "Output tokens", ["model", "endpoint", "user"])
+cost_usd = Counter("ai_cost_usd_total", "Cost in USD", ["model", "endpoint"])
+request_cost = Histogram("ai_request_cost_usd", "Cost per request", 
+                         buckets=[0.0001, 0.001, 0.005, 0.01, 0.05, 0.1, 0.5])
+
+# After each LLM call:
+def track_usage(response, model: str, endpoint: str, user: str):
+    usage = response.usage
+    token_input.labels(model=model, endpoint=endpoint, user=user).inc(usage.prompt_tokens)
+    token_output.labels(model=model, endpoint=endpoint, user=user).inc(usage.completion_tokens)
+    cost = calculate_cost(model, usage.prompt_tokens, usage.completion_tokens)
+    cost_usd.labels(model=model, endpoint=endpoint).inc(cost)
+    request_cost.observe(cost)</div>
+
+<h2>Budget Controls</h2>
+<table>
+<tr><th>Control</th><th>Scope</th><th>Action When Exceeded</th></tr>
+<tr><td>Per-request token cap</td><td>Single request</td><td>Truncate input, limit max_tokens output</td></tr>
+<tr><td>Per-user daily budget</td><td>User per day</td><td>Return 429 "Budget exceeded, resets at midnight"</td></tr>
+<tr><td>Per-endpoint daily budget</td><td>Endpoint total</td><td>Alert ops, degrade to cheaper model</td></tr>
+<tr><td>Global daily budget</td><td>Entire service</td><td>Alert + auto-throttle (emergency)</td></tr>
+<tr><td>Agent step limit</td><td>Single agent run</td><td>Force termination after N steps</td></tr>
+</table>
+
+<h2>Optimization Strategies</h2>
+<table>
+<tr><th>Strategy</th><th>Savings</th><th>Trade-off</th></tr>
+<tr><td>Semantic caching</td><td>30-60% fewer LLM calls</td><td>Slightly stale answers for repeated queries</td></tr>
+<tr><td>Prompt caching (OpenAI/Anthropic)</td><td>50% on cached prefix</td><td>Only saves on repeated system prompts</td></tr>
+<tr><td>Model downgrade for simple queries</td><td>10-20× (4o→4o-mini)</td><td>Slightly lower quality on complex queries</td></tr>
+<tr><td>Shorter prompts (remove few-shot after fine-tune)</td><td>30-50% fewer input tokens</td><td>Requires fine-tuning investment</td></tr>
+<tr><td>Output length limit (max_tokens)</td><td>Prevents runaway generation</td><td>May truncate valid long answers</td></tr>
+<tr><td>Batch embedding (not per-query)</td><td>70%+ on embedding calls</td><td>Requires pre-indexing pipeline</td></tr>
+</table>
+
+<h2>Alerting Configuration</h2>
+<table>
+<tr><th>Alert</th><th>Threshold</th><th>Action</th></tr>
+<tr><td>Daily cost approaching limit</td><td>80% of daily budget</td><td>Notify ops team</td></tr>
+<tr><td>Daily cost exceeded</td><td>100% of budget</td><td>Throttle to cheaper model + alert</td></tr>
+<tr><td>Single request unusually expensive</td><td>> $0.10 per request</td><td>Log + investigate (possible agent loop)</td></tr>
+<tr><td>Hourly cost 3× normal</td><td>Spike detection</td><td>Check for abuse, caching failure</td></tr>
+<tr><td>User exceeds personal budget</td><td>Per-user daily cap</td><td>Return 429 to that user</td></tr>
+</table>
+
+<h2>Monthly Cost Estimates</h2>
+<table>
+<tr><th>Traffic</th><th>Simple RAG (4o-mini)</th><th>Agent (4o-mini)</th><th>Agent (4o)</th></tr>
+<tr><td>100 queries/day</td><td>~$2/month</td><td>~$9/month</td><td>~$90/month</td></tr>
+<tr><td>1K queries/day</td><td>~$18/month</td><td>~$90/month</td><td>~$900/month</td></tr>
+<tr><td>10K queries/day</td><td>~$180/month</td><td>~$900/month</td><td>~$9000/month</td></tr>
+</table>
+<div class="tip"><b>Key insight:</b> Agents cost 5-50× more than simple RAG/chain. Always ask: "Does this query actually NEED an agent, or can a chain handle it?" Route accordingly.</div>
+
+<h2>Troubleshooting</h2>
+<table>
+<tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr>
+<tr><td>Cost spike overnight</td><td>Agent in a loop (no step limit)</td><td>Add max_steps, alert on step_count > 8</td></tr>
+<tr><td>One user accounts for 80% of cost</td><td>No per-user budget</td><td>Add per-user daily token cap</td></tr>
+<tr><td>Costs 3× estimate</td><td>Cache miss rate high (new query patterns)</td><td>Analyze cache hit rate, expand cache coverage</td></tr>
+<tr><td>Embedding costs surprisingly high</td><td>Re-embedding unchanged docs every request</td><td>Cache embeddings, only re-embed on document change</td></tr>
+<tr><td>Output tokens dominate cost</td><td>Verbose responses (no max_tokens)</td><td>Set max_tokens, instruct conciseness in prompt</td></tr>
+</table>
+
+<h2>Pre-Deploy Checklist</h2>
+<div class="tip">
+☐ Token tracking on every LLM call (input + output separately)<br>
+☐ Cost attribution: per user, per endpoint, per model<br>
+☐ Daily budget configured with auto-throttle at 100%<br>
+☐ Per-user daily cap to prevent single-user abuse<br>
+☐ Agent step limits enforced (max 10 steps default)<br>
+☐ Prometheus metrics exported (for Grafana dashboards)<br>
+☐ Alert at 80% daily budget (warning) and 100% (action)<br>
+☐ Spike detection: hourly cost 3× moving average<br>
+☐ Cost dashboard visible to ops team<br>
+☐ Monthly cost estimate documented and validated against actual<br><br>
+<b>Next → Responsible AI (fairness, safety, and compliance in production)</b>
+</div>
+
+</body>
+</html>

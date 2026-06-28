@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Streaming & UX — Deployment Runbook</title>
+<style>
+  @page { margin: 0.5cm; size: A4; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+  h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+  h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+  h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+  ul { margin: 0 0 2px 12px; padding: 0; }
+  li { margin-bottom: 0.5px; }
+  .tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+  .prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+  code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+  table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+  th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+  th { background: #f3f4f6; font-weight: bold; }
+  .diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+  .diagram svg { max-width: 100%; }
+  .diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+  .section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+  @media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+<h1>Module 5, Topic 4 — Streaming & UX</h1>
+<p class="section-intro">LLM generation takes 2-10 seconds. Without streaming, users stare at a blank screen. With streaming (Server-Sent Events), the first token appears in &lt;500ms and text flows in real-time — making 5s feel like 1s. For agents, stream intermediate steps ("Searching...", "Analyzing...") so users know the system is working. This is the single biggest UX improvement for AI apps.</p>
+<p><b>What you're deploying:</b> Real-time token streaming via SSE, intermediate agent step notifications, loading states, and error recovery UX for your FastAPI AI service.</p>
+
+<h2>Streaming Architecture</h2>
+<div class="diagram">
+<svg width="440" height="100" viewBox="0 0 440 100">
+<defs><marker id="arrSt" markerWidth="5" markerHeight="4" refX="5" refY="2" orient="auto"><path d="M0,0 L5,2 L0,4 Z" fill="#4F46E5"/></marker></defs>
+<rect x="5" y="30" width="70" height="35" rx="3" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="40" y="45" text-anchor="middle" font-size="5.5pt" font-weight="bold">Client</text>
+<text x="40" y="55" text-anchor="middle" font-size="5pt">EventSource</text>
+<line x1="75" y1="47" x2="105" y2="47" stroke="#4F46E5" marker-end="url(#arrSt)"/>
+<text x="90" y="42" font-size="4.5pt" fill="#666">POST</text>
+<rect x="105" y="30" width="80" height="35" rx="3" fill="#dcfce7" stroke="#22c55e"/>
+<text x="145" y="45" text-anchor="middle" font-size="5.5pt" font-weight="bold">FastAPI</text>
+<text x="145" y="55" text-anchor="middle" font-size="5pt">StreamingResponse</text>
+<line x1="185" y1="47" x2="215" y2="47" stroke="#4F46E5" marker-end="url(#arrSt)"/>
+<rect x="215" y="30" width="80" height="35" rx="3" fill="#fef3c7" stroke="#f59e0b"/>
+<text x="255" y="45" text-anchor="middle" font-size="5.5pt" font-weight="bold">LLM/Agent</text>
+<text x="255" y="55" text-anchor="middle" font-size="5pt">astream()</text>
+<line x1="295" y1="47" x2="215" y2="47" stroke="#f59e0b" stroke-dasharray="3"/>
+<text x="255" y="72" font-size="5pt" fill="#f59e0b">tokens flow back as generated</text>
+<line x1="105" y1="47" x2="75" y2="47" stroke="#22c55e" stroke-dasharray="3"/>
+<text x="90" y="72" font-size="5pt" fill="#22c55e">SSE: data: {"token":"..."}</text>
+<rect x="330" y="10" width="105" height="80" rx="3" fill="#f3f4f6" stroke="#ced4da"/>
+<text x="382" y="24" text-anchor="middle" font-size="5pt" font-weight="bold">SSE Event Types:</text>
+<text x="382" y="36" text-anchor="middle" font-size="5pt">• token (LLM text chunk)</text>
+<text x="382" y="46" text-anchor="middle" font-size="5pt">• tool_call (agent acting)</text>
+<text x="382" y="56" text-anchor="middle" font-size="5pt">• sources (retrieved docs)</text>
+<text x="382" y="66" text-anchor="middle" font-size="5pt">• thinking (intermediate)</text>
+<text x="382" y="76" text-anchor="middle" font-size="5pt">• done / error (terminal)</text>
+</svg>
+<div class="diagram-caption">SSE flow: client sends POST, server yields events as LLM generates. Client renders tokens incrementally.</div>
+</div>
+
+<h2>Implementation — Server Side</h2>
+<div class="prompt">from fastapi import APIRouter
+from fastapi.responses import StreamingResponse
+import json
+
+@router.post("/chat/stream")
+async def chat_stream(request: ChatRequest):
+    async def event_generator():
+        try:
+            # Emit sources first (retrieved docs)
+            docs = await retriever.ainvoke(request.message)
+            yield f"data: {json.dumps({'type':'sources','data':[d.metadata['source'] for d in docs]})}\n\n"
+            
+            # Stream LLM tokens
+            messages = build_prompt(request.message, docs)
+            async for chunk in llm.astream(messages):
+                if chunk.content:
+                    yield f"data: {json.dumps({'type':'token','data':chunk.content})}\n\n"
+            
+            yield f"data: {json.dumps({'type':'done'})}\n\n"
+        except Exception as e:
+            yield f"data: {json.dumps({'type':'error','data':str(e)})}\n\n"
+    
+    return StreamingResponse(event_generator(), media_type="text/event-stream")</div>
+
+<h2>Implementation — Client Side (JavaScript)</h2>
+<div class="prompt">const response = await fetch('/v1/chat/stream', {
+  method: 'POST', headers: {'Content-Type': 'application/json'},
+  body: JSON.stringify({message: query})
+});
+
+const reader = response.body.getReader();
+const decoder = new TextDecoder();
+let buffer = '';
+
+while (true) {
+  const {done, value} = await reader.read();
+  if (done) break;
+  buffer += decoder.decode(value, {stream: true});
+  const lines = buffer.split('\n\n');
+  buffer = lines.pop(); // Keep incomplete
+  for (const line of lines) {
+    if (!line.startsWith('data: ')) continue;
+    const event = JSON.parse(line.slice(6));
+    if (event.type === 'token') appendToUI(event.data);
+    else if (event.type === 'tool_call') showThinking(`Using ${event.data}...`);
+    else if (event.type === 'done') hideLoading();
+    else if (event.type === 'error') showError(event.data);
+  }
+}</div>
+
+<h2>Agent Streaming — Intermediate Steps</h2>
+<div class="prompt"># For LangGraph agents: stream node executions
+async def agent_stream(query: str):
+    async for event in agent.astream_events(
+        {"messages": [HumanMessage(query)]}, config, version="v2"):
+        
+        if event["event"] == "on_chat_model_stream":
+            yield sse_event("token", event["data"]["chunk"].content)
+        elif event["event"] == "on_tool_start":
+            yield sse_event("thinking", f"Using {event['name']}...")
+        elif event["event"] == "on_tool_end":
+            yield sse_event("tool_result", event["data"]["output"][:100])</div>
+
+<h2>UX Patterns</h2>
+<table>
+<tr><th>Pattern</th><th>What User Sees</th><th>When</th></tr>
+<tr><td>Token streaming</td><td>Text appears word-by-word</td><td>Always for chat/QA</td></tr>
+<tr><td>Thinking indicator</td><td>"Searching documentation..."</td><td>Agent using tools</td></tr>
+<tr><td>Progress steps</td><td>"Step 2/4: Analyzing..."</td><td>Multi-step agent</td></tr>
+<tr><td>Sources preview</td><td>Source chips appear before answer</td><td>RAG responses</td></tr>
+<tr><td>Skeleton loading</td><td>Placeholder UI structure</td><td>Initial page load</td></tr>
+<tr><td>Retry button</td><td>"Something went wrong. Retry?"</td><td>Errors/timeouts</td></tr>
+</table>
+
+<h2>Configuration Reference</h2>
+<table>
+<tr><th>Parameter</th><th>Value</th><th>Why</th></tr>
+<tr><td>SSE media type</td><td>text/event-stream</td><td>Standard for SSE</td></tr>
+<tr><td>Keep-alive interval</td><td>Every 15s (empty comment)</td><td>Prevent proxy/LB timeout</td></tr>
+<tr><td>Max stream duration</td><td>60s timeout</td><td>Kill zombie connections</td></tr>
+<tr><td>Buffer flush</td><td>Immediate (no buffering)</td><td>Tokens must arrive ASAP</td></tr>
+<tr><td>Retry on disconnect</td><td>Client reconnects after 3s</td><td>Handle network blips</td></tr>
+</table>
+
+<h2>Troubleshooting</h2>
+<table>
+<tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr>
+<tr><td>Tokens arrive in bursts (not smooth)</td><td>Proxy buffering (nginx)</td><td>Set <code>X-Accel-Buffering: no</code>, <code>proxy_buffering off</code></td></tr>
+<tr><td>Connection drops after 60s</td><td>Load balancer timeout</td><td>Send keep-alive comments, increase LB timeout</td></tr>
+<tr><td>First token takes 3s+</td><td>Retrieval/reranking before streaming starts</td><td>Stream "thinking" event immediately, then stream tokens</td></tr>
+<tr><td>Duplicate tokens on reconnect</td><td>Client replays from last event</td><td>Use event IDs, client tracks last received</td></tr>
+<tr><td>Mobile browser disconnects</td><td>Background tab suspension</td><td>Reconnection logic + message deduplication</td></tr>
+</table>
+
+<h2>Perceived Latency Comparison</h2>
+<table>
+<tr><th>Approach</th><th>Time to First Content</th><th>Total Wait</th><th>User Perception</th></tr>
+<tr><td>No streaming (wait for full response)</td><td>3-10s</td><td>3-10s</td><td>"Is it broken?" — terrible</td></tr>
+<tr><td>Streaming tokens only</td><td>300-800ms</td><td>3-10s</td><td>"It's working!" — good</td></tr>
+<tr><td>Streaming + thinking indicators</td><td>100-200ms</td><td>3-10s</td><td>"It's actively working on it" — best</td></tr>
+</table>
+
+<h2>Pre-Deploy Checklist</h2>
+<div class="tip">
+☐ SSE endpoint returns <code>text/event-stream</code> content type<br>
+☐ Nginx/LB configured with <code>proxy_buffering off</code><br>
+☐ Keep-alive comments sent every 15s for long responses<br>
+☐ Error events sent (not just dropped connection) on failure<br>
+☐ Client handles reconnection gracefully (no duplicate content)<br>
+☐ Timeout configured (60s max stream duration)<br>
+☐ Agent intermediate steps emitted as events (thinking, tool_call)<br>
+☐ "Done" event signals completion (client stops waiting)<br>
+☐ Mobile/flaky network tested (disconnect + reconnect scenario)<br><br>
+<b>Next → Authentication & Security (protect your streaming endpoint)</b>
+</div>
+
+</body>
+</html>

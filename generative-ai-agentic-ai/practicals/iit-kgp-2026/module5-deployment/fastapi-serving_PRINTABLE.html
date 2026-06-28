@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>FastAPI Serving — Module 5 Deployment</title>
+<style>
+  @page { margin: 0.5cm; size: A4; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+  h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+  h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+  h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+  ul { margin: 0 0 2px 12px; padding: 0; }
+  li { margin-bottom: 0.5px; }
+  .tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+  .prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+  .two-col { column-count: 2; column-gap: 10px; }
+  code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+  table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+  th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+  th { background: #f3f4f6; font-weight: bold; }
+  .diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+  .diagram svg { max-width: 100%; }
+  .diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+  .section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+  @media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+<h1>Module 5, Topic 1 — FastAPI Serving</h1>
+<p class="section-intro">FastAPI is your deployment framework for AI services. You already know FastAPI — this focuses on AI-SPECIFIC patterns: lifespan for model loading, streaming SSE for LLM tokens, health/ready probes for orchestrators, singleton dependencies for expensive resources (LLM clients, vector stores, embedding models). The goal: go from "works in a notebook" to "production HTTP API serving AI."</p>
+<p><b>Problem:</b> Your RAG pipeline, agent, or fine-tuned model works locally. Now expose it as a reliable, scalable HTTP service with proper health checks, streaming, and resource management — without reloading 2GB of embeddings on every request.</p>
+
+<h2>Service Architecture</h2>
+<div class="diagram">
+<svg width="520" height="160" viewBox="0 0 520 160">
+<defs><marker id="arrFA" markerWidth="5" markerHeight="4" refX="5" refY="2" orient="auto"><path d="M0,0 L5,2 L0,4 Z" fill="#4F46E5"/></marker></defs>
+<!-- Client -->
+<rect x="5" y="50" width="70" height="50" rx="4" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="40" y="70" text-anchor="middle" font-size="6pt" font-weight="bold">Client</text>
+<text x="40" y="82" text-anchor="middle" font-size="5pt">Browser / API</text>
+<text x="40" y="92" text-anchor="middle" font-size="5pt">Consumer</text>
+<!-- Arrow to FastAPI -->
+<line x1="75" y1="75" x2="110" y2="75" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arrFA)"/>
+<text x="93" y="68" text-anchor="middle" font-size="4.5pt">HTTP/SSE</text>
+<!-- FastAPI box -->
+<rect x="110" y="20" width="130" height="120" rx="4" fill="#ede9fe" stroke="#4F46E5" stroke-width="2"/>
+<text x="175" y="35" text-anchor="middle" font-size="6.5pt" font-weight="bold">FastAPI Service</text>
+<rect x="120" y="42" width="110" height="16" rx="2" fill="#fff" stroke="#4F46E5"/>
+<text x="175" y="53" text-anchor="middle" font-size="5pt">/v1/chat/stream (SSE)</text>
+<rect x="120" y="62" width="110" height="16" rx="2" fill="#fff" stroke="#4F46E5"/>
+<text x="175" y="73" text-anchor="middle" font-size="5pt">/v1/chat (sync)</text>
+<rect x="120" y="82" width="110" height="16" rx="2" fill="#fff" stroke="#4F46E5"/>
+<text x="175" y="93" text-anchor="middle" font-size="5pt">/health, /ready</text>
+<rect x="120" y="102" width="110" height="16" rx="2" fill="#fff" stroke="#4F46E5"/>
+<text x="175" y="113" text-anchor="middle" font-size="5pt">Middleware: auth, rate-limit, log</text>
+<!-- Arrow to LLM -->
+<line x1="240" y1="50" x2="280" y2="40" stroke="#4F46E5" marker-end="url(#arrFA)"/>
+<rect x="280" y="20" width="90" height="35" rx="3" fill="#fef3c7" stroke="#f59e0b"/>
+<text x="325" y="35" text-anchor="middle" font-size="5.5pt" font-weight="bold">LLM API</text>
+<text x="325" y="46" text-anchor="middle" font-size="5pt">OpenAI / Claude</text>
+<!-- Arrow to VectorStore -->
+<line x1="240" y1="75" x2="280" y2="80" stroke="#4F46E5" marker-end="url(#arrFA)"/>
+<rect x="280" y="62" width="90" height="35" rx="3" fill="#dcfce7" stroke="#22c55e"/>
+<text x="325" y="77" text-anchor="middle" font-size="5.5pt" font-weight="bold">Vector Store</text>
+<text x="325" y="88" text-anchor="middle" font-size="5pt">ChromaDB / Qdrant</text>
+<!-- Arrow to Cache -->
+<line x1="240" y1="105" x2="280" y2="115" stroke="#4F46E5" marker-end="url(#arrFA)"/>
+<rect x="280" y="103" width="90" height="35" rx="3" fill="#fee2e2" stroke="#ef4444"/>
+<text x="325" y="118" text-anchor="middle" font-size="5.5pt" font-weight="bold">Cache (Redis)</text>
+<text x="325" y="128" text-anchor="middle" font-size="5pt">Semantic + Budget</text>
+<!-- Singleton note -->
+<rect x="395" y="45" width="115" height="55" rx="3" fill="#f0fdf4" stroke="#22c55e" stroke-dasharray="3"/>
+<text x="452" y="58" text-anchor="middle" font-size="5pt" font-weight="bold">Lifespan Init (once)</text>
+<text x="452" y="70" text-anchor="middle" font-size="5pt">• Load embedding model</text>
+<text x="452" y="80" text-anchor="middle" font-size="5pt">• Connect vector store</text>
+<text x="452" y="90" text-anchor="middle" font-size="5pt">• Create LLM client</text>
+</svg>
+<div class="diagram-caption">FastAPI service architecture: client → FastAPI (routes + middleware) → LLM API, Vector Store, Cache. Resources initialized once via lifespan.</div>
+</div>
+
+<h2>Request Lifecycle</h2>
+<div class="diagram">
+<svg width="520" height="100" viewBox="0 0 520 100">
+<defs><marker id="arrRL" markerWidth="5" markerHeight="4" refX="5" refY="2" orient="auto"><path d="M0,0 L5,2 L0,4 Z" fill="#4F46E5"/></marker></defs>
+<!-- Steps -->
+<rect x="5" y="25" width="65" height="40" rx="3" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="37" y="40" text-anchor="middle" font-size="5pt" font-weight="bold">Request</text>
+<text x="37" y="50" text-anchor="middle" font-size="4.5pt">POST /v1/chat</text>
+<text x="37" y="59" text-anchor="middle" font-size="4.5pt">+ API key</text>
+<line x1="70" y1="45" x2="85" y2="45" stroke="#4F46E5" marker-end="url(#arrRL)"/>
+<rect x="85" y="25" width="65" height="40" rx="3" fill="#fef3c7" stroke="#f59e0b"/>
+<text x="117" y="40" text-anchor="middle" font-size="5pt" font-weight="bold">Auth</text>
+<text x="117" y="50" text-anchor="middle" font-size="4.5pt">Validate key</text>
+<text x="117" y="59" text-anchor="middle" font-size="4.5pt">Rate check</text>
+<line x1="150" y1="45" x2="165" y2="45" stroke="#4F46E5" marker-end="url(#arrRL)"/>
+<rect x="165" y="25" width="65" height="40" rx="3" fill="#ede9fe" stroke="#4F46E5"/>
+<text x="197" y="40" text-anchor="middle" font-size="5pt" font-weight="bold">Validate</text>
+<text x="197" y="50" text-anchor="middle" font-size="4.5pt">Pydantic model</text>
+<text x="197" y="59" text-anchor="middle" font-size="4.5pt">Input sanitize</text>
+<line x1="230" y1="45" x2="245" y2="45" stroke="#4F46E5" marker-end="url(#arrRL)"/>
+<rect x="245" y="25" width="70" height="40" rx="3" fill="#dcfce7" stroke="#22c55e"/>
+<text x="280" y="40" text-anchor="middle" font-size="5pt" font-weight="bold">Process</text>
+<text x="280" y="50" text-anchor="middle" font-size="4.5pt">Retrieve → LLM</text>
+<text x="280" y="59" text-anchor="middle" font-size="4.5pt">Stream tokens</text>
+<line x1="315" y1="45" x2="330" y2="45" stroke="#4F46E5" marker-end="url(#arrRL)"/>
+<rect x="330" y="25" width="65" height="40" rx="3" fill="#fee2e2" stroke="#ef4444"/>
+<text x="362" y="40" text-anchor="middle" font-size="5pt" font-weight="bold">Log/Meter</text>
+<text x="362" y="50" text-anchor="middle" font-size="4.5pt">Token count</text>
+<text x="362" y="59" text-anchor="middle" font-size="4.5pt">Cost + latency</text>
+<line x1="395" y1="45" x2="410" y2="45" stroke="#4F46E5" marker-end="url(#arrRL)"/>
+<rect x="410" y="25" width="65" height="40" rx="3" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="442" y="40" text-anchor="middle" font-size="5pt" font-weight="bold">Response</text>
+<text x="442" y="50" text-anchor="middle" font-size="4.5pt">SSE stream</text>
+<text x="442" y="59" text-anchor="middle" font-size="4.5pt">or JSON body</text>
+<!-- Timeline annotation -->
+<text x="260" y="85" text-anchor="middle" font-size="5pt" fill="#666">Total: 10-50ms (non-LLM) + 500-5000ms (LLM generation). Streaming sends first token in ~200ms.</text>
+</svg>
+<div class="diagram-caption">Request lifecycle: Auth → Validate → Process (retrieve+generate) → Log/Meter → Response (stream or sync).</div>
+</div>
+
+<h2>Project Structure</h2>
+<div class="prompt">my-ai-service/
+├── app/
+│   ├── __init__.py
+│   ├── main.py           # FastAPI app + lifespan + router includes
+│   ├── config.py         # Settings (pydantic-settings, env vars)
+│   ├── models.py         # Request/Response Pydantic schemas
+│   ├── dependencies.py   # Singleton resources (LLM client, vector store)
+│   ├── routers/
+│   │   ├── chat.py       # /chat and /chat/stream endpoints
+│   │   ├── rag.py        # /query endpoint (RAG pipeline)
+│   │   └── health.py     # /health (liveness), /ready (readiness)
+│   ├── services/
+│   │   ├── rag_pipeline.py
+│   │   ├── agent.py
+│   │   └── cache.py
+│   └── middleware/
+│       ├── auth.py       # API key / JWT validation
+│       ├── rate_limit.py # Per-user rate limiting
+│       └── logging.py    # Structured request logging
+├── Dockerfile
+├── docker-compose.yml
+├── requirements.txt
+├── .env.example
+└── tests/</div>
+
+<h2>Core App Setup — Lifespan Pattern</h2>
+<div class="prompt"># app/main.py
+from fastapi import FastAPI
+from contextlib import asynccontextmanager
+from app.routers import chat, rag, health
+from app.dependencies import init_resources, shutdown_resources
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Initialize expensive resources ONCE at startup."""
+    await init_resources()   # Load embedding model, connect vector store, warm cache
+    yield
+    await shutdown_resources()  # Close connections cleanly
+
+app = FastAPI(title="AI Service", version="1.0.0", lifespan=lifespan)
+app.include_router(health.router, tags=["health"])
+app.include_router(chat.router, prefix="/v1", tags=["chat"])
+app.include_router(rag.router, prefix="/v1", tags=["rag"])</div>
+
+<h3>Why Lifespan?</h3>
+<ul>
+<li><b>Without lifespan:</b> Every request creates new LLM client + loads embeddings → 5-10s cold start per request</li>
+<li><b>With lifespan:</b> Resources loaded once → subsequent requests use pre-initialized singletons → &lt;100ms overhead</li>
+<li>Replaces deprecated <code>@app.on_event("startup")</code> pattern</li>
+</ul>
+
+<h2>Singleton Dependencies</h2>
+<div class="prompt"># app/dependencies.py
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
+from langchain_chroma import Chroma
+from app.config import settings
+
+_vectorstore = None
+_llm = None
+
+async def init_resources():
+    """Called once at startup — load expensive resources."""
+    global _vectorstore, _llm
+    _vectorstore = Chroma(
+        persist_directory=settings.chroma_path,
+        embedding_function=OpenAIEmbeddings(model="text-embedding-3-small"),
+    )
+    _llm = ChatOpenAI(model=settings.llm_model, temperature=0)
+
+def get_vectorstore() -> Chroma:
+    return _vectorstore
+
+def get_llm_client() -> ChatOpenAI:
+    return _llm
+
+async def shutdown_resources():
+    pass  # Close connections if needed</div>
+
+<h2>Request/Response Schemas</h2>
+<div class="prompt"># app/models.py
+from pydantic import BaseModel, Field
+
+class ChatRequest(BaseModel):
+    message: str = Field(min_length=1, max_length=10000)
+    thread_id: str = Field(default="default")
+    stream: bool = Field(default=True)
+    max_steps: int = Field(default=10, ge=1, le=20)
+
+class ChatResponse(BaseModel):
+    response: str
+    sources: list[str] = []
+    tokens_used: int = 0
+    latency_ms: float = 0
+    cached: bool = False
+
+class StreamEvent(BaseModel):
+    type: str   # "token", "tool_call", "sources", "done", "error"
+    content: str = ""
+    metadata: dict = {}</div>
+
+<h2>Streaming Endpoint (SSE)</h2>
+<div class="prompt"># app/routers/chat.py
+from fastapi import APIRouter, Depends
+from fastapi.responses import StreamingResponse
+from app.models import ChatRequest, StreamEvent
+from app.services.agent import AgentService
+import json, time
+
+router = APIRouter()
+
+@router.post("/chat/stream")
+async def chat_stream(request: ChatRequest, agent: AgentService = Depends()):
+    async def event_generator():
+        start = time.time()
+        try:
+            async for event in agent.stream(request):
+                yield f"data: {event.model_dump_json()}\n\n"
+            yield f"data: {StreamEvent(type='done', metadata={'ms': int((time.time()-start)*1000)}).model_dump_json()}\n\n"
+        except Exception as e:
+            yield f"data: {StreamEvent(type='error', content=str(e)).model_dump_json()}\n\n"
+    return StreamingResponse(event_generator(), media_type="text/event-stream")</div>
+
+<h2>Health & Readiness Probes</h2>
+<div class="prompt"># app/routers/health.py — Kubernetes-compatible probes
+@router.get("/health")
+async def liveness():
+    """Liveness: Is the process alive?"""
+    return {"status": "ok"}
+
+@router.get("/ready")
+async def readiness():
+    """Readiness: Can we handle requests? Checks all dependencies."""
+    checks = {}
+    try:
+        vs = get_vectorstore()
+        vs.similarity_search("test", k=1)
+        checks["vectorstore"] = "ok"
+    except Exception as e:
+        checks["vectorstore"] = f"error: {e}"
+    try:
+        checks["llm_api"] = "ok"  # Lightweight check, no full inference
+    except Exception as e:
+        checks["llm_api"] = f"error: {e}"
+    all_ok = all(v == "ok" for v in checks.values())
+    return JSONResponse(status_code=200 if all_ok else 503, content={"ready": all_ok, "checks": checks})</div>
+
+<h2>Configuration (Pydantic Settings)</h2>
+<div class="prompt"># app/config.py
+from pydantic_settings import BaseSettings
+
+class Settings(BaseSettings):
+    openai_api_key: str
+    llm_model: str = "gpt-4o-mini"
+    llm_temperature: float = 0.0
+    chroma_path: str = "./chroma_db"
+    embedding_model: str = "text-embedding-3-small"
+    max_tokens_per_request: int = 4000
+    max_requests_per_minute: int = 60
+    request_timeout_seconds: int = 30
+    host: str = "0.0.0.0"
+    port: int = 8000
+    workers: int = 4
+    class Config:
+        env_file = ".env"
+
+settings = Settings()</div>
+
+<h2>Configuration Reference</h2>
+<table>
+<tr><th>Env Variable</th><th>Default</th><th>Purpose</th></tr>
+<tr><td>OPENAI_API_KEY</td><td>(required)</td><td>LLM + embedding API key</td></tr>
+<tr><td>LLM_MODEL</td><td>gpt-4o-mini</td><td>Which model to use for generation</td></tr>
+<tr><td>CHROMA_PATH</td><td>./chroma_db</td><td>Vector store persistence directory</td></tr>
+<tr><td>MAX_REQUESTS_PER_MINUTE</td><td>60</td><td>Rate limit per client</td></tr>
+<tr><td>REQUEST_TIMEOUT_SECONDS</td><td>30</td><td>Per-request timeout before abort</td></tr>
+<tr><td>WORKERS</td><td>4</td><td>Uvicorn worker processes</td></tr>
+<tr><td>LOG_LEVEL</td><td>info</td><td>Logging verbosity (debug/info/warning)</td></tr>
+<tr><td>LLM_TEMPERATURE</td><td>0.0</td><td>Deterministic outputs for production</td></tr>
+</table>
+
+<h2>Running the Server</h2>
+<div class="prompt"># Development (auto-reload on code change)
+uvicorn app.main:app --reload --port 8000
+
+# Production (multi-worker, process management)
+gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000</div>
+
+<h2>Smoke Tests</h2>
+<div class="prompt"># 1. Liveness
+curl http://localhost:8000/health  →  {"status": "ok"}
+
+# 2. Readiness (dependency check)
+curl http://localhost:8000/ready   →  {"ready": true, "checks": {"vectorstore": "ok", "llm_api": "ok"}}
+
+# 3. Sync query
+curl -X POST http://localhost:8000/v1/chat -H "Content-Type: application/json" \
+  -d '{"message": "What is 2+2?", "stream": false}'
+
+# 4. Streaming (SSE) — tokens appear line by line
+curl -N -X POST http://localhost:8000/v1/chat/stream -H "Content-Type: application/json" \
+  -d '{"message": "Explain RAG in 3 sentences"}'</div>
+
+<h2>Monitoring Comparison</h2>
+<table>
+<tr><th>Metric</th><th>Alert Threshold</th><th>Tool</th><th>Why AI-Specific</th></tr>
+<tr><td>Response latency p95</td><td>&gt; 5s</td><td>Prometheus histogram</td><td>LLM generation is the bottleneck, not DB</td></tr>
+<tr><td>Error rate (5xx)</td><td>&gt; 1%</td><td>Prometheus counter</td><td>LLM API failures propagate</td></tr>
+<tr><td>Token usage/day</td><td>&gt; daily budget</td><td>Custom counter</td><td>Directly = money spent</td></tr>
+<tr><td>Memory usage</td><td>&gt; 80% RSS</td><td>System metrics</td><td>Embedding models eat RAM</td></tr>
+<tr><td>Cache hit rate</td><td>&lt; 20%</td><td>Prometheus gauge</td><td>Semantic cache saves API calls</td></tr>
+</table>
+
+<h2>Troubleshooting</h2>
+<table>
+<tr><th>Symptom</th><th>Likely Cause</th><th>Fix</th><th>Module 1 Link</th></tr>
+<tr><td>Timeout on first request</td><td>Model/vectorstore loading on demand</td><td>Use lifespan (load at startup)</td><td>—</td></tr>
+<tr><td>Inconsistent outputs</td><td>Temperature &gt; 0 in production</td><td>Set temperature=0.0</td><td>Decoding strategies</td></tr>
+<tr><td>Context window exceeded</td><td>Too many retrieved chunks</td><td>Reduce top-k, check token count</td><td>Tokenization</td></tr>
+<tr><td>High latency (&gt;5s)</td><td>No streaming, waiting for full response</td><td>Enable SSE streaming</td><td>—</td></tr>
+<tr><td>Memory growing</td><td>Message history accumulating</td><td>Conversation window/summary</td><td>Context windows</td></tr>
+<tr><td>Cost spike</td><td>No rate limiting or token caps</td><td>Add per-user rate limit + budget</td><td>—</td></tr>
+</table>
+
+<h2>Cost Estimates</h2>
+<table>
+<tr><th>Traffic Level</th><th>Monthly API Cost</th><th>Infrastructure</th></tr>
+<tr><td>100 queries/day</td><td>~$5</td><td>~$30</td></tr>
+<tr><td>1K queries/day</td><td>~$20</td><td>~$50</td></tr>
+<tr><td>10K queries/day</td><td>~$180</td><td>~$200</td></tr>
+</table>
+
+<div class="tip">
+<b>✅ Deployment Checklist:</b><br/>
+□ Lifespan loads all expensive resources at startup (not per-request)<br/>
+□ Health probe returns 200 (liveness) — process alive<br/>
+□ Ready probe checks all dependencies (vector store, LLM API)<br/>
+□ Streaming endpoint uses SSE with proper event format<br/>
+□ All config via env vars (no hardcoded secrets)<br/>
+□ Pydantic validates all inputs (min/max length, types)<br/>
+□ Temperature = 0.0 for deterministic production outputs<br/>
+□ Rate limiting per user/API key active<br/>
+□ Structured logging (not print statements)<br/>
+□ CORS configured for allowed origins only
+</div>
+</body>
+</html>

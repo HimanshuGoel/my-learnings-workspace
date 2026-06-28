@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CI/CD for AI — Deployment Runbook</title>
+<style>
+  @page { margin: 0.5cm; size: A4; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+  h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+  h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+  h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+  ul { margin: 0 0 2px 12px; padding: 0; }
+  li { margin-bottom: 0.5px; }
+  .tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+  .prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+  code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+  table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+  th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+  th { background: #f3f4f6; font-weight: bold; }
+  .diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+  .diagram svg { max-width: 100%; }
+  .diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+  .section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+  @media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+<h1>Module 5, Topic 8 — CI/CD for AI</h1>
+<p class="section-intro">Traditional CI/CD asserts deterministic outputs (assert result == expected). AI systems are non-deterministic — the same input may produce different (valid) outputs. You need evaluation-based quality gates instead of exact-match tests: "is the RAGAS faithfulness score above threshold?" not "is the output this exact string?" This topic covers testing pipelines for AI services with GitHub Actions.</p>
+<p><b>What you're deploying:</b> Automated test pipeline that catches regressions in AI quality (not just code bugs) before deploying to production.</p>
+
+<h2>AI CI/CD Pipeline</h2>
+<div class="diagram">
+<svg width="450" height="95" viewBox="0 0 450 95">
+<defs><marker id="arrCI" markerWidth="5" markerHeight="4" refX="5" refY="2" orient="auto"><path d="M0,0 L5,2 L0,4 Z" fill="#4F46E5"/></marker></defs>
+<rect x="5" y="25" width="65" height="40" rx="3" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="37" y="40" text-anchor="middle" font-size="5.5pt" font-weight="bold">Lint +</text>
+<text x="37" y="50" text-anchor="middle" font-size="5.5pt" font-weight="bold">Unit Tests</text>
+<text x="37" y="62" text-anchor="middle" font-size="4.5pt" fill="#666">Fast, cheap</text>
+<line x1="70" y1="45" x2="85" y2="45" stroke="#4F46E5" marker-end="url(#arrCI)"/>
+<rect x="85" y="25" width="75" height="40" rx="3" fill="#dcfce7" stroke="#22c55e"/>
+<text x="122" y="40" text-anchor="middle" font-size="5.5pt" font-weight="bold">Integration</text>
+<text x="122" y="50" text-anchor="middle" font-size="5.5pt" font-weight="bold">Tests</text>
+<text x="122" y="62" text-anchor="middle" font-size="4.5pt" fill="#666">API calls, E2E</text>
+<line x1="160" y1="45" x2="175" y2="45" stroke="#4F46E5" marker-end="url(#arrCI)"/>
+<rect x="175" y="25" width="80" height="40" rx="3" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
+<text x="215" y="40" text-anchor="middle" font-size="5.5pt" font-weight="bold">AI Quality</text>
+<text x="215" y="50" text-anchor="middle" font-size="5.5pt" font-weight="bold">Eval Gate</text>
+<text x="215" y="62" text-anchor="middle" font-size="4.5pt" fill="#d97706">RAGAS, LLM-judge</text>
+<line x1="255" y1="45" x2="270" y2="45" stroke="#4F46E5" marker-end="url(#arrCI)"/>
+<rect x="270" y="25" width="70" height="40" rx="3" fill="#dcfce7" stroke="#22c55e"/>
+<text x="305" y="40" text-anchor="middle" font-size="5.5pt" font-weight="bold">Build +</text>
+<text x="305" y="50" text-anchor="middle" font-size="5.5pt" font-weight="bold">Deploy</text>
+<text x="305" y="62" text-anchor="middle" font-size="4.5pt" fill="#666">Docker, push</text>
+<line x1="340" y1="45" x2="355" y2="45" stroke="#4F46E5" marker-end="url(#arrCI)"/>
+<rect x="355" y="25" width="70" height="40" rx="3" fill="#ede9fe" stroke="#8b5cf6"/>
+<text x="390" y="40" text-anchor="middle" font-size="5.5pt" font-weight="bold">Smoke</text>
+<text x="390" y="50" text-anchor="middle" font-size="5.5pt" font-weight="bold">Test</text>
+<text x="390" y="62" text-anchor="middle" font-size="4.5pt" fill="#666">Post-deploy verify</text>
+<text x="215" y="15" text-anchor="middle" font-size="5.5pt" fill="#f59e0b" font-weight="bold">★ AI-SPECIFIC: Eval-based quality gate blocks deploy if quality drops</text>
+<text x="225" y="82" text-anchor="middle" font-size="5pt" fill="#666">Traditional tests catch code bugs. Eval gate catches AI quality regressions (prompt changes, model drift).</text>
+</svg>
+<div class="diagram-caption">Standard CI/CD + AI quality eval gate. The eval gate is what makes this pipeline AI-aware.</div>
+</div>
+
+<h2>Test Types for AI Systems</h2>
+<table>
+<tr><th>Test Type</th><th>What It Checks</th><th>Deterministic?</th><th>Cost</th><th>When to Run</th></tr>
+<tr><td>Unit tests</td><td>Tool functions, formatters, validators</td><td>Yes</td><td>Free</td><td>Every push</td></tr>
+<tr><td>Integration tests</td><td>API endpoints return 200, correct schema</td><td>Mostly</td><td>Free</td><td>Every push</td></tr>
+<tr><td>Smoke tests (cheap)</td><td>Basic queries return non-empty valid response</td><td>No (check format)</td><td>$0.01</td><td>Every deploy</td></tr>
+<tr><td>Eval suite (quality)</td><td>RAGAS/LLM-judge scores above threshold</td><td>No (statistical)</td><td>$2-10</td><td>On prompt/model changes</td></tr>
+<tr><td>Agent trajectory tests</td><td>Correct tools called, step count within budget</td><td>Partially</td><td>$0.05-0.50</td><td>On agent changes</td></tr>
+<tr><td>Load tests</td><td>Response time under concurrent load</td><td>N/A</td><td>Infra cost</td><td>Before major launch</td></tr>
+</table>
+
+<h2>GitHub Actions — AI Pipeline</h2>
+<div class="prompt"># .github/workflows/ai-ci.yml
+name: AI Service CI/CD
+on: [push, pull_request]
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - run: pip install -r requirements.txt
+      - run: pytest tests/unit/ -v
+
+  integration-tests:
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install -r requirements.txt
+      - run: pytest tests/integration/ -v
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+  ai-quality-gate:
+    runs-on: ubuntu-latest
+    needs: integration-tests
+    if: github.ref == 'refs/heads/main'  # Only on main (costs money)
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install -r requirements.txt
+      - run: python scripts/run_eval.py --threshold 0.85
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      # Fails if faithfulness < 0.85 or relevancy < 0.80
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: ai-quality-gate
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - run: docker build -t ai-service .
+      - run: docker push registry/ai-service:${{ github.sha }}</div>
+
+<h2>Eval Gate Script</h2>
+<div class="prompt"># scripts/run_eval.py
+import json, sys
+from ragas import evaluate
+from ragas.metrics import faithfulness, answer_relevancy
+from datasets import Dataset
+
+def run_eval(threshold: float = 0.85):
+    # Load test set (committed to repo)
+    test_data = json.load(open("tests/eval_dataset.json"))
+    
+    # Run pipeline on test set
+    results = evaluate(
+        dataset=Dataset.from_dict(test_data),
+        metrics=[faithfulness, answer_relevancy],
+    )
+    
+    print(f"Faithfulness: {results['faithfulness']:.3f}")
+    print(f"Relevancy: {results['answer_relevancy']:.3f}")
+    
+    # Quality gate
+    if results['faithfulness'] < threshold:
+        print(f"❌ FAILED: faithfulness {results['faithfulness']:.3f} < {threshold}")
+        sys.exit(1)
+    
+    print("✅ PASSED: AI quality gate")
+    sys.exit(0)
+
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--threshold", type=float, default=0.85)
+    args = parser.parse_args()
+    run_eval(args.threshold)</div>
+
+<h2>Testing Non-Deterministic Outputs</h2>
+<div class="prompt"># Strategy: Don't assert exact output. Assert PROPERTIES of the output.
+
+def test_rag_response_properties():
+    """Test that response has expected properties (not exact content)."""
+    response = client.post("/v1/chat", json={"message": "What's the rate limit?"})
+    body = response.json()
+    
+    # Schema is deterministic
+    assert response.status_code == 200
+    assert "response" in body
+    assert len(body["response"]) > 20       # Non-trivial answer
+    assert len(body["response"]) < 2000     # Not runaway
+    
+    # Content properties (fuzzy matching)
+    assert any(kw in body["response"].lower() for kw in ["rate", "limit", "request"])
+    
+    # Source attribution
+    assert body.get("sources")              # Should cite sources
+    assert len(body["sources"]) > 0
+
+def test_agent_tool_selection():
+    """Test that agent uses correct tool (tool choice is more stable than output text)."""
+    # Run 3 times — tool selection should be consistent even if wording varies
+    tools_used = set()
+    for _ in range(3):
+        result = agent.invoke({"messages": [HumanMessage("Calculate 15% of 200")]})
+        for msg in result["messages"]:
+            if hasattr(msg, "tool_calls") and msg.tool_calls:
+                tools_used.add(msg.tool_calls[0]["name"])
+    
+    assert "calculate" in tools_used  # Should use calculator at least once</div>
+
+<h2>Configuration</h2>
+<table>
+<tr><th>Setting</th><th>Value</th><th>Why</th></tr>
+<tr><td>Eval test set size</td><td>20-50 examples (CI), 200+ (nightly)</td><td>Balance cost vs confidence</td></tr>
+<tr><td>Eval threshold (faithfulness)</td><td>0.85</td><td>Block deploy if quality drops below</td></tr>
+<tr><td>Eval frequency</td><td>On prompt/model change + weekly</td><td>Catch drift</td></tr>
+<tr><td>Flaky test tolerance</td><td>Run 3x, pass if 2/3 pass</td><td>Non-determinism causes occasional fails</td></tr>
+<tr><td>Eval budget</td><td>$2-10 per CI run</td><td>Acceptable for quality assurance</td></tr>
+<tr><td>Smoke test after deploy</td><td>5 known-good queries</td><td>Verify deployment didn't break anything</td></tr>
+</table>
+
+<h2>Troubleshooting</h2>
+<table>
+<tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr>
+<tr><td>Eval gate fails inconsistently</td><td>Non-deterministic LLM outputs</td><td>Run 3x, require 2/3 pass. Or use temp=0 for eval.</td></tr>
+<tr><td>Eval passes but users complain</td><td>Test set doesn't cover real queries</td><td>Add failing real queries to test set</td></tr>
+<tr><td>CI costs too high</td><td>Running full eval on every push</td><td>Full eval on main only. Smoke tests on PRs.</td></tr>
+<tr><td>Slow CI (>10 min)</td><td>Large eval set + LLM calls</td><td>Smaller CI set (20), full set nightly</td></tr>
+<tr><td>Model API rate limited in CI</td><td>Too many parallel eval calls</td><td>Sequential eval, or use dedicated API key for CI</td></tr>
+</table>
+
+<h2>Pre-Deploy Checklist</h2>
+<div class="tip">
+☐ Unit tests for all non-AI code (tools, formatters, validators)<br>
+☐ Integration tests: endpoints return correct schema<br>
+☐ Eval test set committed to repo (20-50 examples with expected behavior)<br>
+☐ Quality gate script: fails CI if faithfulness/relevancy drops<br>
+☐ Flaky handling: run eval 3x, pass if 2/3<br>
+☐ Smoke test post-deploy (5 known queries return valid response)<br>
+☐ Secrets managed (API keys in GitHub Secrets, not in code)<br>
+☐ Cost budget for CI eval: estimated and acceptable<br>
+☐ Weekly scheduled eval run (catch model drift between deploys)<br><br>
+<b>Next → Observability (see inside your running AI system)</b>
+</div>
+
+</body>
+</html>

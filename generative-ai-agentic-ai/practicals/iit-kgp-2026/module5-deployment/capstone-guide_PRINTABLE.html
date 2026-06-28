@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Capstone Guide — Deployment Runbook</title>
+<style>
+  @page { margin: 0.5cm; size: A4; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+  h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+  h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+  h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+  ul { margin: 0 0 2px 12px; padding: 0; }
+  li { margin-bottom: 0.5px; }
+  .tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+  .prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+  code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+  table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+  th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+  th { background: #f3f4f6; font-weight: bold; }
+  .diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+  .diagram svg { max-width: 100%; }
+  .diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+  .section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+  @media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+<h1>Module 5, Topic 10 — Capstone Guide</h1>
+<p class="section-intro">The capstone is your chance to demonstrate everything: RAG, agents, deployment, evaluation, responsible AI — integrated into ONE working system. Scope is the hardest part. Most failures come from over-scoping (too ambitious), not under-scoping (too simple). A polished, well-documented system that does ONE thing excellently scores higher than a sprawling prototype that does five things poorly.</p>
+<p><b>What you're building:</b> A complete, deployed AI system that demonstrates mastery across Modules 1-5. Feedback session Jan 30, final evaluation Feb 6.</p>
+
+<h2>Capstone Timeline</h2>
+<div class="diagram">
+<svg width="440" height="85" viewBox="0 0 440 85">
+<defs><marker id="arrCap" markerWidth="5" markerHeight="4" refX="5" refY="2" orient="auto"><path d="M0,0 L5,2 L0,4 Z" fill="#4F46E5"/></marker></defs>
+<rect x="5" y="20" width="75" height="35" rx="3" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="42" y="35" text-anchor="middle" font-size="5.5pt" font-weight="bold">Week 1</text>
+<text x="42" y="45" text-anchor="middle" font-size="5pt">Scope + Arch</text>
+<line x1="80" y1="37" x2="95" y2="37" stroke="#4F46E5" marker-end="url(#arrCap)"/>
+<rect x="95" y="20" width="75" height="35" rx="3" fill="#dcfce7" stroke="#22c55e"/>
+<text x="132" y="35" text-anchor="middle" font-size="5.5pt" font-weight="bold">Week 2</text>
+<text x="132" y="45" text-anchor="middle" font-size="5pt">Core Build</text>
+<line x1="170" y1="37" x2="185" y2="37" stroke="#4F46E5" marker-end="url(#arrCap)"/>
+<rect x="185" y="20" width="75" height="35" rx="3" fill="#fef3c7" stroke="#f59e0b"/>
+<text x="222" y="35" text-anchor="middle" font-size="5.5pt" font-weight="bold">Week 3</text>
+<text x="222" y="45" text-anchor="middle" font-size="5pt">API + Deploy</text>
+<line x1="260" y1="37" x2="275" y2="37" stroke="#4F46E5" marker-end="url(#arrCap)"/>
+<rect x="275" y="20" width="75" height="35" rx="3" fill="#ede9fe" stroke="#8b5cf6"/>
+<text x="312" y="35" text-anchor="middle" font-size="5.5pt" font-weight="bold">Week 4</text>
+<text x="312" y="45" text-anchor="middle" font-size="5pt">Test + Monitor</text>
+<line x1="350" y1="37" x2="365" y2="37" stroke="#4F46E5" marker-end="url(#arrCap)"/>
+<rect x="365" y="20" width="70" height="35" rx="3" fill="#fee2e2" stroke="#ef4444"/>
+<text x="400" y="35" text-anchor="middle" font-size="5.5pt" font-weight="bold">Week 5</text>
+<text x="400" y="45" text-anchor="middle" font-size="5pt">Polish + Present</text>
+<text x="312" y="70" text-anchor="middle" font-size="5.5pt" fill="#ef4444" font-weight="bold">Jan 30: Feedback (90% complete) → Feb 6: Final Eval</text>
+</svg>
+<div class="diagram-caption">5-week timeline. Start building Week 1, not Week 4. The most common mistake is delaying implementation.</div>
+</div>
+
+<h2>Scope — What to Build</h2>
+<table>
+<tr><th>Ambition</th><th>Example Project</th><th>Modules Demonstrated</th><th>Difficulty</th></tr>
+<tr><td>Safe bet (recommended)</td><td>Domain-specific RAG chatbot with streaming + eval</td><td>2, 4, 5</td><td>Medium</td></tr>
+<tr><td>Ambitious</td><td>RAG + agent with tools + fine-tuned model + deployment</td><td>2, 3, 4, 5</td><td>High</td></tr>
+<tr><td>Over-scoped (avoid)</td><td>Multi-agent system with VLM + fine-tuning + distributed deploy</td><td>All</td><td>Too high</td></tr>
+</table>
+<div class="tip"><b>Scope rule:</b> Pick ONE core capability and do it EXCELLENTLY. Then add layers (eval, monitoring, security) for depth. A polished RAG chatbot with full eval + monitoring + responsible AI scores higher than a half-working multi-agent system.</div>
+
+<h2>Project Ideas (Scored by Feasibility)</h2>
+<table>
+<tr><th>Project</th><th>Modules Used</th><th>Risk</th><th>Evaluation Clarity</th></tr>
+<tr><td>Documentation QA bot (your own docs)</td><td>2, 5</td><td>Low</td><td>High (RAGAS)</td></tr>
+<tr><td>Code review agent (GitHub PR analysis)</td><td>2, 4, 5</td><td>Medium</td><td>Medium</td></tr>
+<tr><td>Research assistant (web + docs + synthesis)</td><td>2, 4, 5</td><td>Medium</td><td>Medium</td></tr>
+<tr><td>Customer support bot (FAQ + escalation)</td><td>2, 4, 5</td><td>Low</td><td>High</td></tr>
+<tr><td>Document understanding (PDF → structured data)</td><td>2, 4 (VLM), 5</td><td>Medium</td><td>High</td></tr>
+<tr><td>Fine-tuned domain classifier + serving</td><td>3, 5</td><td>Medium</td><td>High (accuracy)</td></tr>
+</table>
+
+<h2>Required Components (What Evaluators Look For)</h2>
+<table>
+<tr><th>Component</th><th>Demonstrates</th><th>Minimum Implementation</th></tr>
+<tr><td>Working AI system</td><td>Core ML/AI competency</td><td>RAG or agent that answers queries correctly</td></tr>
+<tr><td>API endpoint</td><td>Deployment skills (Module 5)</td><td>FastAPI with streaming + health checks</td></tr>
+<tr><td>Evaluation</td><td>Quality engineering (Module 2/3)</td><td>Test set + RAGAS/metrics + evaluation report</td></tr>
+<tr><td>Error handling</td><td>Production readiness</td><td>Graceful degradation, no crashes</td></tr>
+<tr><td>Documentation</td><td>Communication skills</td><td>README: architecture, setup, evaluation results</td></tr>
+<tr><td>Responsible AI</td><td>Safety awareness</td><td>Content filtering + "I don't know" behavior</td></tr>
+</table>
+
+<h2>Architecture Template</h2>
+<div class="prompt">my-capstone/
+├── app/
+│   ├── main.py              # FastAPI + routes
+│   ├── config.py            # Settings (env vars)
+│   ├── services/
+│   │   ├── rag_pipeline.py  # OR agent.py — your core AI system
+│   │   └── cache.py
+│   └── middleware/
+│       └── safety.py        # Content filtering
+├── data/
+│   └── documents/           # Your corpus (if RAG)
+├── eval/
+│   ├── test_set.json        # 50+ test cases
+│   ├── run_eval.py          # RAGAS evaluation script
+│   └── results/             # Evaluation reports
+├── Dockerfile
+├── docker-compose.yml
+├── .env.example
+├── README.md                # Architecture + setup + results
+└── EVALUATION_REPORT.md     # Your eval findings</div>
+
+<h2>Evaluation Report Template</h2>
+<div class="prompt"># Capstone Evaluation Report
+
+## System Overview
+- What it does (1 paragraph)
+- Architecture diagram (which modules/techniques used)
+
+## Evaluation Results
+| Metric           | Score | Target | Status |
+|-----------------|-------|--------|--------|
+| Faithfulness    | 0.92  | > 0.85 | ✓ PASS |
+| Answer Relevancy| 0.88  | > 0.80 | ✓ PASS |
+| Latency (p95)   | 2.3s  | < 5s   | ✓ PASS |
+| Format compliance| 97%  | > 95%  | ✓ PASS |
+
+## What Worked
+- (2-3 key successes with evidence)
+
+## What I'd Improve
+- (2-3 honest limitations + how you'd fix with more time)
+
+## Responsible AI Measures
+- Content filtering: [implemented]
+- Bias testing: [results]
+- Transparency: [how users know it's AI]</div>
+
+<h2>Presentation Structure (10 minutes)</h2>
+<table>
+<tr><th>Section</th><th>Time</th><th>Content</th></tr>
+<tr><td>Problem & Motivation</td><td>1 min</td><td>What problem does this solve? Who uses it?</td></tr>
+<tr><td>Live Demo</td><td>3 min</td><td>Show it working (streaming, tool use, citations)</td></tr>
+<tr><td>Architecture</td><td>2 min</td><td>Diagram: which modules/techniques, why these choices</td></tr>
+<tr><td>Evaluation Results</td><td>2 min</td><td>Metrics, comparison to baseline, what you measured</td></tr>
+<tr><td>Challenges & Learnings</td><td>2 min</td><td>What was hard, what you'd do differently, responsible AI</td></tr>
+</table>
+
+<h2>Common Mistakes to Avoid</h2>
+<table>
+<tr><th>Mistake</th><th>Why It Happens</th><th>Fix</th></tr>
+<tr><td>Over-scoping</td><td>Want to show ALL modules</td><td>Do ONE thing excellently with depth, not breadth</td></tr>
+<tr><td>No evaluation</td><td>"It works in demo" feels sufficient</td><td>50+ test cases with RAGAS is non-negotiable</td></tr>
+<tr><td>Starting late</td><td>Module 5 topics first, capstone later</td><td>Start building Week 1, apply topics AS you learn them</td></tr>
+<tr><td>No error handling</td><td>Works in happy path only</td><td>Test: empty query, long query, adversarial query, tool failure</td></tr>
+<tr><td>No documentation</td><td>Code speaks for itself (it doesn't)</td><td>README with setup, architecture diagram, eval results</td></tr>
+<tr><td>Demo fails live</td><td>Depends on API that's down</td><td>Record backup video, have cached responses ready</td></tr>
+</table>
+
+<h2>Pre-Submission Checklist</h2>
+<div class="tip">
+<b>Week 4 (Jan 23) — Must have:</b><br>
+☐ Core AI system working end-to-end (RAG or agent)<br>
+☐ FastAPI endpoint serving with streaming<br>
+☐ Docker container builds and runs<br>
+☐ 50+ test cases with evaluation script<br>
+☐ Content safety filtering active<br>
+☐ README with architecture diagram and setup instructions<br><br>
+<b>Jan 30 (Feedback session) — Should have:</b><br>
+☐ Evaluation report with metrics and analysis<br>
+☐ Error handling: graceful degradation tested<br>
+☐ Cost estimate documented<br>
+☐ Presentation slides drafted<br><br>
+<b>Feb 6 (Final) — Polish:</b><br>
+☐ Live demo rehearsed (with backup plan if API fails)<br>
+☐ "What I'd improve" section honest and thoughtful<br>
+☐ All code clean, commented where non-obvious<br>
+☐ Evaluation report finalized with evidence of quality<br><br>
+<b>Module 5 Complete! → You're ready for the capstone evaluation.</b>
+</div>
+
+</body>
+</html>

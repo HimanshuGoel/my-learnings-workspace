@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Observability — Deployment Runbook</title>
+<style>
+  @page { margin: 0.5cm; size: A4; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+  h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+  h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+  h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+  ul { margin: 0 0 2px 12px; padding: 0; }
+  li { margin-bottom: 0.5px; }
+  .tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+  .prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+  code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+  table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+  th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+  th { background: #f3f4f6; font-weight: bold; }
+  .diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+  .diagram svg { max-width: 100%; }
+  .diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+  .section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+  @media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+<h1>Module 5, Topic 9 — Observability</h1>
+<p class="section-intro">Observability answers "what is my AI system doing right now, and why?" Traditional monitoring (is it up? how fast?) isn't enough for AI — you also need to trace through agent decision chains, see which tools were called, measure quality drift, and debug why a specific response was bad. LangSmith provides AI-native tracing; Prometheus/Grafana handles infrastructure metrics.</p>
+<p><b>What you're deploying:</b> Three pillars of observability — metrics (Prometheus), logs (structured), and traces (LangSmith) — tailored for AI system debugging.</p>
+
+<h2>Observability Stack</h2>
+<div class="diagram">
+<svg width="440" height="100" viewBox="0 0 440 100">
+<rect x="5" y="5" width="135" height="85" rx="4" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="72" y="20" text-anchor="middle" font-size="6pt" font-weight="bold">METRICS</text>
+<text x="72" y="32" text-anchor="middle" font-size="5pt">Prometheus + Grafana</text>
+<text x="72" y="44" text-anchor="middle" font-size="5pt">• Latency p50/p95/p99</text>
+<text x="72" y="54" text-anchor="middle" font-size="5pt">• Request rate, error rate</text>
+<text x="72" y="64" text-anchor="middle" font-size="5pt">• Token usage, cost/day</text>
+<text x="72" y="74" text-anchor="middle" font-size="5pt">• Cache hit rate</text>
+<text x="72" y="84" text-anchor="middle" font-size="4.5pt" fill="#3b82f6">Answers: "How much? How fast?"</text>
+
+<rect x="150" y="5" width="135" height="85" rx="4" fill="#dcfce7" stroke="#22c55e"/>
+<text x="217" y="20" text-anchor="middle" font-size="6pt" font-weight="bold">LOGS</text>
+<text x="217" y="32" text-anchor="middle" font-size="5pt">structlog / JSON logs</text>
+<text x="217" y="44" text-anchor="middle" font-size="5pt">• Request metadata</text>
+<text x="217" y="54" text-anchor="middle" font-size="5pt">• Error details + stack</text>
+<text x="217" y="64" text-anchor="middle" font-size="5pt">• Tool call results</text>
+<text x="217" y="74" text-anchor="middle" font-size="5pt">• Safety flags triggered</text>
+<text x="217" y="84" text-anchor="middle" font-size="4.5pt" fill="#059669">Answers: "What happened?"</text>
+
+<rect x="295" y="5" width="140" height="85" rx="4" fill="#fef3c7" stroke="#f59e0b"/>
+<text x="365" y="20" text-anchor="middle" font-size="6pt" font-weight="bold">TRACES</text>
+<text x="365" y="32" text-anchor="middle" font-size="5pt">LangSmith / LangFuse</text>
+<text x="365" y="44" text-anchor="middle" font-size="5pt">• Full LLM call chain</text>
+<text x="365" y="54" text-anchor="middle" font-size="5pt">• Agent step-by-step</text>
+<text x="365" y="64" text-anchor="middle" font-size="5pt">• Token counts per call</text>
+<text x="365" y="74" text-anchor="middle" font-size="5pt">• Input → output per node</text>
+<text x="365" y="84" text-anchor="middle" font-size="4.5pt" fill="#d97706">Answers: "WHY did it do that?"</text>
+</svg>
+<div class="diagram-caption">Three pillars work together: metrics tell you SOMETHING is wrong, logs tell you WHAT, traces tell you WHY.</div>
+</div>
+
+<h2>LangSmith Setup (AI-Native Tracing)</h2>
+<div class="prompt"># 1. Set environment variables:
+import os
+os.environ["LANGCHAIN_TRACING_V2"] = "true"
+os.environ["LANGCHAIN_API_KEY"] = "ls__..."       # from smith.langchain.com
+os.environ["LANGCHAIN_PROJECT"] = "my-ai-service-prod"
+
+# 2. That's it. All LangChain/LangGraph calls are now auto-traced.
+# Each trace shows:
+#   - Full message history at each step
+#   - Token counts (input/output) per LLM call
+#   - Tool inputs/outputs
+#   - Latency per node
+#   - Error details with stack trace
+
+# 3. Add custom metadata per request:
+config = {
+    "metadata": {"user_id": "user-42", "endpoint": "/chat"},
+    "tags": ["production", "tier-free"],
+}
+result = agent.invoke(input, config)</div>
+
+<h2>Prometheus Metrics</h2>
+<div class="prompt">from prometheus_client import Counter, Histogram, Gauge, start_http_server
+
+# Define metrics
+request_count = Counter("ai_requests_total", "Total requests", ["endpoint", "status"])
+request_latency = Histogram("ai_request_duration_seconds", "Latency",
+                            ["endpoint"], buckets=[0.5, 1, 2, 5, 10, 30])
+tokens_used = Counter("ai_tokens_total", "Tokens consumed", ["model", "direction"])
+active_requests = Gauge("ai_active_requests", "Currently processing")
+cost_total = Counter("ai_cost_usd_total", "Cumulative cost", ["model"])
+
+# In middleware:
+@app.middleware("http")
+async def metrics_middleware(request, call_next):
+    active_requests.inc()
+    start = time.time()
+    response = await call_next(request)
+    duration = time.time() - start
+    request_latency.labels(endpoint=request.url.path).observe(duration)
+    request_count.labels(endpoint=request.url.path, status=response.status_code).inc()
+    active_requests.dec()
+    return response
+
+# Expose metrics endpoint:
+start_http_server(9090)  # Prometheus scrapes this</div>
+
+<h2>Structured Logging</h2>
+<div class="prompt">import structlog
+
+logger = structlog.get_logger()
+
+# Per-request log (NOT message content — privacy):
+logger.info("request_completed",
+    request_id="req-abc123",
+    user_id="user-42",
+    endpoint="/v1/chat",
+    model="gpt-4o-mini",
+    tokens_in=450,
+    tokens_out=120,
+    latency_ms=1830,
+    tools_called=["search_docs"],
+    cache_hit=False,
+    safety_flagged=False,
+)
+
+# Error log:
+logger.error("llm_call_failed",
+    request_id="req-abc123",
+    error_type="RateLimitError",
+    retry_count=2,
+    fallback_used=True,
+)</div>
+
+<h2>Key Dashboards (Grafana)</h2>
+<table>
+<tr><th>Dashboard</th><th>Panels</th><th>Alert Trigger</th></tr>
+<tr><td>Service Health</td><td>Request rate, error rate, latency p95</td><td>Error rate > 1%, latency > 5s</td></tr>
+<tr><td>AI Quality</td><td>Token usage, cost/hour, cache hit rate</td><td>Cost > daily budget, cache hit < 20%</td></tr>
+<tr><td>Agent Behavior</td><td>Step count distribution, tool error rate, timeout rate</td><td>Avg steps > 8, timeout > 5%</td></tr>
+<tr><td>User Activity</td><td>Queries/user, top users by cost, safety flags/day</td><td>Single user > 30% of cost</td></tr>
+</table>
+
+<h2>What to Trace vs Log vs Metric</h2>
+<table>
+<tr><th>Signal</th><th>Where</th><th>Why</th></tr>
+<tr><td>Request latency</td><td>Metric (Prometheus)</td><td>Aggregation, alerting, dashboards</td></tr>
+<tr><td>Token count per call</td><td>Metric + Trace</td><td>Cost tracking + per-request debugging</td></tr>
+<tr><td>Full LLM input/output</td><td>Trace (LangSmith)</td><td>Debug specific responses (not bulk)</td></tr>
+<tr><td>Error details</td><td>Log (structured)</td><td>Searchable, aggregatable</td></tr>
+<tr><td>Agent step sequence</td><td>Trace (LangSmith)</td><td>Understand agent reasoning</td></tr>
+<tr><td>Safety flag triggered</td><td>Log + Metric</td><td>Track frequency + investigate specific cases</td></tr>
+<tr><td>User feedback (thumbs up/down)</td><td>Log + DB</td><td>Quality signal, correlate with traces</td></tr>
+</table>
+
+<h2>Debugging with Traces</h2>
+<div class="prompt"># When a user reports "bad answer":
+# 1. Find the trace in LangSmith by request_id or timestamp
+# 2. See exactly what was retrieved (retrieval node output)
+# 3. See what prompt was assembled (augmentation node)
+# 4. See what the LLM generated (generation node)
+# 5. Identify: Was it bad retrieval? Bad prompt? Bad generation?
+
+# Debugging decision tree:
+# Retrieved docs irrelevant? → Retrieval problem (chunking, embedding, query)
+# Docs relevant but answer wrong? → Prompt problem (instructions, context format)
+# Prompt good but answer hallucinated? → Model problem (temp, decoding, model choice)
+# Module 1 connection: tokenization/decoding knowledge helps diagnose step 5</div>
+
+<h2>Troubleshooting</h2>
+<table>
+<tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr>
+<tr><td>LangSmith traces missing</td><td>Env var not set or API key wrong</td><td>Verify LANGCHAIN_TRACING_V2=true and API key valid</td></tr>
+<tr><td>Prometheus scrape failing</td><td>Metrics port not exposed</td><td>Expose 9090 in Docker, verify /metrics endpoint</td></tr>
+<tr><td>Logs too verbose</td><td>Logging at DEBUG in production</td><td>Set LOG_LEVEL=info, only DEBUG for specific investigations</td></tr>
+<tr><td>Can't correlate trace to user complaint</td><td>No request_id in response headers</td><td>Return X-Request-ID header, user includes in bug report</td></tr>
+<tr><td>Trace storage costs too high</td><td>Tracing 100% of requests</td><td>Sample: trace 10% in production, 100% on errors</td></tr>
+</table>
+
+<h2>Pre-Deploy Checklist</h2>
+<div class="tip">
+☐ LangSmith tracing configured (LANGCHAIN_TRACING_V2=true)<br>
+☐ Prometheus metrics: latency, error rate, token usage, cost<br>
+☐ Structured logging: request metadata (not content) per request<br>
+☐ Grafana dashboards: service health + AI quality + agent behavior<br>
+☐ Alerts configured: error rate, latency, cost, step limit<br>
+☐ Request ID in response headers (for user-reported issues)<br>
+☐ Sampling configured (10% traces in prod, 100% on error)<br>
+☐ Retention policy: 30d detailed traces, 90d metrics<br>
+☐ Can debug a "bad answer" report using trace within 5 minutes<br><br>
+<b>Next → Capstone Guide (put it all together into your final project)</b>
+</div>
+
+</body>
+</html>

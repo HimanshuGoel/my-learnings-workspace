@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Containerization — Module 5 Deployment</title>
+<style>
+  @page { margin: 0.5cm; size: A4; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+  h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+  h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+  h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+  ul { margin: 0 0 2px 12px; padding: 0; }
+  li { margin-bottom: 0.5px; }
+  .tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+  .prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+  .two-col { column-count: 2; column-gap: 10px; }
+  code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+  table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+  th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+  th { background: #f3f4f6; font-weight: bold; }
+  .diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+  .diagram svg { max-width: 100%; }
+  .diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+  .section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+  @media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+<h1>Module 5, Topic 3 — Containerization</h1>
+<p class="section-intro">Docker for AI services has unique challenges: large model files (GBs), GPU passthrough, multi-stage builds to keep images lean, and volume mounts for persistent vector stores. You know Docker — this focuses on AI-SPECIFIC patterns that prevent 10GB images, 30-minute builds, and OOM kills on startup.</p>
+<p><b>Problem:</b> ML Python packages (torch, transformers, sentence-transformers) are 2-5GB. Model files add 1-15GB. Naive Dockerfiles produce enormous, slow-building images. You need multi-stage builds, proper layer ordering, and a model-loading strategy.</p>
+
+<h2>Multi-Stage Dockerfile Flow</h2>
+<div class="diagram">
+<svg width="520" height="140" viewBox="0 0 520 140">
+<defs><marker id="arrDK" markerWidth="5" markerHeight="4" refX="5" refY="2" orient="auto"><path d="M0,0 L5,2 L0,4 Z" fill="#4F46E5"/></marker></defs>
+<!-- Build Stage -->
+<rect x="5" y="15" width="200" height="105" rx="4" fill="#fee2e2" stroke="#ef4444" stroke-width="1.5"/>
+<text x="105" y="30" text-anchor="middle" font-size="6.5pt" font-weight="bold">Stage 1: Dependencies (CACHED)</text>
+<rect x="15" y="37" width="180" height="14" rx="2" fill="#fff" stroke="#ef4444"/>
+<text x="105" y="47" text-anchor="middle" font-size="5pt">FROM python:3.11-slim AS dependencies</text>
+<rect x="15" y="54" width="180" height="14" rx="2" fill="#fff" stroke="#ef4444"/>
+<text x="105" y="64" text-anchor="middle" font-size="5pt">RUN apt-get install build-essential</text>
+<rect x="15" y="71" width="180" height="14" rx="2" fill="#fff" stroke="#ef4444"/>
+<text x="105" y="81" text-anchor="middle" font-size="5pt">COPY requirements.txt → pip install</text>
+<rect x="15" y="88" width="180" height="14" rx="2" fill="#fef3c7" stroke="#f59e0b"/>
+<text x="105" y="98" text-anchor="middle" font-size="5pt" fill="#92400e">⚡ Changes rarely → layer cached</text>
+<text x="105" y="113" text-anchor="middle" font-size="5pt" fill="#666">~2GB (ML packages)</text>
+<!-- Arrow -->
+<line x1="205" y1="67" x2="235" y2="67" stroke="#4F46E5" stroke-width="2" marker-end="url(#arrDK)"/>
+<text x="220" y="60" text-anchor="middle" font-size="4.5pt">COPY --from</text>
+<!-- Runtime Stage -->
+<rect x="235" y="15" width="200" height="105" rx="4" fill="#dcfce7" stroke="#22c55e" stroke-width="1.5"/>
+<text x="335" y="30" text-anchor="middle" font-size="6.5pt" font-weight="bold">Stage 2: Runtime (LEAN)</text>
+<rect x="245" y="37" width="180" height="14" rx="2" fill="#fff" stroke="#22c55e"/>
+<text x="335" y="47" text-anchor="middle" font-size="5pt">FROM python:3.11-slim AS runtime</text>
+<rect x="245" y="54" width="180" height="14" rx="2" fill="#fff" stroke="#22c55e"/>
+<text x="335" y="64" text-anchor="middle" font-size="5pt">COPY --from=dependencies (packages only)</text>
+<rect x="245" y="71" width="180" height="14" rx="2" fill="#fff" stroke="#22c55e"/>
+<text x="335" y="81" text-anchor="middle" font-size="5pt">COPY app/ + prompts/ (your code)</text>
+<rect x="245" y="88" width="180" height="14" rx="2" fill="#fff" stroke="#22c55e"/>
+<text x="335" y="98" text-anchor="middle" font-size="5pt">USER appuser + HEALTHCHECK + CMD</text>
+<text x="335" y="113" text-anchor="middle" font-size="5pt" fill="#666">~1.5GB (no build tools)</text>
+<!-- Final Image -->
+<line x1="435" y1="67" x2="455" y2="67" stroke="#4F46E5" stroke-width="2" marker-end="url(#arrDK)"/>
+<rect x="455" y="40" width="60" height="55" rx="3" fill="#ede9fe" stroke="#4F46E5" stroke-width="2"/>
+<text x="485" y="58" text-anchor="middle" font-size="5.5pt" font-weight="bold">Final</text>
+<text x="485" y="69" text-anchor="middle" font-size="5pt">Image</text>
+<text x="485" y="80" text-anchor="middle" font-size="5pt" fill="#4F46E5">&lt; 2GB</text>
+<text x="485" y="90" text-anchor="middle" font-size="4.5pt">vs 10GB naive</text>
+</svg>
+<div class="diagram-caption">Multi-stage build: Stage 1 installs heavy ML deps (cached), Stage 2 copies only runtime packages + app code. No build tools in final image.</div>
+</div>
+
+<h2>Deployment Topology (Docker Compose)</h2>
+<div class="diagram">
+<svg width="520" height="150" viewBox="0 0 520 150">
+<defs><marker id="arrDT" markerWidth="5" markerHeight="4" refX="5" refY="2" orient="auto"><path d="M0,0 L5,2 L0,4 Z" fill="#4F46E5"/></marker></defs>
+<!-- Docker Network box -->
+<rect x="30" y="5" width="460" height="140" rx="5" fill="#f9fafb" stroke="#ddd" stroke-dasharray="4"/>
+<text x="260" y="18" text-anchor="middle" font-size="5.5pt" fill="#666">Docker Compose Network (bridge)</text>
+<!-- API Service -->
+<rect x="50" y="30" width="110" height="70" rx="4" fill="#ede9fe" stroke="#4F46E5" stroke-width="1.5"/>
+<text x="105" y="44" text-anchor="middle" font-size="6pt" font-weight="bold">api</text>
+<text x="105" y="56" text-anchor="middle" font-size="5pt">FastAPI + AI Pipeline</text>
+<text x="105" y="67" text-anchor="middle" font-size="5pt">Port 8000</text>
+<text x="105" y="78" text-anchor="middle" font-size="4.5pt" fill="#4F46E5">depends_on:</text>
+<text x="105" y="88" text-anchor="middle" font-size="4.5pt" fill="#4F46E5">chromadb, redis</text>
+<!-- ChromaDB -->
+<rect x="200" y="30" width="100" height="70" rx="4" fill="#dcfce7" stroke="#22c55e" stroke-width="1.5"/>
+<text x="250" y="44" text-anchor="middle" font-size="6pt" font-weight="bold">chromadb</text>
+<text x="250" y="56" text-anchor="middle" font-size="5pt">Vector Store</text>
+<text x="250" y="67" text-anchor="middle" font-size="5pt">Port 8001</text>
+<text x="250" y="78" text-anchor="middle" font-size="4.5pt">volume: chroma_data</text>
+<text x="250" y="88" text-anchor="middle" font-size="4.5pt" fill="#22c55e">healthcheck: heartbeat</text>
+<!-- Redis -->
+<rect x="335" y="30" width="80" height="70" rx="4" fill="#fee2e2" stroke="#ef4444" stroke-width="1.5"/>
+<text x="375" y="44" text-anchor="middle" font-size="6pt" font-weight="bold">redis</text>
+<text x="375" y="56" text-anchor="middle" font-size="5pt">Cache + Budgets</text>
+<text x="375" y="67" text-anchor="middle" font-size="5pt">Port 6379</text>
+<text x="375" y="78" text-anchor="middle" font-size="4.5pt">volume: redis_data</text>
+<text x="375" y="88" text-anchor="middle" font-size="4.5pt" fill="#ef4444">healthcheck: ping</text>
+<!-- Prometheus -->
+<rect x="435" y="30" width="45" height="70" rx="4" fill="#fef3c7" stroke="#f59e0b"/>
+<text x="457" y="44" text-anchor="middle" font-size="5pt" font-weight="bold">prom</text>
+<text x="457" y="56" text-anchor="middle" font-size="4.5pt">Metrics</text>
+<text x="457" y="67" text-anchor="middle" font-size="4.5pt">9090</text>
+<!-- Arrows -->
+<line x1="160" y1="55" x2="200" y2="55" stroke="#4F46E5" marker-end="url(#arrDT)"/>
+<line x1="160" y1="70" x2="335" y2="70" stroke="#4F46E5" marker-end="url(#arrDT)"/>
+<!-- Volumes -->
+<rect x="50" y="110" width="90" height="25" rx="3" fill="#e0e7ff" stroke="#6366f1"/>
+<text x="95" y="122" text-anchor="middle" font-size="5pt">📁 ./prompts:/app/prompts</text>
+<text x="95" y="132" text-anchor="middle" font-size="4.5pt">(hot-reload, no rebuild)</text>
+<rect x="200" y="110" width="90" height="25" rx="3" fill="#e0e7ff" stroke="#6366f1"/>
+<text x="245" y="122" text-anchor="middle" font-size="5pt">📁 chroma_data</text>
+<text x="245" y="132" text-anchor="middle" font-size="4.5pt">(persistent volume)</text>
+<rect x="335" y="110" width="80" height="25" rx="3" fill="#e0e7ff" stroke="#6366f1"/>
+<text x="375" y="122" text-anchor="middle" font-size="5pt">📁 redis_data</text>
+<text x="375" y="132" text-anchor="middle" font-size="4.5pt">(persistent volume)</text>
+</svg>
+<div class="diagram-caption">Docker Compose topology: API depends on ChromaDB + Redis. All services have health checks. Volumes persist data across restarts.</div>
+</div>
+
+<h2>.dockerignore (Critical for AI)</h2>
+<div class="prompt"># .dockerignore — prevent copying large/unnecessary files
+.git
+.venv
+__pycache__
+*.pyc
+.env
+.env.*
+models/          # NEVER bake models into image! Mount as volume.
+data/raw/
+*.ipynb
+.mypy_cache
+.pytest_cache
+node_modules</div>
+
+<h2>Multi-Stage Dockerfile</h2>
+<div class="prompt"># Dockerfile
+# Stage 1: Dependencies (cached — changes rarely)
+FROM python:3.11-slim AS dependencies
+WORKDIR /app
+RUN apt-get update && apt-get install -y --no-install-recommends build-essential \
+    && rm -rf /var/lib/apt/lists/*
+COPY requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip && pip install --no-cache-dir -r requirements.txt
+
+# Stage 2: Runtime (lean — changes with your code)
+FROM python:3.11-slim AS runtime
+WORKDIR /app
+COPY --from=dependencies /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=dependencies /usr/local/bin /usr/local/bin
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
+COPY app/ ./app/
+COPY prompts/ ./prompts/
+RUN useradd -m -r appuser && chown -R appuser:appuser /app
+USER appuser
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+EXPOSE 8000
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "2"]</div>
+
+<h2>Docker Compose (Full Stack)</h2>
+<div class="prompt"># docker-compose.yml
+services:
+  api:
+    build: { context: ., dockerfile: Dockerfile }
+    ports: ["8000:8000"]
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - VECTOR_DB_URL=http://chromadb:8001
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      chromadb: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    volumes: ["./prompts:/app/prompts"]  # Hot-reload prompts
+
+  chromadb:
+    image: chromadb/chroma:0.5.5
+    ports: ["8001:8000"]
+    volumes: ["chroma_data:/chroma/chroma"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
+      interval: 10s
+
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+    volumes: ["redis_data:/data"]
+    healthcheck: { test: ["CMD", "redis-cli", "ping"], interval: 10s }
+
+volumes:
+  chroma_data:
+  redis_data:</div>
+
+<h2>GPU Docker Compose (Local Inference)</h2>
+<div class="prompt"># docker-compose.gpu.yml — for serving local models (vLLM, HuggingFace)
+services:
+  api:
+    build: { context: ., dockerfile: Dockerfile.gpu }
+    ports: ["8000:8000"]
+    deploy:
+      resources:
+        reservations:
+          devices: [{ driver: nvidia, count: 1, capabilities: [gpu] }]
+    volumes: ["./models:/models"]   # Mount models, don't bake into image!
+    environment:
+      - MODEL_PATH=/models/mistral-7b-instruct
+      - CUDA_VISIBLE_DEVICES=0</div>
+
+<h2>Model File Strategy</h2>
+<table>
+<tr><th>Strategy</th><th>Best For</th><th>Approach</th></tr>
+<tr><td><b>Volume mount</b></td><td>Local dev, single server</td><td><code>docker run -v /host/models:/models</code></td></tr>
+<tr><td><b>Download at startup</b></td><td>Cloud, ephemeral containers</td><td>Use <code>huggingface_hub.snapshot_download()</code> in lifespan</td></tr>
+<tr><td><b>Pre-baked base image</b></td><td>Frequent deploys, same model</td><td>Custom base image with model, app image layers on top</td></tr>
+</table>
+
+<h2>Requirements Split Strategy</h2>
+<div class="two-col">
+<h3>requirements.txt (API — small, changes often)</h3>
+<div class="prompt">fastapi==0.115.0
+uvicorn[standard]==0.30.0
+pydantic==2.9.0
+langchain-core==0.3.0
+langchain-openai==0.2.0
+langgraph==0.2.0
+sse-starlette==2.1.0
+redis==5.0.0
+httpx==0.27.0</div>
+<h3>requirements-gpu.txt (ML — large, stable)</h3>
+<div class="prompt">-r requirements.txt
+torch==2.4.0
+transformers==4.44.0
+sentence-transformers==3.0.0
+vllm==0.6.0
+accelerate==0.34.0</div>
+</div>
+
+<h2>Configuration Reference</h2>
+<table>
+<tr><th>Variable</th><th>Description</th><th>Default</th></tr>
+<tr><td>MODEL_PATH</td><td>Directory containing model files</td><td>/models</td></tr>
+<tr><td>HF_TOKEN</td><td>HuggingFace token for gated models</td><td>(optional)</td></tr>
+<tr><td>CUDA_VISIBLE_DEVICES</td><td>Which GPUs to use</td><td>0</td></tr>
+<tr><td>DOCKER_BUILDKIT</td><td>Enable BuildKit (better caching)</td><td>1</td></tr>
+</table>
+
+<h2>Troubleshooting</h2>
+<table>
+<tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr>
+<tr><td>OOM killed on startup</td><td>Loading embeddings into memory</td><td>Increase memory limit or use lazy loading</td></tr>
+<tr><td>nvidia-smi not found</td><td>NVIDIA Container Toolkit missing</td><td>Install toolkit, verify with <code>docker run --gpus all</code></td></tr>
+<tr><td>Build takes 20+ min</td><td>pip installing on every code change</td><td>COPY requirements.txt BEFORE COPY app/</td></tr>
+<tr><td>Image is 10GB+</td><td>Model files or build tools in final stage</td><td>Multi-stage build + volume mount models</td></tr>
+<tr><td>"No space left on device"</td><td>Docker cache full</td><td><code>docker system prune -a</code></td></tr>
+<tr><td>Torch can't find CUDA</td><td>CUDA version mismatch</td><td>Match torch version to base image CUDA</td></tr>
+</table>
+
+<h2>Image Size Comparison</h2>
+<table>
+<tr><th>Approach</th><th>Image Size</th><th>Build Time (cached)</th></tr>
+<tr><td>Naive (single stage, all deps)</td><td>10-15GB</td><td>30 min</td></tr>
+<tr><td>Multi-stage (API only)</td><td>1.5-2GB</td><td>&lt;2 min (code change only)</td></tr>
+<tr><td>Multi-stage (GPU inference)</td><td>6-8GB</td><td>&lt;3 min (code change only)</td></tr>
+<tr><td>python:3.11-slim vs python:3.11</td><td>Saves ~800MB</td><td>—</td></tr>
+</table>
+
+<div class="tip">
+<b>✅ Containerization Checklist:</b><br/>
+□ .dockerignore excludes: .git, .venv, models/, __pycache__, .env<br/>
+□ Multi-stage Dockerfile: dependencies cached, app code in final stage<br/>
+□ requirements.txt COPY before app code (layer cache optimization)<br/>
+□ Run as non-root user (USER appuser)<br/>
+□ HEALTHCHECK defined (60s start-period for model loading)<br/>
+□ Models mounted as volume, NOT baked into image<br/>
+□ docker-compose services have healthcheck + depends_on conditions<br/>
+□ Volumes persist vector store and cache data across restarts<br/>
+□ Image scanned for CVEs: <code>docker scout cves ai-service</code><br/>
+□ Specific image tags used (never :latest in production)
+</div>
+</body>
+</html>

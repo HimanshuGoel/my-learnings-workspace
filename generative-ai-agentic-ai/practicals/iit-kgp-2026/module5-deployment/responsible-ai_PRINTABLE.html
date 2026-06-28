@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Responsible AI — Deployment Runbook</title>
+<style>
+  @page { margin: 0.5cm; size: A4; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+  h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+  h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+  h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+  ul { margin: 0 0 2px 12px; padding: 0; }
+  li { margin-bottom: 0.5px; }
+  .tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+  .prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+  code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+  table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+  th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+  th { background: #f3f4f6; font-weight: bold; }
+  .diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+  .diagram svg { max-width: 100%; }
+  .diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+  .section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+  @media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+<h1>Module 5, Topic 7 — Responsible AI</h1>
+<p class="section-intro">Responsible AI ensures your system is fair (no demographic bias), safe (no harmful outputs), transparent (users know they're talking to AI), and accountable (audit trail for decisions). This isn't just ethics — it's increasingly a legal requirement (EU AI Act, SOC2). For your capstone, basic responsible AI practices demonstrate maturity. Builds directly on Module 3's alignment/safety work but focuses on the PRODUCTION implementation.</p>
+<p><b>What you're deploying:</b> Content safety filtering, bias monitoring, transparency disclosures, hallucination guardrails, and audit logging for your AI service.</p>
+
+<h2>Responsible AI Framework</h2>
+<div class="diagram">
+<svg width="440" height="100" viewBox="0 0 440 100">
+<rect x="5" y="10" width="100" height="75" rx="4" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="55" y="28" text-anchor="middle" font-size="6pt" font-weight="bold">SAFE</text>
+<text x="55" y="40" text-anchor="middle" font-size="5pt">No harmful outputs</text>
+<text x="55" y="50" text-anchor="middle" font-size="5pt">Content moderation</text>
+<text x="55" y="60" text-anchor="middle" font-size="5pt">Prompt injection defense</text>
+<text x="55" y="70" text-anchor="middle" font-size="5pt">Output filtering</text>
+
+<rect x="115" y="10" width="100" height="75" rx="4" fill="#dcfce7" stroke="#22c55e"/>
+<text x="165" y="28" text-anchor="middle" font-size="6pt" font-weight="bold">FAIR</text>
+<text x="165" y="40" text-anchor="middle" font-size="5pt">No demographic bias</text>
+<text x="165" y="50" text-anchor="middle" font-size="5pt">Equal quality across</text>
+<text x="165" y="60" text-anchor="middle" font-size="5pt">user groups</text>
+<text x="165" y="70" text-anchor="middle" font-size="5pt">Regular bias audits</text>
+
+<rect x="225" y="10" width="100" height="75" rx="4" fill="#fef3c7" stroke="#f59e0b"/>
+<text x="275" y="28" text-anchor="middle" font-size="6pt" font-weight="bold">TRANSPARENT</text>
+<text x="275" y="40" text-anchor="middle" font-size="5pt">Users know it's AI</text>
+<text x="275" y="50" text-anchor="middle" font-size="5pt">Cite sources</text>
+<text x="275" y="60" text-anchor="middle" font-size="5pt">Confidence indicators</text>
+<text x="275" y="70" text-anchor="middle" font-size="5pt">Explain limitations</text>
+
+<rect x="335" y="10" width="100" height="75" rx="4" fill="#ede9fe" stroke="#8b5cf6"/>
+<text x="385" y="28" text-anchor="middle" font-size="6pt" font-weight="bold">ACCOUNTABLE</text>
+<text x="385" y="40" text-anchor="middle" font-size="5pt">Audit trail</text>
+<text x="385" y="50" text-anchor="middle" font-size="5pt">Version tracking</text>
+<text x="385" y="60" text-anchor="middle" font-size="5pt">Incident response</text>
+<text x="385" y="70" text-anchor="middle" font-size="5pt">Human oversight</text>
+</svg>
+<div class="diagram-caption">Four pillars of responsible AI deployment. For capstone: implement at least one measure per pillar.</div>
+</div>
+
+<h2>Implementation Checklist by Pillar</h2>
+<table>
+<tr><th>Pillar</th><th>Minimum (Capstone)</th><th>Production</th></tr>
+<tr><td>Safe</td><td>OpenAI Moderation API on outputs</td><td>+ input filtering + prompt injection defense + red-team testing</td></tr>
+<tr><td>Fair</td><td>Test with diverse demographic prompts</td><td>+ regular bias audit + fair representation in training data</td></tr>
+<tr><td>Transparent</td><td>"Powered by AI" disclosure + source citations</td><td>+ confidence scores + explanation of limitations</td></tr>
+<tr><td>Accountable</td><td>Log request metadata (not content) + model version</td><td>+ full audit trail + incident response plan + HITL</td></tr>
+</table>
+
+<h2>Content Safety Implementation</h2>
+<div class="prompt"># Minimum viable safety: OpenAI Moderation API (free, fast)
+async def check_safety(text: str) -> dict:
+    result = client.moderations.create(input=text)
+    r = result.results[0]
+    if r.flagged:
+        categories = [c for c, flagged in r.categories.__dict__.items() if flagged]
+        return {"safe": False, "categories": categories}
+    return {"safe": True}
+
+# Apply to both input AND output:
+async def safe_chat(request):
+    # Check input
+    input_check = await check_safety(request.message)
+    if not input_check["safe"]:
+        return {"response": "I can't process that request.", "flagged": True}
+    
+    # Generate response
+    response = await generate(request.message)
+    
+    # Check output
+    output_check = await check_safety(response)
+    if not output_check["safe"]:
+        return {"response": "I generated an inappropriate response. Let me try differently.",
+                "flagged": True, "retrying": True}
+    
+    return {"response": response}</div>
+
+<h2>Hallucination Guardrails</h2>
+<div class="prompt"># RAG faithfulness check: does the answer match the sources?
+def check_groundedness(answer: str, sources: list[str]) -> dict:
+    """Lightweight check: are answer claims present in sources?"""
+    # Option 1: Substring matching (fast, imprecise)
+    source_text = " ".join(sources).lower()
+    
+    # Option 2: LLM-as-judge (slower, accurate)
+    result = llm.invoke(f"""Is this answer fully supported by the sources?
+Sources: {source_text[:2000]}
+Answer: {answer}
+Reply: GROUNDED or NOT_GROUNDED with explanation.""")
+    
+    grounded = "GROUNDED" in result.content and "NOT_GROUNDED" not in result.content
+    return {"grounded": grounded, "explanation": result.content}
+
+# Add disclaimer for ungrounded responses:
+if not groundedness["grounded"]:
+    response += "\n\n⚠️ Note: This response may not be fully supported by available sources."</div>
+
+<h2>Transparency Patterns</h2>
+<table>
+<tr><th>What</th><th>Implementation</th><th>Example</th></tr>
+<tr><td>AI disclosure</td><td>Response header or UI badge</td><td>"🤖 AI-generated response"</td></tr>
+<tr><td>Source citation</td><td>Include [Source: filename] in response</td><td>"Based on api-docs.md [Section 3.2]"</td></tr>
+<tr><td>Confidence indicator</td><td>Based on retrieval score or grounding check</td><td>"High confidence" / "May be incomplete"</td></tr>
+<tr><td>Limitation disclosure</td><td>When model doesn't know</td><td>"I couldn't find this in the documentation"</td></tr>
+<tr><td>Model version</td><td>In API response metadata</td><td><code>{"model": "gpt-4o-mini-2024-07-18"}</code></td></tr>
+</table>
+
+<h2>Bias Monitoring</h2>
+<div class="prompt"># Monthly bias audit: same query with different demographic contexts
+BIAS_TEST_TEMPLATE = "A {demographic} professional asks: {question}"
+DEMOGRAPHICS = ["young", "senior", "male", "female", "Asian", "Hispanic", "white", "Black"]
+
+def run_bias_audit(questions: list[str]) -> dict:
+    """Check if response quality varies by demographic."""
+    results = {}
+    for q in questions:
+        responses = {}
+        for demo in DEMOGRAPHICS:
+            prompt = BIAS_TEST_TEMPLATE.format(demographic=demo, question=q)
+            responses[demo] = generate(prompt)
+        
+        # Check: response length, helpfulness, and tone should be similar
+        lengths = {d: len(r) for d, r in responses.items()}
+        max_diff = max(lengths.values()) - min(lengths.values())
+        results[q] = {"length_variance": max_diff, "responses": responses}
+    
+    return results  # Flag if any question shows >50% length difference</div>
+
+<h2>Audit Logging</h2>
+<div class="prompt">import structlog
+from datetime import datetime
+
+logger = structlog.get_logger()
+
+def log_ai_interaction(user_id: str, endpoint: str, model: str, 
+                       tokens_in: int, tokens_out: int, flagged: bool):
+    """Log metadata for audit trail. NEVER log full message content (privacy)."""
+    logger.info("ai_interaction",
+        user_id=user_id,
+        endpoint=endpoint,
+        model=model,
+        tokens_input=tokens_in,
+        tokens_output=tokens_out,
+        content_flagged=flagged,
+        timestamp=datetime.utcnow().isoformat(),
+        # NOT logged: actual user message or AI response (privacy!)
+    )</div>
+
+<h2>Troubleshooting</h2>
+<table>
+<tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr>
+<tr><td>Moderation API over-blocks</td><td>Medical/legal content triggers false positives</td><td>Custom allowlist for domain-specific terms</td></tr>
+<tr><td>Bias in responses detected</td><td>Model reflects training data biases</td><td>Add debiasing prompt instructions, audit regularly</td></tr>
+<tr><td>Users don't trust AI responses</td><td>No source citations or confidence indicators</td><td>Always cite sources, add confidence levels</td></tr>
+<tr><td>Hallucination in production</td><td>Retrieval failed silently, model generated from knowledge</td><td>Add groundedness check, refuse if not grounded</td></tr>
+<tr><td>Compliance audit failed</td><td>No audit trail, no version tracking</td><td>Structured logging, model version in response metadata</td></tr>
+</table>
+
+<h2>Pre-Deploy Checklist</h2>
+<div class="tip">
+☐ Content safety: Moderation API on both input AND output<br>
+☐ Hallucination: Groundedness check or "I don't know" behavior tested<br>
+☐ Transparency: AI disclosure visible to users<br>
+☐ Citations: Sources included in every factual response<br>
+☐ Bias: Tested with diverse demographic prompts (monthly audit plan)<br>
+☐ Audit: Request metadata logged (not content) with timestamps<br>
+☐ Model version: Tracked in response metadata or headers<br>
+☐ Limitations: Model says "I don't know" when appropriate<br>
+☐ Documentation: Responsible AI policy documented<br><br>
+<b>Next → CI/CD for AI (how to test and deploy non-deterministic systems)</b>
+</div>
+
+</body>
+</html>

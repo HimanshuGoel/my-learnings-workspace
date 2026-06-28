@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MCP Protocol — Module 5 Deployment</title>
+<style>
+  @page { margin: 0.5cm; size: A4; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+  h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+  h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+  h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+  ul { margin: 0 0 2px 12px; padding: 0; }
+  li { margin-bottom: 0.5px; }
+  .tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+  .prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+  .two-col { column-count: 2; column-gap: 10px; }
+  code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+  table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+  th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+  th { background: #f3f4f6; font-weight: bold; }
+  .diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+  .diagram svg { max-width: 100%; }
+  .diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+  .section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+  @media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+<h1>Module 5, Topic 2 — MCP Protocol</h1>
+<p class="section-intro">Model Context Protocol (MCP) is an emerging standard for AI tool integration — letting AI assistants (Claude, GPT, Kiro, Cursor) connect to external tools and data sources via a standardized server interface. Instead of building tool integrations per assistant, you build ONE MCP server that works everywhere. It's how you make your Module 4 tools interoperable across any MCP-compatible client.</p>
+<p><b>Problem:</b> Every AI IDE/assistant has its own tool-calling mechanism. MCP provides a universal protocol (JSON-RPC 2.0 over stdio/HTTP) so your tools become discoverable and invocable by any compliant AI assistant — without rewrites per client.</p>
+
+<h2>MCP Architecture</h2>
+<div class="diagram">
+<svg width="520" height="170" viewBox="0 0 520 170">
+<defs><marker id="arrMCP" markerWidth="5" markerHeight="4" refX="5" refY="2" orient="auto"><path d="M0,0 L5,2 L0,4 Z" fill="#4F46E5"/></marker></defs>
+<!-- Host -->
+<rect x="5" y="50" width="80" height="60" rx="4" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/>
+<text x="45" y="65" text-anchor="middle" font-size="6pt" font-weight="bold">Host App</text>
+<text x="45" y="77" text-anchor="middle" font-size="5pt">Claude Desktop</text>
+<text x="45" y="87" text-anchor="middle" font-size="5pt">Kiro / Cursor</text>
+<text x="45" y="97" text-anchor="middle" font-size="5pt">VS Code + Copilot</text>
+<!-- Arrow to Client -->
+<line x1="85" y1="80" x2="115" y2="80" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arrMCP)"/>
+<text x="100" y="73" text-anchor="middle" font-size="4.5pt">manages</text>
+<!-- Client -->
+<rect x="115" y="55" width="80" height="50" rx="4" fill="#ede9fe" stroke="#4F46E5" stroke-width="2"/>
+<text x="155" y="72" text-anchor="middle" font-size="6pt" font-weight="bold">MCP Client</text>
+<text x="155" y="84" text-anchor="middle" font-size="5pt">JSON-RPC 2.0</text>
+<text x="155" y="94" text-anchor="middle" font-size="5pt">Protocol layer</text>
+<!-- Arrow to Server -->
+<line x1="195" y1="80" x2="230" y2="80" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arrMCP)"/>
+<text x="212" y="73" text-anchor="middle" font-size="4.5pt">stdio / HTTP SSE</text>
+<!-- Server -->
+<rect x="230" y="30" width="100" height="100" rx="4" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
+<text x="280" y="45" text-anchor="middle" font-size="6pt" font-weight="bold">MCP Server</text>
+<text x="280" y="57" text-anchor="middle" font-size="5pt">(Your Code)</text>
+<rect x="240" y="62" width="80" height="14" rx="2" fill="#fff" stroke="#f59e0b"/>
+<text x="280" y="72" text-anchor="middle" font-size="5pt">list_tools()</text>
+<rect x="240" y="79" width="80" height="14" rx="2" fill="#fff" stroke="#f59e0b"/>
+<text x="280" y="89" text-anchor="middle" font-size="5pt">call_tool()</text>
+<rect x="240" y="96" width="80" height="14" rx="2" fill="#fff" stroke="#f59e0b"/>
+<text x="280" y="106" text-anchor="middle" font-size="5pt">list_resources()</text>
+<rect x="240" y="113" width="80" height="14" rx="2" fill="#fff" stroke="#f59e0b"/>
+<text x="280" y="123" text-anchor="middle" font-size="5pt">read_resource()</text>
+<!-- Arrows to backends -->
+<line x1="330" y1="60" x2="365" y2="45" stroke="#4F46E5" marker-end="url(#arrMCP)"/>
+<line x1="330" y1="80" x2="365" y2="80" stroke="#4F46E5" marker-end="url(#arrMCP)"/>
+<line x1="330" y1="105" x2="365" y2="115" stroke="#4F46E5" marker-end="url(#arrMCP)"/>
+<!-- Resources -->
+<rect x="365" y="30" width="75" height="28" rx="3" fill="#dcfce7" stroke="#22c55e"/>
+<text x="402" y="42" text-anchor="middle" font-size="5pt" font-weight="bold">Resources</text>
+<text x="402" y="52" text-anchor="middle" font-size="4.5pt">Docs, files, data</text>
+<!-- Tools -->
+<rect x="365" y="65" width="75" height="28" rx="3" fill="#fee2e2" stroke="#ef4444"/>
+<text x="402" y="77" text-anchor="middle" font-size="5pt" font-weight="bold">Tools</text>
+<text x="402" y="87" text-anchor="middle" font-size="4.5pt">Search, DB, APIs</text>
+<!-- Prompts -->
+<rect x="365" y="100" width="75" height="28" rx="3" fill="#e0e7ff" stroke="#6366f1"/>
+<text x="402" y="112" text-anchor="middle" font-size="5pt" font-weight="bold">Prompts</text>
+<text x="402" y="122" text-anchor="middle" font-size="4.5pt">Templates, workflows</text>
+<!-- Legend -->
+<rect x="450" y="40" width="65" height="80" rx="3" fill="#f9fafb" stroke="#ddd"/>
+<text x="482" y="52" text-anchor="middle" font-size="5pt" font-weight="bold">Transport</text>
+<text x="482" y="64" text-anchor="middle" font-size="4.5pt">• stdio (local)</text>
+<text x="482" y="74" text-anchor="middle" font-size="4.5pt">• HTTP+SSE</text>
+<text x="482" y="84" text-anchor="middle" font-size="4.5pt">  (remote)</text>
+<text x="482" y="98" text-anchor="middle" font-size="5pt" font-weight="bold">Protocol</text>
+<text x="482" y="110" text-anchor="middle" font-size="4.5pt">JSON-RPC 2.0</text>
+</svg>
+<div class="diagram-caption">MCP architecture: Host (AI IDE) → Client (protocol layer) → Server (your tools/resources/prompts) → Backend services.</div>
+</div>
+
+<h2>Tool Registration Flow</h2>
+<div class="diagram">
+<svg width="500" height="95" viewBox="0 0 500 95">
+<defs><marker id="arrTR" markerWidth="5" markerHeight="4" refX="5" refY="2" orient="auto"><path d="M0,0 L5,2 L0,4 Z" fill="#4F46E5"/></marker></defs>
+<!-- Step 1 -->
+<rect x="5" y="20" width="85" height="45" rx="3" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="47" y="35" text-anchor="middle" font-size="5pt" font-weight="bold">1. Client Start</text>
+<text x="47" y="46" text-anchor="middle" font-size="4.5pt">Reads mcp.json</text>
+<text x="47" y="56" text-anchor="middle" font-size="4.5pt">Spawns server</text>
+<line x1="90" y1="42" x2="108" y2="42" stroke="#4F46E5" marker-end="url(#arrTR)"/>
+<!-- Step 2 -->
+<rect x="108" y="20" width="85" height="45" rx="3" fill="#ede9fe" stroke="#4F46E5"/>
+<text x="150" y="35" text-anchor="middle" font-size="5pt" font-weight="bold">2. Initialize</text>
+<text x="150" y="46" text-anchor="middle" font-size="4.5pt">Handshake +</text>
+<text x="150" y="56" text-anchor="middle" font-size="4.5pt">capabilities</text>
+<line x1="193" y1="42" x2="211" y2="42" stroke="#4F46E5" marker-end="url(#arrTR)"/>
+<!-- Step 3 -->
+<rect x="211" y="20" width="85" height="45" rx="3" fill="#fef3c7" stroke="#f59e0b"/>
+<text x="253" y="35" text-anchor="middle" font-size="5pt" font-weight="bold">3. Discover</text>
+<text x="253" y="46" text-anchor="middle" font-size="4.5pt">tools/list →</text>
+<text x="253" y="56" text-anchor="middle" font-size="4.5pt">get tool schemas</text>
+<line x1="296" y1="42" x2="314" y2="42" stroke="#4F46E5" marker-end="url(#arrTR)"/>
+<!-- Step 4 -->
+<rect x="314" y="20" width="85" height="45" rx="3" fill="#dcfce7" stroke="#22c55e"/>
+<text x="356" y="35" text-anchor="middle" font-size="5pt" font-weight="bold">4. Invoke</text>
+<text x="356" y="46" text-anchor="middle" font-size="4.5pt">tools/call with</text>
+<text x="356" y="56" text-anchor="middle" font-size="4.5pt">name + arguments</text>
+<line x1="399" y1="42" x2="417" y2="42" stroke="#4F46E5" marker-end="url(#arrTR)"/>
+<!-- Step 5 -->
+<rect x="417" y="20" width="75" height="45" rx="3" fill="#fee2e2" stroke="#ef4444"/>
+<text x="454" y="35" text-anchor="middle" font-size="5pt" font-weight="bold">5. Return</text>
+<text x="454" y="46" text-anchor="middle" font-size="4.5pt">TextContent[]</text>
+<text x="454" y="56" text-anchor="middle" font-size="4.5pt">back to LLM</text>
+<!-- annotation -->
+<text x="250" y="85" text-anchor="middle" font-size="5pt" fill="#666">The AI assistant discovers tools at startup, then invokes them as needed during conversation. No client-side code changes required.</text>
+</svg>
+<div class="diagram-caption">Tool registration: Client reads config → starts server → discovers tools → invokes on demand → returns results to LLM context.</div>
+</div>
+
+<h2>MCP Server Implementation</h2>
+<div class="prompt"># mcp_server/server.py
+from mcp.server import Server
+from mcp.server.stdio import stdio_server
+from mcp.types import Tool, TextContent, Resource
+import json
+
+server = Server("my-ai-tools")
+
+@server.list_tools()
+async def list_tools() -> list[Tool]:
+    """Declare available tools for AI assistants to discover."""
+    return [
+        Tool(
+            name="search_documents",
+            description="Search internal knowledge base using semantic search. Returns relevant chunks with source.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string", "description": "Natural language search query"},
+                    "top_k": {"type": "integer", "description": "Results to return", "default": 5},
+                    "filter_source": {"type": "string", "enum": ["confluence", "github", "docs"]}
+                },
+                "required": ["query"]
+            }
+        ),
+        Tool(
+            name="query_database",
+            description="Execute read-only SQL queries against analytics DB. Only SELECT allowed.",
+            inputSchema={
+                "type": "object",
+                "properties": {"sql": {"type": "string", "description": "SQL SELECT query"}},
+                "required": ["sql"]
+            }
+        ),
+    ]
+
+@server.call_tool()
+async def call_tool(name: str, arguments: dict) -> list[TextContent]:
+    """Execute tool and return results."""
+    match name:
+        case "search_documents":
+            results = await search_vectors(arguments["query"], arguments.get("top_k", 5))
+            return [TextContent(type="text", text=json.dumps(results, indent=2))]
+        case "query_database":
+            if not arguments["sql"].strip().upper().startswith("SELECT"):
+                return [TextContent(type="text", text="Error: Only SELECT queries allowed.")]
+            rows = await execute_readonly_query(arguments["sql"])
+            return [TextContent(type="text", text=json.dumps(rows, indent=2))]</div>
+
+<h2>Resource Exposure</h2>
+<div class="prompt"># Expose data sources the AI can read for additional context
+@server.list_resources()
+async def list_resources() -> list[Resource]:
+    return [
+        Resource(
+            uri="docs://architecture/overview",
+            name="System Architecture Overview",
+            description="High-level architecture document",
+            mimeType="text/markdown"
+        ),
+    ]
+
+@server.read_resource()
+async def read_resource(uri: str) -> str:
+    resource_map = {"docs://architecture/overview": "docs/architecture.md"}
+    file_path = resource_map.get(str(uri))
+    if not file_path:
+        raise ValueError(f"Resource not found: {uri}")
+    with open(file_path) as f:
+        return f.read()</div>
+
+<h2>Transport Options</h2>
+<table>
+<tr><th>Transport</th><th>Use Case</th><th>Setup</th><th>Security</th></tr>
+<tr><td><b>stdio</b> (local)</td><td>Development, IDE integration</td><td><code>python -m mcp_server</code></td><td>Process isolation (same machine)</td></tr>
+<tr><td><b>HTTP + SSE</b> (remote)</td><td>Production, shared team tools</td><td>uvicorn + Starlette app</td><td>Bearer token + HTTPS required</td></tr>
+</table>
+
+<h3>HTTP Transport (Production)</h3>
+<div class="prompt"># mcp_server/http_transport.py
+from mcp.server.sse import SseServerTransport
+from starlette.applications import Starlette
+from starlette.routing import Route, Mount
+
+sse = SseServerTransport("/messages/")
+
+async def handle_sse(request):
+    async with sse.connect_sse(request.scope, request.receive, request._send) as streams:
+        await server.run(streams[0], streams[1], server.create_initialization_options())
+
+routes = [Route("/sse", endpoint=handle_sse), Mount("/messages/", app=sse.handle_post_message)]
+app = Starlette(routes=routes)
+# Run: uvicorn mcp_server.http_transport:app --host 0.0.0.0 --port 8080</div>
+
+<h2>Client Configuration</h2>
+<div class="prompt">// mcp.json — used by Claude Desktop, Kiro, Cursor
+{
+  "mcpServers": {
+    "my-ai-tools": {
+      "command": "python",
+      "args": ["-m", "mcp_server"],
+      "cwd": "/path/to/mcp_server",
+      "env": {
+        "VECTOR_DB_URL": "http://localhost:8001",
+        "JIRA_API_TOKEN": "${JIRA_API_TOKEN}"
+      }
+    }
+  }
+}
+
+// Remote (HTTP transport):
+{
+  "mcpServers": {
+    "my-ai-tools-remote": {
+      "url": "https://mcp.company.com/sse",
+      "headers": { "Authorization": "Bearer ${MCP_AUTH_TOKEN}" }
+    }
+  }
+}</div>
+
+<h2>Configuration Reference</h2>
+<table>
+<tr><th>Variable</th><th>Description</th><th>Default</th></tr>
+<tr><td>VECTOR_DB_URL</td><td>ChromaDB/Qdrant endpoint</td><td>http://localhost:8001</td></tr>
+<tr><td>DB_CONNECTION_STRING</td><td>Read-only database connection</td><td>(required for query tool)</td></tr>
+<tr><td>JIRA_API_TOKEN</td><td>Jira Cloud API token</td><td>(required for ticket tool)</td></tr>
+<tr><td>MCP_AUTH_TOKEN</td><td>Bearer token for HTTP transport</td><td>(required for remote)</td></tr>
+<tr><td>MCP_LOG_LEVEL</td><td>Server logging verbosity</td><td>info</td></tr>
+<tr><td>MAX_SEARCH_RESULTS</td><td>Cap on search results returned</td><td>10</td></tr>
+</table>
+
+<h2>Testing with MCP Inspector</h2>
+<div class="prompt"># Built-in development tool — tests your server without an AI client
+mcp dev mcp_server/server.py
+
+# Manual JSON-RPC test (list tools)
+echo '{"jsonrpc":"2.0","method":"tools/list","id":1}' | python -m mcp_server
+
+# Manual tool invocation
+echo '{"jsonrpc":"2.0","method":"tools/call","params":{"name":"search_documents","arguments":{"query":"deployment guide"}},"id":2}' | python -m mcp_server
+
+# Verify in Claude Desktop: MCP icon shows your tools
+# Verify in Kiro: power appears after mcp.json configuration</div>
+
+<h2>MCP vs Direct Tool Calling Comparison</h2>
+<table>
+<tr><th>Aspect</th><th>Direct @tool (LangChain)</th><th>MCP Server</th></tr>
+<tr><td>Scope</td><td>Single agent/chain</td><td>Any MCP-compatible AI client</td></tr>
+<tr><td>Discovery</td><td>Hardcoded in agent setup</td><td>Dynamic via protocol</td></tr>
+<tr><td>Transport</td><td>In-process function call</td><td>JSON-RPC over stdio/HTTP</td></tr>
+<tr><td>Reusability</td><td>Must duplicate per client</td><td>Build once, use everywhere</td></tr>
+<tr><td>Schema</td><td>Python type hints → schema</td><td>Explicit JSON Schema</td></tr>
+<tr><td>Best for</td><td>Custom agent pipelines</td><td>Shared team tools, IDE integration</td></tr>
+</table>
+
+<h2>Troubleshooting</h2>
+<table>
+<tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr>
+<tr><td>Tools not appearing in assistant</td><td>mcp.json path wrong or server crash on start</td><td>Check cwd, run server manually to see errors</td></tr>
+<tr><td>"Connection reset" errors</td><td>Server process died (unhandled exception)</td><td>Add try/except in call_tool, restart policy</td></tr>
+<tr><td>Tool returns empty results</td><td>Vector DB not populated or query mismatch</td><td>Verify DB has embeddings, test search directly</td></tr>
+<tr><td>Slow tool responses freeze assistant</td><td>Blocking I/O in async handler</td><td>Use asyncio.to_thread() for sync libraries</td></tr>
+<tr><td>SQL injection via query tool</td><td>No input sanitization</td><td>Enforce read-only DB user, validate SQL AST</td></tr>
+</table>
+
+<h2>Security Best Practices</h2>
+<ul>
+<li><b>Read-only DB user:</b> Connection should ONLY have SELECT permissions</li>
+<li><b>Input validation:</b> Validate all tool arguments against schema before execution</li>
+<li><b>Secret management:</b> Never log API tokens; use environment variables with ${VAR} syntax</li>
+<li><b>Audit logging:</b> Log every tool call — who invoked, what arguments, what returned</li>
+<li><b>HTTP auth:</b> Remote transport MUST require Bearer token + HTTPS</li>
+</ul>
+
+<div class="tip">
+<b>✅ MCP Deployment Checklist:</b><br/>
+□ Server starts cleanly: <code>python -m mcp_server</code> with no errors<br/>
+□ <code>mcp dev</code> inspector shows all tools with correct schemas<br/>
+□ Each tool has clear description (AI uses this to decide WHEN to call)<br/>
+□ Input schemas have proper types, descriptions, and required fields<br/>
+□ DB tools use read-only connections (never write via MCP)<br/>
+□ Secrets via env vars (not hardcoded in server code)<br/>
+□ Error handling in call_tool (never crash the server)<br/>
+□ HTTP transport uses authentication for remote access<br/>
+□ Tool responses are concise (don't dump 10MB to the AI context)<br/>
+□ Tested with actual AI client (Claude Desktop / Kiro), not just inspector
+</div>
+</body>
+</html>
