@@ -1,6 +1,6 @@
 ---
 inclusion: fileMatch
-fileMatchPattern: "**/module2-rag/**"
+fileMatchPattern: "**/module2-advanced-prompting-rag/**"
 ---
 
 # Module 2 — Advanced Prompting & RAG (Practitioner's Playbook)
@@ -19,7 +19,7 @@ Module 2 of the IIT KGP GenAI program (Jul 25 – Sep 5, 2026). Unlike Module 1 
 ## File Structure
 
 ```
-module2-rag/
+module2-advanced-prompting-rag/
 ├── roadmap.md                         ← topics, timeline, dependencies
 ├── advanced-prompting.md              ← CoT, few-shot, templates, eval
 ├── advanced-prompting_PRINTABLE.html
@@ -59,7 +59,7 @@ Each topic follows this practitioner's playbook format:
 
 ## Topic _PRINTABLE.html — Visual Playbook
 
-Same CSS as genai-fundamentals printables (7.5pt body, A4, same color scheme).
+Same CSS as module1-genai-fundamentals printables (7.5pt body, A4, same color scheme).
 
 ### SVG Diagram Focus (DECISIONS, not concepts)
 

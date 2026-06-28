@@ -1,6 +1,6 @@
 ---
 inclusion: fileMatch
-fileMatchPattern: "**/module4-agents/**"
+fileMatchPattern: "**/module4-multimodal-agentic-ai/**"
 ---
 
 # Module 4 — Multimodal & Agentic AI (System Architect's Guide)
@@ -29,7 +29,7 @@ Module 4 of the IIT KGP GenAI program (Nov 14 – Dec 26, 2026). This module has
 ## File Structure
 
 ```
-module4-agents/
+module4-multimodal-agentic-ai/
 ├── roadmap.md
 ├── vlm-fundamentals.md             ← Vision-Language Models
 ├── vlm-fundamentals_PRINTABLE.html

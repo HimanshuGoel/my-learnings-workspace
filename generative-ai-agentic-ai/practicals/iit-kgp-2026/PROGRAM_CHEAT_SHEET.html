@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>IIT KGP GenAI Program — Cheat Sheet</title>
+<style>
+  @page { margin: 0.4cm; size: A4; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7pt; line-height: 1.15; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+  h1 { font-size: 10pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 3px; margin-top: 0; }
+  h2 { font-size: 8pt; background: #eee; padding: 1.5px 5px; margin-top: 4px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+  h3 { font-size: 7pt; margin-top: 3px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+  table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6pt; }
+  th, td { border: 1px solid #ddd; padding: 1.5px 3px; text-align: left; }
+  th { background: #f3f4f6; font-weight: bold; }
+  .tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 4px; margin: 2px 0; font-size: 6.5pt; break-inside: avoid; }
+  .two-col { column-count: 2; column-gap: 8px; }
+  .prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 4px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6pt; white-space: pre-wrap; break-inside: avoid; }
+  @media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+<h1>IIT KGP GenAI & Agentic AI — Program Cheat Sheet (Revision Aid)</h1>
+
+<h2>Module 2 — RAG: Key Decisions</h2>
+<table>
+<tr><th>Decision</th><th>Default Choice</th><th>When to Change</th></tr>
+<tr><td>Chunking strategy</td><td>Recursive char, 512 tokens, 50 overlap</td><td>Semantic chunking for topic-heavy docs; parent-child for precision+context</td></tr>
+<tr><td>Embedding model</td><td>all-MiniLM-L6-v2 (dev), text-embedding-3-small (prod)</td><td>BGE-base for no API dependency; Cohere v3 for multilingual</td></tr>
+<tr><td>Vector store</td><td>ChromaDB (dev), Qdrant/pgvector (prod)</td><td>Pinecone for zero-ops; Milvus for >10M docs</td></tr>
+<tr><td>Retrieval strategy</td><td>Vector + metadata filter + top-K=5</td><td>Add reranking when precision matters; hybrid BM25 for keyword queries</td></tr>
+<tr><td>Reranker</td><td>cross-encoder/ms-marco-MiniLM-L-6-v2</td><td>Cohere rerank API if local GPU unavailable</td></tr>
+<tr><td>LLM for generation</td><td>gpt-4o-mini (temp=0)</td><td>gpt-4o for synthesis/complex reasoning; local for privacy</td></tr>
+<tr><td>Structured output</td><td>OpenAI Structured Outputs or Instructor</td><td>Function calling for older models; grammar constraints for local</td></tr>
+<tr><td>When to go agentic</td><td>Simple RAG (80% of queries)</td><td>Agentic only for multi-step/comparison queries that demonstrably fail simple RAG</td></tr>
+</table>
+<div class="tip"><b>RAG golden rule:</b> Retrieve → Rerank → Generate. Over-retrieve (20), rerank to precision (3-5). Measure with RAGAS (faithfulness > 0.90, relevancy > 0.85).</div>
+
+<h2>Module 3 — Fine-Tuning: Key Decisions</h2>
+<table>
+<tr><th>Decision</th><th>Default Choice</th><th>When to Change</th></tr>
+<tr><td>Fine-tune or not?</td><td>DON'T (prompting + RAG first)</td><td>Only if 5+ prompt iterations fail AND gap is behavioral AND you have 100+ examples</td></tr>
+<tr><td>Method</td><td>LoRA (r=16, alpha=32)</td><td>Full SFT only if LoRA demonstrably underperforms; QLoRA if GPU-limited</td></tr>
+<tr><td>Dataset size</td><td>200-500 examples (quality > quantity)</td><td>50 for format only; 1000+ for complex reasoning</td></tr>
+<tr><td>Learning rate</td><td>2e-4 (LoRA), 2e-5 (full SFT), 5e-7 (DPO)</td><td>Halve if unstable; double if loss doesn't decrease</td></tr>
+<tr><td>Epochs</td><td>3 (SFT/LoRA), 1 (DPO)</td><td>Stop earlier if eval loss increases (overfitting)</td></tr>
+<tr><td>Alignment method</td><td>DPO ($30-100, practical)</td><td>RLHF only at scale ($5K-20K, production models for millions of users)</td></tr>
+<tr><td>DPO β parameter</td><td>0.1 (standard)</td><td>Increase if model forgets capabilities; decrease if alignment too weak</td></tr>
+<tr><td>Serving fine-tuned model</td><td>Merge LoRA → AWQ 4-bit → vLLM</td><td>Keep LoRA separate for multi-task; bf16 for max quality</td></tr>
+</table>
+<div class="tip"><b>Fine-tuning golden rule:</b> Prompting solves 95% of cases. Fine-tune changes HOW the model responds; RAG changes WHAT it knows. Don't confuse the two.</div>
+
+<h2>Module 4 — Agents: Key Decisions</h2>
+<table>
+<tr><th>Decision</th><th>Default Choice</th><th>When to Change</th></tr>
+<tr><td>Agent framework</td><td>LangGraph (StateGraph)</td><td>Simple AgentExecutor for trivial single-tool agents</td></tr>
+<tr><td>Architecture pattern</td><td>ReAct (agent ↔ tools loop)</td><td>Plan-and-Execute for 3+ step tasks; multi-agent only if single agent quality proven insufficient</td></tr>
+<tr><td>Tool design</td><td>@tool with Pydantic schema + error wrapping</td><td>Confirmation pattern for destructive actions</td></tr>
+<tr><td>Multi-agent?</td><td>NO (single agent + tools for 90% of cases)</td><td>Only when: different expertise needed AND single agent quality demonstrably insufficient AND 10-30s latency acceptable</td></tr>
+<tr><td>Planning</td><td>Skip for simple queries (complexity router)</td><td>Add Plan-and-Execute only for 3+ dependent step tasks</td></tr>
+<tr><td>Memory</td><td>LangGraph checkpointing (short-term) + vector store (long-term)</td><td>Add summarization when conversations exceed 20 turns</td></tr>
+<tr><td>Agent evaluation</td><td>Trajectory evaluation (tools used + step count + output)</td><td>Add LLM-as-judge for subjective quality assessment</td></tr>
+<tr><td>VLM model</td><td>GPT-4o for quality; LLaVA-7B for local/cost</td><td>InternVL2/Qwen-VL-2 when approaching GPT-4o quality locally</td></tr>
+</table>
+<div class="tip"><b>Agent golden rule:</b> Start with the simplest pattern that works. 80% of queries → simple RAG. 15% → routed/decomposed. Only 5% genuinely need full agentic. Set max_steps=10 always.</div>
+
+<h2>Module 5 — Deployment: Key Decisions</h2>
+<table>
+<tr><th>Decision</th><th>Default Choice</th><th>When to Change</th></tr>
+<tr><td>Web framework</td><td>FastAPI + uvicorn (4 workers)</td><td>LangServe for quick LangChain deployment</td></tr>
+<tr><td>Streaming</td><td>SSE (Server-Sent Events) always</td><td>WebSocket only if bidirectional needed</td></tr>
+<tr><td>Containerization</td><td>Docker + docker-compose</td><td>Kubernetes only at scale (1000+ users)</td></tr>
+<tr><td>Auth</td><td>API key header (X-API-Key)</td><td>JWT/OAuth for user-facing apps with sessions</td></tr>
+<tr><td>Rate limiting</td><td>60 req/min per user + daily token budget</td><td>Tighter for expensive endpoints (agents)</td></tr>
+<tr><td>Observability</td><td>LangSmith (traces) + Prometheus (metrics) + structlog</td><td>LangFuse as open-source alternative to LangSmith</td></tr>
+<tr><td>CI/CD quality gate</td><td>RAGAS eval (faithfulness > 0.85) on 20-50 test cases</td><td>Add agent trajectory tests for agent deployments</td></tr>
+<tr><td>Cost control</td><td>Per-user daily budget + global daily cap + step limits</td><td>Complexity router: downgrade agent → chain for simple queries</td></tr>
+</table>
+<div class="tip"><b>Deployment golden rule:</b> Default to chains (cheap, fast, reliable). Use agents only when tool selection is needed. Mandatory guardrails: step budget, timeout, cost cap on ALL agent deployments.</div>
+
+<h2>Cross-Module Decision Ladder</h2>
+<div class="prompt">Problem: "Model doesn't do what I want"
+
+Step 1: Better prompting (free, hours)           → Solves 70%
+Step 2: Add RAG (retrieve knowledge)             → Solves 20% more
+Step 3: Prompt + RAG combined (max effort)       → Solves 5% more
+Step 4: Fine-tuning (expensive, weeks)           → Solves remaining 5%
+Step 5: Agentic (multi-step, tools)              → For complex orchestration
+Step 6: Multi-agent (even more complex)          → Almost never needed
+
+ALWAYS climb in order. Jumping to Step 4+ without exhausting 1-3 is the #1 mistake.</div>
+
+<h2>Key Metrics to Remember</h2>
+<table>
+<tr><th>Metric</th><th>Target</th><th>Module</th></tr>
+<tr><td>RAGAS Faithfulness</td><td>> 0.90</td><td>M2 (RAG Eval)</td></tr>
+<tr><td>RAGAS Answer Relevancy</td><td>> 0.85</td><td>M2 (RAG Eval)</td></tr>
+<tr><td>Retrieval Recall@5</td><td>> 85%</td><td>M2 (Retrieval Quality)</td></tr>
+<tr><td>Format compliance</td><td>> 95%</td><td>M2 (Prompting) / M3 (Fine-tune goal)</td></tr>
+<tr><td>Fine-tune improvement vs best prompt</td><td>> 5%</td><td>M3 (Evaluation)</td></tr>
+<tr><td>General capability regression</td><td>< 2% drop</td><td>M3 (Evaluation)</td></tr>
+<tr><td>Agent step count (average)</td><td>< 5 steps</td><td>M4 (Agent Eval)</td></tr>
+<tr><td>Production latency (time to first token)</td><td>< 1.5s p95</td><td>M5 (Production)</td></tr>
+<tr><td>Error rate</td><td>< 1%</td><td>M5 (Observability)</td></tr>
+<tr><td>Cache hit rate</td><td>> 30%</td><td>M2/M5 (Production RAG)</td></tr>
+</table>
+
+<h2>Cost Quick Reference</h2>
+<table>
+<tr><th>Activity</th><th>Cost</th></tr>
+<tr><td>Simple RAG query (gpt-4o-mini)</td><td>~$0.0006</td></tr>
+<tr><td>Agent query (5 steps, gpt-4o-mini)</td><td>~$0.003</td></tr>
+<tr><td>Agent query (gpt-4o)</td><td>~$0.03</td></tr>
+<tr><td>LoRA training (8B, 1K examples)</td><td>$10-20</td></tr>
+<tr><td>DPO alignment (2K pairs)</td><td>$30-100</td></tr>
+<tr><td>RLHF full pipeline</td><td>$5,000-20,000</td></tr>
+<tr><td>RAGAS eval (200 examples)</td><td>$2-10</td></tr>
+<tr><td>Production service (1K queries/day)</td><td>~$70/month (API + infra)</td></tr>
+</table>
+
+<h2>Test Dates & Prep Strategy</h2>
+<table>
+<tr><th>Test</th><th>Date</th><th>Covers</th><th>Prep Start</th><th>Focus</th></tr>
+<tr><td>Proctored Test 1</td><td>Sep 5, 2026</td><td>Module 1 + 2</td><td>Aug 29 (1 week)</td><td>RAG decisions, configs, failure modes</td></tr>
+<tr><td>Proctored Test 2</td><td>Dec 26, 2026</td><td>Module 3 + 4</td><td>Dec 12 (2 weeks)</td><td>Fine-tuning when/how, agent patterns, LangGraph</td></tr>
+<tr><td>Capstone Feedback</td><td>Jan 30, 2027</td><td>All modules</td><td>Jan 2 (build)</td><td>Working system, 90% complete</td></tr>
+<tr><td>Capstone Evaluation</td><td>Feb 6, 2027</td><td>All modules</td><td>Jan 30 (polish)</td><td>Documentation, eval report, presentation</td></tr>
+</table>
+
+</body>
+</html>

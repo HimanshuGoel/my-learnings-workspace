@@ -1,6 +1,6 @@
 ---
 inclusion: fileMatch
-fileMatchPattern: "**/module3-finetuning/**"
+fileMatchPattern: "**/module3-fine-tuning-alignment/**"
 ---
 
 # Module 3 — Fine-Tuning & Alignment (Practitioner's Decision Guide)
@@ -31,7 +31,7 @@ Module 3 of the IIT KGP GenAI program (Sep 12 – Oct 31, 2026). Unlike Module 2
 ## File Structure
 
 ```
-module3-finetuning/
+module3-fine-tuning-alignment/
 ├── roadmap.md
 ├── when-to-fine-tune.md           ← Decision framework (most important topic)
 ├── when-to-fine-tune_PRINTABLE.html

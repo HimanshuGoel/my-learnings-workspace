@@ -1,6 +1,6 @@
 ---
 inclusion: fileMatch
-fileMatchPattern: '**/genai-fundamentals/**'
+fileMatchPattern: '**/module1-genai-fundamentals/**'
 ---
 
 # GenAI & LLM Fundamentals — Structure & Guidelines
@@ -10,7 +10,7 @@ When creating notes for GenAI concepts (Transformers, Attention, Tokenization, e
 ## File Structure Per Topic
 
 ```
-genai-fundamentals/
+module1-genai-fundamentals/
 ├── roadmap.md                    ← topics, order, priority, module mapping
 ├── <topic>.md                    ← detailed concept notes
 ├── <topic>_PRINTABLE.html        ← rich printable with SVG diagrams

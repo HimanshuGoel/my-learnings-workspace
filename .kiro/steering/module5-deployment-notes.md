@@ -1,6 +1,6 @@
 ---
 inclusion: fileMatch
-fileMatchPattern: "**/module5-deployment/**"
+fileMatchPattern: "**/module5-deployment-term-project/**"
 ---
 
 # Module 5 — Deployment & Capstone (Deployment Runbook)
@@ -40,7 +40,7 @@ Module 5 of the IIT KGP GenAI program (Jan 2 – Feb 6, 2027). This is where eve
 ## File Structure
 
 ```
-module5-deployment/
+module5-deployment-term-project/
 ├── roadmap.md
 ├── fastapi-serving.md              ← Primary deployment framework
 ├── fastapi-serving_PRINTABLE.html

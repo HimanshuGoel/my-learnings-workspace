@@ -11,7 +11,7 @@ Himanshu is pursuing the "Executive Post Graduate Certificate in Generative AI &
 
 ## Current Phase
 
-Foundation Building → transitioning into Module 1 (Foundations of GenAI & LLMs).
+Module 1 (Foundations) complete → Module 2 starts Jul 25. All notes for Modules 2-5 pre-created.
 
 ## Program Structure
 
@@ -39,7 +39,22 @@ Foundation Building → transitioning into Module 1 (Foundations of GenAI & LLMs
 - Mathematics notes (8 files) — rearranged and printable HTML generated
 - Python roadmap and practice questions available
 - First assignment (Classification Models) — notebooks created
+- GenAI Fundamentals (Module 1) — 12 topic .md + 12 printable HTMLs
 - Learning strategy, prompts-for-learning, visual-note-taking guides in `/guides/`
+- **Module 2 (RAG)** — 10 topics (.md + _PRINTABLE.html), steering file, roadmap ✓
+- **Module 3 (Fine-Tuning)** — 10 topics (.md + _PRINTABLE.html), steering file, roadmap ✓
+- **Module 4 (Agents)** — 10 topics (.md + _PRINTABLE.html), steering file, roadmap ✓
+- **Module 5 (Deployment)** — 10 topics (.md + _PRINTABLE.html), steering file, roadmap ✓
+
+### Notes Format by Module
+
+| Module | Format | Key Focus |
+|--------|--------|-----------|
+| Module 1 | Conceptual notes (theory + intuition) | "What is this and why does it exist?" |
+| Module 2 | Practitioner's Playbook | "Which tool, what config, how to debug?" |
+| Module 3 | Decision Guide | "Should I fine-tune? What method? What cost?" |
+| Module 4 | System Architect's Guide | "How to design agents, state machines, multi-agent?" |
+| Module 5 | Deployment Runbook | "How to ship: FastAPI, Docker, CI/CD, monitoring?" |
 
 ## What Kiro Should Do When Asked About This Journey
 
