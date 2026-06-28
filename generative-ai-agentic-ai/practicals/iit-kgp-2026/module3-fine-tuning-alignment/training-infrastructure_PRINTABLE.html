@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Training Infrastructure — Decision Guide</title>
+<style>
+  @page { margin: 0.5cm; size: A4; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+  h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+  h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+  h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+  ul { margin: 0 0 2px 12px; padding: 0; }
+  li { margin-bottom: 0.5px; }
+  .tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+  .prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+  .two-col { column-count: 2; column-gap: 10px; }
+  code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+  table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+  th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+  th { background: #f3f4f6; font-weight: bold; }
+  .diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+  .diagram svg { max-width: 100%; }
+  .diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+  .section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+  @media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+<h1>Module 3, Topic 5 — Training Infrastructure</h1>
+<p class="section-intro">GPU memory is the primary constraint in fine-tuning. You need to match your model size and training method (full SFT vs LoRA vs QLoRA) to available hardware. Cloud GPU options vary wildly in cost — from free (Colab) to $8/hr (H100). This topic helps you pick the right setup without overspending or running out of memory mid-training.</p>
+<p><b>Problem:</b> GPU options are confusing (T4 vs A100 vs H100), cloud providers charge differently, and miscalculating memory requirements means either OOM crashes or paying for unused capacity. You need a clear mental model for hardware selection, cost estimation, and practical cloud GPU workflows.</p>
+
+<h2>GPU Memory Budget</h2>
+<div class="diagram">
+<svg width="460" height="120" viewBox="0 0 460 120">
+<defs><marker id="arrTI" markerWidth="5" markerHeight="4" refX="5" refY="2" orient="auto"><path d="M0,0 L5,2 L0,4 Z" fill="#4F46E5"/></marker></defs>
+<!-- GPU box -->
+<rect x="10" y="10" width="440" height="100" rx="6" fill="#f8fafc" stroke="#4F46E5" stroke-width="1.5"/>
+<text x="230" y="25" text-anchor="middle" font-size="6.5pt" font-weight="bold" fill="#4F46E5">GPU VRAM (e.g., 80 GB A100)</text>
+<!-- Model weights -->
+<rect x="20" y="35" width="140" height="55" rx="3" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="90" y="52" text-anchor="middle" font-size="5.5pt" font-weight="bold">Model Weights</text>
+<text x="90" y="62" text-anchor="middle" font-size="5pt">8B × 2 bytes (bf16)</text>
+<text x="90" y="72" text-anchor="middle" font-size="5.5pt" fill="#3b82f6" font-weight="bold">= 16 GB</text>
+<text x="90" y="83" text-anchor="middle" font-size="4.5pt" fill="#666">QLoRA: 8B × 0.5B = 4 GB</text>
+<!-- Gradients -->
+<rect x="170" y="35" width="100" height="55" rx="3" fill="#fef3c7" stroke="#f59e0b"/>
+<text x="220" y="52" text-anchor="middle" font-size="5.5pt" font-weight="bold">Gradients</text>
+<text x="220" y="62" text-anchor="middle" font-size="5pt">8B × 2 bytes</text>
+<text x="220" y="72" text-anchor="middle" font-size="5.5pt" fill="#d97706" font-weight="bold">= 16 GB</text>
+<text x="220" y="83" text-anchor="middle" font-size="4.5pt" fill="#666">LoRA: only adapter grads</text>
+<!-- Optimizer -->
+<rect x="280" y="35" width="100" height="55" rx="3" fill="#fee2e2" stroke="#ef4444"/>
+<text x="330" y="52" text-anchor="middle" font-size="5.5pt" font-weight="bold">Optimizer</text>
+<text x="330" y="62" text-anchor="middle" font-size="5pt">8B × 8 bytes (Adam)</text>
+<text x="330" y="72" text-anchor="middle" font-size="5.5pt" fill="#ef4444" font-weight="bold">= 64 GB</text>
+<text x="330" y="83" text-anchor="middle" font-size="4.5pt" fill="#666">LoRA: only adapter states</text>
+<!-- Activations -->
+<rect x="390" y="35" width="55" height="55" rx="3" fill="#dcfce7" stroke="#22c55e"/>
+<text x="417" y="52" text-anchor="middle" font-size="5.5pt" font-weight="bold">Activs</text>
+<text x="417" y="62" text-anchor="middle" font-size="5pt">Variable</text>
+<text x="417" y="72" text-anchor="middle" font-size="5pt" fill="#059669">~2-8 GB</text>
+<text x="417" y="83" text-anchor="middle" font-size="4.5pt" fill="#666">↓ with grad ckpt</text>
+</svg>
+<div class="diagram-caption">Full SFT 8B bf16: 16+16+64+~4 = ~96 GB (needs 2× A100 80GB). LoRA: 16 GB base + tiny adapter overhead = ~18 GB. QLoRA: 4 GB base + adapter = ~8 GB.</div>
+</div>
+
+<h2>Memory Formula Quick Reference</h2>
+<div class="prompt">Full SFT (bf16):   12 bytes × param_count   → 8B model ≈ 96 GB (2× A100 80GB)
+LoRA (bf16 base):  ~2.5 bytes × param_count → 8B model ≈ 18 GB (1× A100 40GB)
+QLoRA (4-bit):     ~0.7 bytes × param_count → 8B model ≈ 8 GB  (1× T4 16GB)
+
+Rule: Always leave 10-20% headroom for activation spikes and batch overhead.
+</div>
+
+<h2>GPU Selection Guide</h2>
+<table>
+<tr><th>GPU</th><th>VRAM</th><th>Best For</th><th>Cloud $/hr</th></tr>
+<tr><td>T4</td><td>16 GB</td><td>QLoRA ≤ 8B, inference</td><td>$0.50-1.00</td></tr>
+<tr><td>A10G</td><td>24 GB</td><td>LoRA 8B, QLoRA 13B</td><td>$1.00-1.50</td></tr>
+<tr><td>L4</td><td>24 GB</td><td>Similar to A10G, newer</td><td>$0.80-1.20</td></tr>
+<tr><td>A100 40GB</td><td>40 GB</td><td>LoRA 13B, QLoRA 70B</td><td>$2.00-3.50</td></tr>
+<tr><td>A100 80GB</td><td>80 GB</td><td>Full SFT 8B, LoRA 70B</td><td>$3.00-5.00</td></tr>
+<tr><td>H100 80GB</td><td>80 GB</td><td>Fastest training, large models</td><td>$4.00-8.00</td></tr>
+</table>
+
+<h2>What Fits Where?</h2>
+<table>
+<tr><th>Model Size</th><th>Full SFT</th><th>LoRA (bf16)</th><th>QLoRA (4-bit)</th></tr>
+<tr><td>3B</td><td>1× A100 40GB</td><td>1× T4 16GB</td><td>1× T4 16GB</td></tr>
+<tr><td>7-8B</td><td>2× A100 80GB</td><td>1× A100 40GB</td><td>1× T4 16GB</td></tr>
+<tr><td>13B</td><td>4× A100 80GB</td><td>1× A100 80GB</td><td>1× A100 40GB</td></tr>
+<tr><td>70B</td><td>8× A100 80GB</td><td>4× A100 80GB</td><td>1× A100 80GB</td></tr>
+</table>
+
+<h2>Cloud Provider Comparison</h2>
+<table>
+<tr><th>Provider</th><th>Best For</th><th>Pricing</th><th>GPU Access</th></tr>
+<tr><td>Google Colab (free/Pro)</td><td>Learning, small experiments</td><td>Free / $10-50/mo</td><td>T4 (free), A100 (Pro)</td></tr>
+<tr><td>Lambda Labs</td><td>Dedicated GPU instances</td><td>$1.10/hr (A100)</td><td>On-demand, reserved</td></tr>
+<tr><td>RunPod</td><td>Short training runs, flexible</td><td>$0.74/hr (A100 40GB)</td><td>Spot + on-demand</td></tr>
+<tr><td>Vast.ai</td><td>Cheapest spot instances</td><td>$0.50-1.00/hr</td><td>Spot (may preempt)</td></tr>
+<tr><td>Modal</td><td>Serverless GPU, pay per second</td><td>$2.78/hr (A100 80GB)</td><td>Auto-scale</td></tr>
+<tr><td>HuggingFace AutoTrain</td><td>Zero-code fine-tuning</td><td>$5-50 per run</td><td>Managed</td></tr>
+</table>
+
+<h2>Implementation — RunPod/Lambda (Recommended)</h2>
+<div class="prompt"># 1. Launch instance: A100 80GB, PyTorch template, $3.50/hr
+# 2. SSH in and setup:
+pip install transformers peft trl datasets bitsandbytes accelerate wandb
+
+# 3. Upload data:
+rsync -avz ./training_data.jsonl runpod:/workspace/data/
+
+# 4. Run training (use screen to persist):
+screen -S training
+python train.py --config config.yaml
+
+# 5. Download results:
+rsync -avz runpod:/workspace/output/ ./results/
+
+# 6. CRITICAL — STOP THE INSTANCE:
+python train.py && sudo shutdown -h now   # Auto-shutdown after training</div>
+
+<h2>Implementation — Modal (Serverless)</h2>
+<div class="prompt">import modal
+app = modal.App("fine-tune")
+image = modal.Image.debian_slim().pip_install("transformers","peft","trl","datasets","bitsandbytes","accelerate")
+
+@app.function(gpu="A100", timeout=3600, image=image)
+def train(config: dict):
+    from trl import SFTTrainer, SFTConfig
+    # Training code here — pays only while running
+    trainer.train()
+    trainer.save_model("/results/adapter")
+# Run: modal run train.py → auto-provisions GPU, runs, shuts down
+</div>
+
+<h2>Training Time Estimation</h2>
+<div class="prompt">def estimate_training_time(num_examples, avg_tokens, epochs, batch_size, tps=5000):
+    total_tokens = num_examples * avg_tokens * epochs
+    total_hours = total_tokens / (batch_size * tps * 3600)
+    return {"hours": round(total_hours, 1),
+            "cost_a100": f"${total_hours * 3.50:.2f}",
+            "cost_t4": f"${total_hours * 0.75:.2f}"}
+
+# Example: 1000 examples × 500 tokens × 3 epochs, batch=4
+# → ~0.8 hrs, ~$2.80 on A100, ~$0.60 on T4</div>
+
+<h2>Configuration & Best Practices</h2>
+<table>
+<tr><th>Setting</th><th>Recommendation</th><th>Why</th></tr>
+<tr><td>GPU for LoRA 8B</td><td>A100 40GB or T4 (QLoRA)</td><td>Fits with room for batching</td></tr>
+<tr><td>Spot vs on-demand</td><td>Spot (save 50-70%)</td><td>Training can checkpoint/resume</td></tr>
+<tr><td>Checkpoint frequency</td><td>Every 100 steps</td><td>Resume if instance preempted</td></tr>
+<tr><td>Experiment tracking</td><td>Weights & Biases (free tier)</td><td>Track loss curves, compare runs</td></tr>
+<tr><td>Auto-shutdown</td><td>ALWAYS set up</td><td>Forgetting = $50-200 overnight bill</td></tr>
+<tr><td>Validate first</td><td>Train 100 steps on subset</td><td>Catch errors before full run</td></tr>
+</table>
+
+<h2>Distributed Training (Multi-GPU)</h2>
+<div class="prompt">from accelerate import Accelerator
+accelerator = Accelerator()  # Auto-detects multi-GPU
+model, optimizer, dataloader = accelerator.prepare(model, optimizer, dataloader)
+# Launch: accelerate launch --num_processes 4 train.py</div>
+
+<h2>Failure Modes → Fixes</h2>
+<table>
+<tr><th>Problem</th><th>Symptom</th><th>Fix</th></tr>
+<tr><td>OOM (Out of Memory)</td><td>CUDA OOM error</td><td>↓ batch size, enable grad checkpointing, use QLoRA</td></tr>
+<tr><td>Instance preempted</td><td>Training stops mid-run</td><td>Save checkpoints every 100 steps, resume</td></tr>
+<tr><td>Forgot to stop instance</td><td>$50-200 unexpected bill</td><td>Auto-shutdown: <code>train.py && sudo shutdown -h now</code></td></tr>
+<tr><td>Slow training</td><td>Hours when expected minutes</td><td>Check: bf16? Batch too small? DataLoader bottleneck?</td></tr>
+<tr><td>GPU util < 50%</td><td>Data loading bottleneck</td><td>Pre-tokenize, streaming, more DataLoader workers</td></tr>
+<tr><td>Driver/CUDA mismatch</td><td>GPU operation errors</td><td>Use provider's pre-built PyTorch images</td></tr>
+</table>
+
+<h2>Cost Reference — Budget Templates</h2>
+<table>
+<tr><th>Project</th><th>Setup</th><th>Training Time</th><th>Total Cost</th></tr>
+<tr><td>Learning experiment</td><td>T4 (Colab free)</td><td>2-4 hrs</td><td>$0</td></tr>
+<tr><td>Serious LoRA 8B</td><td>A100 40GB (RunPod)</td><td>3-6 hrs</td><td>$10-20</td></tr>
+<tr><td>Production LoRA 8B</td><td>A100 80GB × 3 runs</td><td>3-6 hrs × 3</td><td>$30-60</td></tr>
+<tr><td>LoRA 70B</td><td>A100 80GB</td><td>8-24 hrs</td><td>$30-85</td></tr>
+<tr><td>Full SFT 8B</td><td>2× A100 80GB</td><td>8-24 hrs</td><td>$50-170</td></tr>
+</table>
+<div class="tip"><b>Cost optimization:</b> Use spot instances (50-70% cheaper), start with 100 steps to validate setup, pre-tokenize data, and always set auto-shutdown scripts.</div>
+
+<h2>Decision Checkpoint</h2>
+<div class="tip">
+☐ I know what GPU I need for my model + method combination<br>
+☐ I have an account on a cloud GPU provider (Colab Pro / RunPod / Lambda)<br>
+☐ I've estimated training time and cost BEFORE launching<br>
+☐ I have auto-shutdown or billing alerts configured<br>
+☐ I'm using spot instances for training (with checkpointing)<br>
+☐ I've verified my code works on a small subset (100 steps) before full run<br>
+☐ I have experiment tracking set up (W&B or similar)<br><br>
+<b>Next → RLHF (how models learn human preferences beyond imitation)</b>
+</div>
+
+</body>
+</html>

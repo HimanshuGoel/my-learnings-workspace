@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Stage 3 — Functions & Graph Thinking — Printable Notes</title>
+<style>
+  @page { margin: 0.5cm; size: A4; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+  h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+  h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+  h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+  ul { margin: 0 0 2px 12px; padding: 0; }
+  li { margin-bottom: 0.5px; }
+  .tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+  .prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+  .two-col { column-count: 2; column-gap: 10px; }
+  .three-col { column-count: 3; column-gap: 10px; }
+  code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+  table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+  th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+  th { background: #f3f4f6; font-weight: bold; }
+  .diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+  .diagram svg { max-width: 100%; }
+  .diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+  .diagram-row { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 8px; margin: 4px 0; break-inside: avoid; }
+  .diagram-row .diagram { flex: 1; min-width: 120px; max-width: 250px; }
+  .section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+  @media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+
+<h1>Stage 3 — Functions & Graph Thinking</h1>
+<p><b>Summary:</b> Functions model how one thing changes when another changes — the mathematical foundation for every AI prediction, every neural network layer, and every optimization curve.</p>
+
+<h2>Why This Matters for AI</h2>
+<ul>
+<li><b>Model = Function</b> — an AI model IS a function: input features → prediction. Training a model means finding the right function.</li>
+<li><b>Loss & Optimization</b> — loss curves, learning rates, and optimization landscapes are all visualized through graphs of functions</li>
+<li><b>Deep Learning Depth</b> — neural network layers are composite functions chained together: <code>f(g(h(x)))</code></li>
+<li><b>Activation Functions</b> — ReLU, sigmoid, softmax are piecewise or special functions that give networks their power</li>
+<li><b>Training Dynamics</b> — understanding function behavior (growth, decay, continuity) builds intuition for model training dynamics</li>
+</ul>
+
+<h2>3.1 Function Basics</h2>
+<p class="section-intro">At its core, a function is a rule that takes an input and produces exactly one output. This simple idea is the building block for all of machine learning — every model is a function from features to predictions.</p>
+
+<h3>1. Functions</h3>
+<ul>
+<li><b>Meaning</b> — a function is a rule that assigns exactly one output to each input. It's a transformation machine: put something in, get something out, with no ambiguity.</li>
+<li><b>Why It Exists</b> — we need a precise way to describe how things relate to each other. "Hours worked → salary earned" or "image pixels → classification label" — these are all functions.</li>
+<li><b>Formula</b> — <code>f(x) = expression</code>. Example: <code>f(x) = x + 2</code></li>
+<li><b>Example</b> — <code>f(3) = 3 + 2 = 5</code>. Input 3, output 5. Always. Every time. No exceptions.</li>
+<li><b>Mental Model</b> — a vending machine: insert a specific coin (input), get exactly one item (output). Same coin always gives same item.</li>
+<li><b>AI Connection</b> — a trained neural network IS a function: <code>f(image) = "cat"</code>. The entire goal of training is to find the right function that maps inputs to correct outputs.</li>
+<li><b>Common Mistake</b> — a function must give ONE output per input. Multiple inputs can map to the same output (that's fine), but one input cannot map to multiple outputs (that's not a function).</li>
+</ul>
+
+<h3>2. Domain & Range</h3>
+<ul>
+<li><b>Meaning</b> — the domain is the set of all valid inputs a function can accept. The range is the set of all possible outputs the function can produce.</li>
+<li><b>Why It Exists</b> — not every input makes sense for every function (you can't divide by zero, can't take √ of a negative in reals). Domain and range define the function's boundaries.</li>
+<li><b>Example</b> — for <code>f(x) = √x</code>: domain = <code>[0, ∞)</code> (can't take square root of negative), range = <code>[0, ∞)</code> (output is always non-negative).</li>
+<li><b>Mental Model</b> — domain = all the keys on a keyboard that the machine accepts. Range = all the outputs the screen can display.</li>
+<li><b>AI Connection</b> — input validation: a model trained on images 224×224 has that as its domain. Feeding it a 1000×1000 image is "outside the domain." Output range defines possible predictions.</li>
+</ul>
+
+<h3>3. What is NOT a Function (Vertical Line Test)</h3>
+<ul>
+<li><b>Meaning</b> — if a single input can produce multiple different outputs, it's NOT a function. The vertical line test: if a vertical line crosses a graph at more than one point, it's not a function.</li>
+<li><b>Why It Exists</b> — functions require determinism — same input, same output. Ambiguous mappings (one input → multiple outputs) create unpredictable systems.</li>
+<li><b>Example</b> — a circle <code>x² + y² = 1</code> is NOT a function because for x = 0, y can be +1 or -1 (two outputs for one input).</li>
+<li><b>Mental Model</b> — a vending machine that randomly gives you chips OR soda for the same coin — that's broken (not a function).</li>
+<li><b>AI Connection</b> — unstable APIs, non-deterministic models (same prompt → different responses due to temperature sampling). Strictly speaking, a model with temperature > 0 is not a pure function — it's a stochastic process.</li>
+</ul>
+
+<h2>3.2 Function Visualization</h2>
+<p class="section-intro">Graphs let us SEE how functions behave — where they grow, shrink, bend, or break. This visual intuition is essential for understanding loss landscapes and training dynamics.</p>
+
+<h3>4. Graphs of Functions</h3>
+<ul>
+<li><b>Meaning</b> — a graph plots every (input, output) pair as a point on a coordinate plane, creating a visual picture of the function's behavior over its entire domain.</li>
+<li><b>Why It Exists</b> — humans understand patterns visually far better than through equations alone. A graph instantly reveals growth, decline, acceleration, anomalies, and trends.</li>
+<li><b>Example</b> — the graph of <code>f(x) = x²</code> is a U-shaped parabola. You can immediately see it decreases, hits a minimum at x=0, then increases.</li>
+<li><b>Mental Model</b> — a behavior visualizer. The x-axis is the input dial, the y-axis shows what happens.</li>
+<li><b>AI Connection</b> — loss curves (training progress), learning rate schedules, activation function shapes, model performance vs. data size curves — all are function graphs that guide ML decisions.</li>
+</ul>
+
+<h2>3.3 Linear Functions</h2>
+<p class="section-intro">The simplest meaningful functions: constant, predictable change. They form the backbone of linear regression and are the starting point for understanding more complex behaviors.</p>
+
+<h3>5. Linear Functions</h3>
+<ul>
+<li><b>Meaning</b> — a function where the output changes at a constant rate. The graph is always a straight line. Equal input increments produce equal output increments.</li>
+<li><b>Why It Exists</b> — many real-world relationships are approximately linear over reasonable ranges: cost per unit, salary per hour, distance per time at constant speed.</li>
+<li><b>Formula</b> — <code>y = mx + b</code> where m = slope (rate of change) and b = y-intercept (starting value)</li>
+<li><b>Example</b> — taxi fare: <code>cost = 10 × km + 50</code>. Base fare ₹50 (intercept) + ₹10 per km (slope). At 5km: <code>10(5) + 50 = ₹100</code>.</li>
+<li><b>Mental Model</b> — walking on a perfectly flat ramp. Same effort per step gives same elevation gain.</li>
+<li><b>AI Connection</b> — linear regression (simplest ML model), the linear part of each neural network layer (<code>Wx + b</code>), and the baseline all more complex models are compared against.</li>
+</ul>
+
+<h3>6. Slope & Intercept</h3>
+<ul>
+<li><b>Meaning</b> — slope (m) is the rate of change — how steep the line is, how much output changes per unit of input. Intercept (b) is the output value when input is zero — the starting point.</li>
+<li><b>Why It Exists</b> — these two numbers completely define a line. Understanding them separately lets you reason about trends (slope) independently from baselines (intercept).</li>
+<li><b>Formula</b> — in <code>y = mx + b</code>: slope = <code>(y₂ - y₁) / (x₂ - x₁)</code>, intercept = value of y when x = 0</li>
+<li><b>Example</b> — <code>y = 3x + 100</code>. Slope = 3 (output grows by 3 for every 1 unit of input). Intercept = 100 (starting value).</li>
+<li><b>Mental Model</b> — slope = steepness of a hill. Intercept = altitude at the starting line.</li>
+<li><b>AI Connection</b> — in gradient descent, the slope of the loss function tells you the learning direction. A positive slope means "move left to reduce loss," negative means "move right." The slope IS the gradient in 1D.</li>
+</ul>
+
+<!-- SVG Diagram: Linear Function Graph -->
+<div class="diagram">
+<svg width="220" height="140" viewBox="0 0 220 140">
+<defs><marker id="arr1" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ccc"/></marker></defs>
+<!-- Axes -->
+<line x1="20" y1="120" x2="200" y2="120" stroke="#ccc" stroke-width="0.5" marker-end="url(#arr1)"/>
+<line x1="20" y1="120" x2="20" y2="10" stroke="#ccc" stroke-width="0.5" marker-end="url(#arr1)"/>
+<text x="205" y="123" font-size="6pt" fill="#666">x</text>
+<text x="14" y="8" font-size="6pt" fill="#666">y</text>
+<!-- Linear line: y = 2x + 20 mapped to SVG -->
+<line x1="30" y1="105" x2="185" y2="25" stroke="#4F46E5" stroke-width="1.5"/>
+<!-- Slope label -->
+<line x1="80" y1="80" x2="130" y2="80" stroke="#f59e0b" stroke-width="0.7" stroke-dasharray="2,1"/>
+<line x1="130" y1="80" x2="130" y2="54" stroke="#f59e0b" stroke-width="0.7" stroke-dasharray="2,1"/>
+<text x="90" y="89" font-size="6pt" fill="#f59e0b">Δx</text>
+<text x="133" y="70" font-size="6pt" fill="#f59e0b">Δy</text>
+<text x="135" y="89" font-size="6pt" fill="#f59e0b">slope = Δy/Δx</text>
+<!-- Intercept -->
+<circle cx="30" cy="105" r="2.5" fill="#4F46E5"/>
+<text x="34" y="113" font-size="6pt" fill="#4F46E5">b (intercept)</text>
+</svg>
+<div class="diagram-caption">Linear function y = mx + b: constant slope, straight line</div>
+</div>
+
+<h2>3.4 Polynomial Functions</h2>
+<p class="section-intro">When relationships aren't constant (the rate of change itself changes), polynomials model this "changing change." They introduce curves, acceleration, and richer behavior.</p>
+
+<h3>7. Polynomial Functions</h3>
+<ul>
+<li><b>Meaning</b> — functions that use powers of x combined with coefficients and constants. Unlike linear functions where growth is constant, polynomials have growth rates that change dynamically.</li>
+<li><b>Why It Exists</b> — most real systems don't grow linearly. Revenue accelerates, populations plateau, physics involves squares and cubes. Polynomials capture these curved behaviors.</li>
+<li><b>Formula</b> — general: <code>aₙxⁿ + aₙ₋₁xⁿ⁻¹ + ... + a₁x + a₀</code></li>
+<li><b>Example</b> — <code>f(x) = 2x³ - 5x² + 3x + 1</code> — a cubic polynomial with degree 3.</li>
+<li><b>Mental Model</b> — linear = constant speed. Polynomial = acceleration (speed itself is changing).</li>
+<li><b>AI Connection</b> — non-linear modeling: real-world data rarely fits straight lines. Polynomial features in regression, loss function shapes, and the theoretical capacity of neural networks to approximate any function.</li>
+</ul>
+
+<h3>8. Degree and Coefficients</h3>
+<ul>
+<li><b>Meaning</b> — the degree is the highest power of x (determines complexity and number of curves). Coefficients control the intensity and direction of each term.</li>
+<li><b>Why It Exists</b> — degree tells you the maximum complexity of behavior (how many turns the graph can make). Coefficients fine-tune the shape.</li>
+<li><b>Example</b> — degree 1: straight line (1 behavior). Degree 2: one curve. Degree 3: up to two curves (S-shape). Degree n: up to n-1 turns.</li>
+<li><b>Mental Model</b> — degree = how many bends in the road. Coefficients = how sharp each bend is.</li>
+<li><b>AI Connection</b> — higher-degree polynomials can fit more complex data but risk overfitting — the bias-variance tradeoff.</li>
+</ul>
+
+<h3>9. Quadratic Functions (Parabola)</h3>
+<ul>
+<li><b>Meaning</b> — polynomial of degree 2. The graph is a U-shaped curve (parabola) with exactly one turning point (vertex). Represents acceleration or deceleration.</li>
+<li><b>Why It Exists</b> — quadratics model anything with a peak or valley: projectile paths, optimization problems, diminishing returns. They're the simplest functions with a minimum or maximum.</li>
+<li><b>Formula</b> — <code>y = ax² + bx + c</code>. If a > 0: opens upward (has minimum). If a < 0: opens downward (has maximum).</li>
+<li><b>Example</b> — <code>y = x² - 4x + 3</code> has vertex at x=2 (minimum point). This is like a loss function with an optimal point.</li>
+<li><b>Mental Model</b> — a ball thrown upward: rises (decelerating), reaches peak, then falls (accelerating). The vertex is the turning point.</li>
+<li><b>AI Connection</b> — Mean Squared Error loss function is quadratic in the parameters (for linear models). The U-shape guarantees a single minimum — gradient descent will find it. This is why MSE is so popular.</li>
+</ul>
+
+<!-- SVG Diagram: Quadratic / Parabola showing vertex -->
+<div class="diagram">
+<svg width="220" height="140" viewBox="0 0 220 140">
+<defs><marker id="arr2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ccc"/></marker></defs>
+<!-- Axes -->
+<line x1="20" y1="120" x2="200" y2="120" stroke="#ccc" stroke-width="0.5" marker-end="url(#arr2)"/>
+<line x1="110" y1="130" x2="110" y2="10" stroke="#ccc" stroke-width="0.5" marker-end="url(#arr2)"/>
+<text x="205" y="123" font-size="6pt" fill="#666">x</text>
+<text x="112" y="8" font-size="6pt" fill="#666">y</text>
+<!-- Parabola path y = x² scaled -->
+<path d="M 30,15 Q 70,125 110,110 Q 150,125 190,15" fill="none" stroke="#4F46E5" stroke-width="1.5"/>
+<!-- Vertex point -->
+<circle cx="110" cy="110" r="3" fill="#f59e0b"/>
+<text x="115" y="118" font-size="6pt" fill="#f59e0b">vertex (minimum)</text>
+<!-- Gradient arrows -->
+<line x1="60" y1="60" x2="75" y2="80" stroke="#1a1a1a" stroke-width="0.8" marker-end="url(#arr2)"/>
+<text x="40" y="55" font-size="5.5pt" fill="#1a1a1a">gradient↓</text>
+<line x1="160" y1="60" x2="145" y2="80" stroke="#1a1a1a" stroke-width="0.8" marker-end="url(#arr2)"/>
+<text x="155" y="55" font-size="5.5pt" fill="#1a1a1a">gradient↓</text>
+</svg>
+<div class="diagram-caption">Quadratic (parabola): U-shape with vertex = minimum. Gradient descent follows slopes toward the vertex.</div>
+</div>
+
+<h3>10. Cubic Functions</h3>
+<ul>
+<li><b>Meaning</b> — polynomial of degree 3. The graph has an S-shaped curve with an inflection point where the curvature changes direction.</li>
+<li><b>Why It Exists</b> — cubics model transitions: systems that accelerate, then decelerate (or vice versa). They capture more complex dynamics than quadratics.</li>
+<li><b>Formula</b> — <code>y = ax³ + bx² + cx + d</code></li>
+<li><b>Example</b> — an adoption curve: slow start (few users), rapid growth (viral phase), then plateau. The inflection point is where growth is fastest.</li>
+<li><b>Mental Model</b> — changing curvature: the road bends one way, then bends the other way. The inflection point is where it switches.</li>
+<li><b>AI Connection</b> — S-shaped activation functions (sigmoid, tanh), technology adoption curves, and learning curves often follow cubic-like behavior with inflection points.</li>
+</ul>
+
+<h2>3.5 Exponential & Logarithmic Functions</h2>
+<p class="section-intro">These functions model the most extreme behaviors: explosive growth and its inverse (compression). Understanding them is essential for AI scaling laws, probability, and information theory.</p>
+
+<h3>11. Exponential Functions</h3>
+<ul>
+<li><b>Meaning</b> — functions where the variable is in the exponent: <code>y = aˣ</code>. Growth multiplies rather than adds — the output grows proportionally to its current value.</li>
+<li><b>Why It Exists</b> — many real phenomena grow multiplicatively: compound interest, viral spread, bacterial growth, compute scaling. Exponential growth starts slow then becomes explosive.</li>
+<li><b>Formula</b> — <code>y = aˣ</code> where a > 1 for growth, 0 < a < 1 for decay</li>
+<li><b>Example</b> — <code>2ˣ</code>: at x=1 → 2, x=5 → 32, x=10 → 1024, x=20 → 1,048,576. Doubles each step.</li>
+<li><b>Mental Model</b> — linear: <code>+10, +10, +10</code>. Exponential: <code>×2, ×2, ×2</code>. Same operation (multiplication) but the numbers themselves grow, making each step larger than the last.</li>
+<li><b>AI Connection</b> — AI compute scaling (training cost doubles per model generation), combinatorial explosion, softmax function uses <code>eˣ</code>, neural scaling laws show exponential relationships between compute and performance.</li>
+</ul>
+
+<h3>12. The Number e and Exponential Bases</h3>
+<ul>
+<li><b>Meaning</b> — <code>e ≈ 2.718</code> is a special mathematical constant representing "natural continuous growth." It appears whenever growth is continuous rather than discrete. The base of an exponential controls growth speed.</li>
+<li><b>Why It Exists</b> — <code>e</code> emerges naturally from compound interest taken to its limit. It makes calculus clean (derivative of eˣ = eˣ) and appears in probability, statistics, and information theory.</li>
+<li><b>Formula</b> — <code>eˣ</code> for natural growth. Larger bases (10ˣ) grow faster. <code>(1/2)ˣ</code> represents decay.</li>
+<li><b>Example</b> — continuous compound interest: invest ₹1 at 100% interest compounded continuously = ₹e ≈ ₹2.72 after one year (not ₹2).</li>
+<li><b>Mental Model</b> — <code>e</code> is the "speed limit" of how fast something can grow when growth is continuous and proportional to current size.</li>
+<li><b>AI Connection</b> — softmax: <code>eˣ / Σeˣ</code> converts raw scores to probabilities. Natural log loss. Learning rate decay schedules. The entire probability framework of ML rests on <code>e</code>.</li>
+</ul>
+
+<h3>13. Logarithmic Functions</h3>
+<ul>
+<li><b>Meaning</b> — the logarithm is the inverse of the exponential: if <code>aˣ = y</code>, then <code>logₐ(y) = x</code>. It answers: "what power do I need to raise a to, in order to get y?"</li>
+<li><b>Why It Exists</b> — exponentials grow too fast to work with directly. Logarithms compress massive ranges into manageable ones. They convert multiplication into addition, making computation easier.</li>
+<li><b>Formula</b> — <code>logₐ(y) = x</code> means <code>aˣ = y</code>. Common: log₁₀, Natural: ln = logₑ, Binary: log₂</li>
+<li><b>Example</b> — <code>log₂(8) = 3</code> because <code>2³ = 8</code>. How many times must you double 1 to reach 8? Answer: 3 times.</li>
+<li><b>Mental Model</b> — "How many multiplication steps does it take to reach this number?" Logarithm counts the growth steps.</li>
+<li><b>AI Connection</b> — cross-entropy loss uses log. Information theory (bits = log₂). Binary search is O(log n). Log-scale plots for visualizing training over many orders of magnitude. Log-probability is used everywhere in NLP to avoid numerical underflow.</li>
+</ul>
+
+<!-- SVG Diagram: Exponential vs Logarithmic growth comparison -->
+<div class="diagram">
+<svg width="260" height="150" viewBox="0 0 260 150">
+<defs><marker id="arr3" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ccc"/></marker></defs>
+<!-- Axes -->
+<line x1="30" y1="130" x2="240" y2="130" stroke="#ccc" stroke-width="0.5" marker-end="url(#arr3)"/>
+<line x1="30" y1="130" x2="30" y2="10" stroke="#ccc" stroke-width="0.5" marker-end="url(#arr3)"/>
+<text x="245" y="133" font-size="6pt" fill="#666">x</text>
+<text x="24" y="8" font-size="6pt" fill="#666">y</text>
+<!-- Exponential curve (2^x) -->
+<path d="M 30,125 C 60,122 90,115 120,100 C 150,75 180,40 210,10" fill="none" stroke="#4F46E5" stroke-width="1.5"/>
+<text x="195" y="20" font-size="6.5pt" fill="#4F46E5" font-weight="bold">2ˣ (exponential)</text>
+<!-- Logarithmic curve (log x) -->
+<path d="M 35,130 C 50,90 80,65 110,52 C 140,42 180,35 230,30" fill="none" stroke="#f59e0b" stroke-width="1.5"/>
+<text x="170" y="45" font-size="6.5pt" fill="#f59e0b" font-weight="bold">log(x) (logarithmic)</text>
+<!-- Linear reference -->
+<line x1="30" y1="130" x2="210" y2="30" stroke="#ccc" stroke-width="0.7" stroke-dasharray="3,2"/>
+<text x="150" y="75" font-size="5.5pt" fill="#999">linear (reference)</text>
+<!-- Symmetry line -->
+<line x1="30" y1="130" x2="230" y2="10" stroke="#ccc" stroke-width="0.4" stroke-dasharray="1,2"/>
+</svg>
+<div class="diagram-caption">Exponential (explosive growth) vs Logarithmic (compressing growth). They are inverses of each other, reflected across y = x.</div>
+</div>
+
+<div class="tip"><b>In Plain English:</b> Linear = steady treadmill. Exponential = rocket launch. Logarithmic = climbing a mountain that gets gentler the higher you go.</div>
+
+<table>
+<tr><th>Function</th><th>Growth Style</th><th>Shape</th></tr>
+<tr><td>Linear <code>x</code></td><td>Steady</td><td>Straight line</td></tr>
+<tr><td>Quadratic <code>x²</code></td><td>Accelerating</td><td>U-curve</td></tr>
+<tr><td>Exponential <code>2ˣ</code></td><td>Explosive</td><td>Hockey stick</td></tr>
+<tr><td>Logarithmic <code>log(x)</code></td><td>Slowing</td><td>Fast then flattening</td></tr>
+</table>
+
+<h2>3.6 Function Composition & Transformation</h2>
+<p class="section-intro">Real AI systems don't use single functions — they chain many functions together. This section covers how functions combine and undo each other.</p>
+
+<h3>14. Composite Functions</h3>
+<ul>
+<li><b>Meaning</b> — a composite function applies one function after another: feed the output of g(x) into f. The result is <code>f(g(x))</code> — a pipeline of transformations.</li>
+<li><b>Why It Exists</b> — complex transformations are built from simple ones chained together. A neural network is literally many simple functions composed: <code>layer3(layer2(layer1(input)))</code>.</li>
+<li><b>Formula</b> — <code>(f ∘ g)(x) = f(g(x))</code> — apply g first, then f to the result</li>
+<li><b>Example</b> — <code>g(x) = x + 1</code>, <code>f(x) = x²</code>. Then <code>f(g(3)) = f(4) = 16</code>. First add 1, then square.</li>
+<li><b>Mental Model</b> — a factory assembly line: raw material passes through machine g, the output goes into machine f, and you get the final product.</li>
+<li><b>AI Connection</b> — a neural network with 3 layers IS <code>f₃(f₂(f₁(x)))</code> — three composite functions. The depth of the network = depth of composition. This is what makes deep learning "deep."</li>
+<li><b>Common Mistake</b> — order matters! <code>f(g(x)) ≠ g(f(x))</code> in general. Squaring then adding 1 is different from adding 1 then squaring.</li>
+</ul>
+
+<h3>15. Inverse Functions</h3>
+<ul>
+<li><b>Meaning</b> — an inverse function undoes what the original function did. If <code>f(x) = y</code>, then <code>f⁻¹(y) = x</code>. It reverses the transformation.</li>
+<li><b>Why It Exists</b> — sometimes we need to go backwards: decode what was encoded, decrypt what was encrypted, recover original data from transformed data.</li>
+<li><b>Formula</b> — <code>f⁻¹(f(x)) = x</code> and <code>f(f⁻¹(x)) = x</code></li>
+<li><b>Example</b> — <code>f(x) = x + 3</code> → <code>f⁻¹(x) = x - 3</code>. <code>f(x) = 2x</code> → <code>f⁻¹(x) = x/2</code>. Each undoes the other.</li>
+<li><b>Mental Model</b> — encode/decode, encrypt/decrypt, serialize/deserialize — any reversible transformation has an inverse.</li>
+<li><b>AI Connection</b> — autoencoders (encoder + decoder), invertible neural networks (normalizing flows), tokenization/detokenization, lossy vs lossless compression.</li>
+<li><b>Common Mistake</b> — not every function has an inverse. A function must be one-to-one (different inputs give different outputs) to be invertible. <code>f(x) = x²</code> has no inverse because both 3 and -3 map to 9.</li>
+</ul>
+
+<h2>3.7 Special Function Types</h2>
+<p class="section-intro">These function types appear constantly in AI systems — from activation functions to pricing models to stability analysis.</p>
+
+<h3>16. Piecewise Functions</h3>
+<ul>
+<li><b>Meaning</b> — a function that uses different rules for different regions of its input. It's mathematical if-else logic: "if x < 0, do this; if x ≥ 0, do that."</li>
+<li><b>Why It Exists</b> — many real systems behave differently under different conditions: tax slabs, tiered pricing, thresholds. Piecewise functions model these discontinuous rules.</li>
+<li><b>Formula</b> — <code>f(x) = { rule₁ if condition₁; rule₂ if condition₂; ... }</code></li>
+<li><b>Example</b> — ReLU activation: <code>f(x) = 0 if x < 0; f(x) = x if x ≥ 0</code>. Blocks negative values, passes positive values through.</li>
+<li><b>Mental Model</b> — a road with different speed limits in different zones. Same road, different rules depending on where you are.</li>
+<li><b>AI Connection</b> — ReLU (most popular activation function in deep learning) is piecewise. Tax calculations, tiered API pricing, learning rate schedules with warmup — all piecewise functions.</li>
+</ul>
+
+<div class="tip"><b>ReLU Deep Dive:</b> ReLU's simplicity (<code>max(0, x)</code>) makes it computationally efficient and avoids the vanishing gradient problem. It's the default activation in modern networks.</div>
+
+<!-- SVG Diagram: ReLU piecewise activation function -->
+<div class="diagram">
+<svg width="220" height="140" viewBox="0 0 220 140">
+<defs><marker id="arr4" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ccc"/></marker></defs>
+<!-- Axes -->
+<line x1="20" y1="90" x2="200" y2="90" stroke="#ccc" stroke-width="0.5" marker-end="url(#arr4)"/>
+<line x1="110" y1="130" x2="110" y2="10" stroke="#ccc" stroke-width="0.5" marker-end="url(#arr4)"/>
+<text x="205" y="93" font-size="6pt" fill="#666">x</text>
+<text x="112" y="8" font-size="6pt" fill="#666">y</text>
+<!-- ReLU: flat at 0 for x<0, then linear for x>=0 -->
+<line x1="20" y1="90" x2="110" y2="90" stroke="#4F46E5" stroke-width="2"/>
+<line x1="110" y1="90" x2="195" y2="20" stroke="#4F46E5" stroke-width="2"/>
+<!-- Origin point -->
+<circle cx="110" cy="90" r="3" fill="#f59e0b"/>
+<!-- Labels -->
+<text x="45" y="85" font-size="6.5pt" fill="#1a1a1a">f(x) = 0</text>
+<text x="140" y="45" font-size="6.5pt" fill="#1a1a1a">f(x) = x</text>
+<text x="85" y="105" font-size="6pt" fill="#f59e0b">x = 0</text>
+<!-- Formula -->
+<text x="30" y="130" font-size="7pt" fill="#4F46E5" font-weight="bold">ReLU = max(0, x)</text>
+</svg>
+<div class="diagram-caption">ReLU activation: blocks negatives (output = 0), passes positives unchanged. The kink at x=0 is what creates non-linearity.</div>
+</div>
+
+<h3>17. Continuous Functions</h3>
+<ul>
+<li><b>Meaning</b> — a function where small input changes produce small output changes — no sudden jumps, no gaps, no breaks. You can draw the graph without lifting your pen.</li>
+<li><b>Why It Exists</b> — continuity is the foundation for calculus and optimization. Gradient descent REQUIRES continuity — you can't smoothly slide downhill if there are cliffs.</li>
+<li><b>Formula</b> — formally: for any ε > 0, there exists δ > 0 such that |x - a| < δ implies |f(x) - f(a)| < ε</li>
+<li><b>Example</b> — temperature over time is continuous (it doesn't teleport between values). Stock prices are approximately continuous at fine time scales.</li>
+<li><b>Mental Model</b> — draw without lifting your pen. Smooth, connected, no teleportation.</li>
+<li><b>AI Connection</b> — neural network optimization assumes loss functions are continuous (and ideally smooth). Discontinuous loss = gradient descent breaks. This is why smooth activation functions (sigmoid, tanh, GELU) and smooth loss functions are preferred.</li>
+</ul>
+
+<h3>18. Discontinuity Types</h3>
+<ul>
+<li><b>Meaning</b> — a discontinuity is where a function "breaks" — where small input changes cause large or undefined output changes.</li>
+<li><b>Why It Exists</b> — understanding discontinuities helps identify where optimization will fail, where models become unstable, and where careful handling is needed.</li>
+<li><b>Types:</b>
+  <ul>
+  <li><b>Jump Discontinuity</b> — sudden jump to a different value (like tax brackets)</li>
+  <li><b>Hole Discontinuity</b> — function is smooth everywhere except one missing point</li>
+  <li><b>Infinite Discontinuity</b> — function explodes toward infinity (like <code>1/x</code> at x=0)</li>
+  </ul>
+</li>
+<li><b>Mental Model</b> — jump = cliff edge. Hole = missing tile in an otherwise smooth floor. Infinite = bottomless pit.</li>
+<li><b>AI Connection</b> — exploding gradients (infinite discontinuity in loss landscape), threshold-based decisions (jump discontinuity), missing data points (hole discontinuity). Understanding these helps diagnose training failures.</li>
+</ul>
+
+<h2>Quick Reference Tables</h2>
+
+<h3>Table 1 — Function Types Overview</h3>
+<table>
+<tr><th>Function</th><th>Growth Behavior</th><th>Graph Shape</th><th>AI Connection</th></tr>
+<tr><td>Linear <code>y = mx + b</code></td><td>Constant change</td><td>Straight line</td><td>Linear regression, neuron pre-activation</td></tr>
+<tr><td>Quadratic <code>y = ax² + bx + c</code></td><td>Accelerating change</td><td>U-shape (parabola)</td><td>MSE loss function, optimization</td></tr>
+<tr><td>Cubic <code>y = ax³ + ...</code></td><td>Changing acceleration</td><td>S-shape</td><td>Sigmoid-like transitions</td></tr>
+<tr><td>Exponential <code>y = aˣ</code></td><td>Explosive (self-growing)</td><td>Hockey stick</td><td>Scaling laws, softmax, growth</td></tr>
+<tr><td>Logarithmic <code>y = logₐ(x)</code></td><td>Slowing (compressed)</td><td>Fast then flat</td><td>Cross-entropy loss, information theory</td></tr>
+<tr><td>Piecewise</td><td>Region-dependent</td><td>Broken/segmented</td><td>ReLU activation, tiered pricing</td></tr>
+</table>
+
+<h3>Table 2 — Key Equations</h3>
+<table>
+<tr><th>Concept</th><th>Equation</th><th>What It Represents</th></tr>
+<tr><td>Linear</td><td><code>y = mx + b</code></td><td>Constant rate of change</td></tr>
+<tr><td>Quadratic</td><td><code>y = ax² + bx + c</code></td><td>Single peak/valley optimization</td></tr>
+<tr><td>Cubic</td><td><code>y = ax³ + bx² + cx + d</code></td><td>Inflection and transition</td></tr>
+<tr><td>Exponential</td><td><code>y = aˣ</code></td><td>Multiplicative growth</td></tr>
+<tr><td>Natural Exponential</td><td><code>y = eˣ</code></td><td>Continuous natural growth</td></tr>
+<tr><td>Logarithm</td><td><code>y = logₐ(x)</code></td><td>Inverse of exponential</td></tr>
+<tr><td>Composite</td><td><code>f(g(x))</code></td><td>Chained transformations</td></tr>
+<tr><td>Inverse</td><td><code>f⁻¹(f(x)) = x</code></td><td>Undo a transformation</td></tr>
+</table>
+
+<h3>Table 3 — AI Translation Table</h3>
+<table>
+<tr><th>Mathematical Idea</th><th>AI Meaning</th></tr>
+<tr><td>Function</td><td>Prediction model (input → output)</td></tr>
+<tr><td>Domain</td><td>Valid input space</td></tr>
+<tr><td>Range</td><td>Possible output space</td></tr>
+<tr><td>Graph</td><td>Behavior visualization (loss curves, metrics)</td></tr>
+<tr><td>Slope</td><td>Learning direction, gradient (1D)</td></tr>
+<tr><td>Polynomial</td><td>Non-linear modeling capability</td></tr>
+<tr><td>Exponential</td><td>Scaling behavior, compute growth</td></tr>
+<tr><td>Logarithm</td><td>Compression, cross-entropy, information</td></tr>
+<tr><td>Composite Function</td><td>Neural network layers stacked together</td></tr>
+<tr><td>Inverse Function</td><td>Encoder/decoder, tokenizer/detokenizer</td></tr>
+<tr><td>Piecewise Function</td><td>Activation function (ReLU), business rules</td></tr>
+<tr><td>Continuity</td><td>Requirement for smooth optimization</td></tr>
+<tr><td>Discontinuity</td><td>Training instability, exploding gradients</td></tr>
+</table>
+
+<h3>Table 4 — Shape Recognition</h3>
+<table>
+<tr><th>Function</th><th>Typical Shape</th><th>Quick Identifier</th></tr>
+<tr><td>Linear</td><td>Straight line</td><td>Constant slope</td></tr>
+<tr><td>Quadratic</td><td>U-shape or ∩-shape</td><td>One turning point</td></tr>
+<tr><td>Cubic</td><td>S-shape</td><td>One inflection point</td></tr>
+<tr><td>Exponential</td><td>Hockey stick</td><td>Accelerating forever</td></tr>
+<tr><td>Logarithmic</td><td>Fast rise then flat</td><td>Decelerating forever</td></tr>
+<tr><td>Absolute Value</td><td>V-shape</td><td>Sharp corner at origin</td></tr>
+<tr><td>ReLU</td><td>Flat then rising</td><td>Zero left, linear right</td></tr>
+</table>
+
+<h2>Memory Map</h2>
+<div class="prompt">Function Basics
+  ├── What is a function? (input → one output)
+  ├── Domain (valid inputs) & Range (possible outputs)
+  └── Vertical Line Test (validates it's a function)
+      ↓
+Linear Functions (constant change)
+  ├── y = mx + b
+  ├── Slope = rate of change
+  └── Intercept = starting value
+      ↓
+Polynomial Functions (changing change)
+  ├── Quadratic: U-shape, one min/max
+  ├── Cubic: S-shape, inflection point
+  └── Higher degree: more bends, richer behavior
+      ↓
+Exponential & Logarithmic (extreme behaviors)
+  ├── Exponential: multiplicative growth (aˣ)
+  ├── e ≈ 2.718: natural continuous growth
+  └── Logarithm: inverse of exponential, compression
+      ↓
+Function Composition & Transformation
+  ├── Composite: f(g(x)) = pipeline = neural network depth
+  └── Inverse: f⁻¹ = undo = decoder
+      ↓
+Special Types
+  ├── Piecewise: different rules per region (ReLU)
+  ├── Continuous: smooth, no jumps (optimization works)
+  └── Discontinuous: breaks (optimization fails)
+      ↓
+Foundation for:
+  ├── Calculus (rates of change OF functions)
+  ├── Neural Networks (composed functions)
+  ├── Optimization (finding function minima)
+  └── Training Dynamics (loss function behavior)</div>
+
+<h2>Interview / Revision Summary</h2>
+<table>
+<tr><th>Concept</th><th>Remember This</th></tr>
+<tr><td>Function</td><td>Input → exactly one output; an AI model IS a function</td></tr>
+<tr><td>Domain & Range</td><td>Valid inputs and possible outputs</td></tr>
+<tr><td>Linear</td><td>Constant change; <code>y = mx + b</code>; simplest model</td></tr>
+<tr><td>Slope</td><td>Rate of change = gradient in 1D</td></tr>
+<tr><td>Quadratic</td><td>U-shape with one min/max; MSE loss is quadratic</td></tr>
+<tr><td>Exponential</td><td>Self-multiplying growth; scaling laws, softmax</td></tr>
+<tr><td>e ≈ 2.718</td><td>Natural growth constant; derivative of eˣ is eˣ</td></tr>
+<tr><td>Logarithm</td><td>Inverse of exponential; cross-entropy, information</td></tr>
+<tr><td>Composite</td><td>f(g(x)); neural network = stacked compositions</td></tr>
+<tr><td>Inverse</td><td>Undo; encode/decode pairs</td></tr>
+<tr><td>Piecewise</td><td>Different rules per region; ReLU = <code>max(0, x)</code></td></tr>
+<tr><td>Continuity</td><td>Smooth = optimization works; breaks = instability</td></tr>
+</table>
+
+<h2>If Someone Asks: "How do functions relate to neural networks?"</h2>
+<div class="tip"><b>Interview Answer:</b> A neural network is fundamentally a large composite function. Each layer applies a linear transformation (<code>Wx + b</code>) followed by a nonlinear activation function (like ReLU), and these are composed: <code>output = f₃(f₂(f₁(input)))</code>. The "depth" of a deep network is literally the depth of function composition. Training means finding the parameters (weights) that make this composite function map inputs to correct outputs. The loss function measures how wrong the current function is, and gradient descent uses the slope (derivative) of the loss to improve it. Continuity of the loss function is required for gradient-based optimization to work, which is why smooth activations are preferred. The entire field of deep learning is the study of parameterized composite functions and how to optimize them.</div>
+
+</body>
+</html>

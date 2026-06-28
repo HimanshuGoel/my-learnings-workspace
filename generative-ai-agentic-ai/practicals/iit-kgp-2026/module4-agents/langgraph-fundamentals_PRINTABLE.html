@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Module 4, Topic 4 — LangGraph Fundamentals</title>
+<style>
+@page { margin: 0.5cm; size: A4; }
+body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+ul { margin: 0 0 2px 12px; padding: 0; }
+li { margin-bottom: 0.5px; }
+.tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+.prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+.two-col { column-count: 2; column-gap: 10px; }
+code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+th { background: #f3f4f6; font-weight: bold; }
+.diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+.diagram svg { max-width: 100%; }
+.diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+.section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+@media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+<h1>Module 4, Topic 4 — LangGraph Fundamentals</h1>
+
+<p class="section-intro">LangGraph builds agents as explicit state machines — graphs where nodes are functions, edges are transitions, and state flows through the system. Unlike chains (linear) or simple ReAct loops (implicit), LangGraph gives FULL CONTROL: conditional routing, parallel execution, human-in-the-loop, persistence, and streaming. Think of it like a workflow engine (Temporal, Step Functions) where each node processes state and decides the next step.</p>
+
+<p><b>Problem Statement:</b> Building agents with plain code leads to spaghetti logic — hard to debug, no persistence, no streaming, no HITL. LangGraph provides the orchestration layer that makes agent behavior explicit, testable, and production-ready by modeling execution as a state graph with well-defined transitions.</p>
+
+<h2>Graph Structure & Execution Model</h2>
+
+<div class="diagram">
+<svg width="650" height="180" viewBox="0 0 650 180">
+  <defs>
+    <marker id="arC" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5" fill="#4F46E5"/></marker>
+    <marker id="arG" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5" fill="#22c55e"/></marker>
+    <marker id="arR" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5" fill="#dc2626"/></marker>
+  </defs>
+  <!-- Entry -->
+  <circle cx="30" cy="85" r="12" fill="#4F46E5"/><text x="30" y="89" text-anchor="middle" font-size="6" fill="white">START</text>
+  <line x1="44" y1="85" x2="75" y2="85" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arC)"/>
+  <!-- Agent Node -->
+  <rect x="80" y="60" width="100" height="50" rx="5" fill="#f3e8ff" stroke="#a855f7" stroke-width="2"/>
+  <text x="130" y="78" text-anchor="middle" font-size="7" font-weight="bold">agent_node</text>
+  <text x="130" y="90" text-anchor="middle" font-size="5.5">LLM reasoning</text>
+  <text x="130" y="100" text-anchor="middle" font-size="5">Returns: state update</text>
+  <!-- Conditional Edge (diamond) -->
+  <line x1="182" y1="85" x2="215" y2="85" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arC)"/>
+  <polygon points="240,85 255,70 270,85 255,100" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="255" y="89" text-anchor="middle" font-size="5.5" font-weight="bold">route?</text>
+  <!-- Tools path -->
+  <line x1="270" y1="77" x2="310" y2="55" stroke="#22c55e" stroke-width="1.5" marker-end="url(#arG)"/>
+  <text x="300" y="52" font-size="5" fill="#22c55e">has tool_calls</text>
+  <rect x="315" y="35" width="90" height="40" rx="5" fill="#dcfce7" stroke="#22c55e" stroke-width="2"/>
+  <text x="360" y="52" text-anchor="middle" font-size="7" font-weight="bold">tool_node</text>
+  <text x="360" y="64" text-anchor="middle" font-size="5.5">Execute tools</text>
+  <!-- Loop back -->
+  <path d="M360,77 L360,140 L130,140 L130,112" fill="none" stroke="#4F46E5" stroke-width="1.2" stroke-dasharray="4" marker-end="url(#arC)"/>
+  <text x="245" y="152" text-anchor="middle" font-size="5.5" fill="#4F46E5">edge: "tools" → "agent" (unconditional)</text>
+  <!-- END path -->
+  <line x1="270" y1="93" x2="310" y2="115" stroke="#dc2626" stroke-width="1.5" marker-end="url(#arR)"/>
+  <text x="305" y="118" font-size="5" fill="#dc2626">no tool_calls</text>
+  <rect x="315" y="105" width="50" height="30" rx="4" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="340" y="123" text-anchor="middle" font-size="7" font-weight="bold" fill="#dc2626">END</text>
+  <!-- State annotation -->
+  <rect x="440" y="20" width="200" height="140" rx="4" fill="#f9fafb" stroke="#d1d5db"/>
+  <text x="540" y="36" text-anchor="middle" font-size="7" font-weight="bold">State (TypedDict)</text>
+  <text x="450" y="52" font-size="6" font-family="Consolas">messages: Annotated[list, add]</text>
+  <text x="450" y="64" font-size="6" font-family="Consolas">next_step: str</text>
+  <text x="450" y="76" font-size="6" font-family="Consolas">tool_results: list</text>
+  <text x="450" y="88" font-size="6" font-family="Consolas">iteration: int</text>
+  <line x1="440" y1="95" x2="640" y2="95" stroke="#d1d5db"/>
+  <text x="540" y="108" text-anchor="middle" font-size="6" fill="#4F46E5">Flows through every node</text>
+  <text x="540" y="120" text-anchor="middle" font-size="6" fill="#4F46E5">Nodes read state, return updates</text>
+  <text x="540" y="132" text-anchor="middle" font-size="6" fill="#4F46E5">Annotated[list, add] = append-only</text>
+  <text x="540" y="144" text-anchor="middle" font-size="6" fill="#4F46E5">Checkpointer saves between runs</text>
+  <!-- Key -->
+  <text x="325" y="170" text-anchor="middle" font-size="6" fill="#666">Analogy: LangGraph ≈ Temporal/Step Functions. Nodes = task handlers. State = message bus. Graph = execution paths.</text>
+</svg>
+<div class="diagram-caption">LangGraph core: StateGraph with nodes (functions), conditional edges (routing), and state flowing through</div>
+</div>
+
+<h2>Agent Loop Pattern (Compiled Graph)</h2>
+
+<div class="diagram">
+<svg width="650" height="140" viewBox="0 0 650 140">
+  <defs>
+    <marker id="arD" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5" fill="#4F46E5"/></marker>
+  </defs>
+  <!-- Compile -->
+  <rect x="5" y="15" width="120" height="110" rx="4" fill="#f9fafb" stroke="#d1d5db"/>
+  <text x="65" y="30" text-anchor="middle" font-size="6.5" font-weight="bold">graph.compile(</text>
+  <text x="15" y="44" font-size="5.5" font-family="Consolas">  checkpointer=MemorySaver()</text>
+  <text x="15" y="56" font-size="5.5" font-family="Consolas">  interrupt_before=["tools"]</text>
+  <text x="65" y="70" text-anchor="middle" font-size="6.5" font-weight="bold">)</text>
+  <text x="65" y="86" text-anchor="middle" font-size="5.5" fill="#4F46E5">Produces: runnable agent</text>
+  <text x="65" y="98" text-anchor="middle" font-size="5.5" fill="#4F46E5">with persistence + HITL</text>
+  <text x="65" y="110" text-anchor="middle" font-size="5.5" fill="#4F46E5">+ streaming support</text>
+  <!-- Arrow -->
+  <line x1="128" y1="65" x2="150" y2="65" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arD)"/>
+  <!-- Invoke -->
+  <rect x="155" y="30" width="130" height="70" rx="4" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="220" y="48" text-anchor="middle" font-size="6.5" font-weight="bold">agent.invoke()</text>
+  <text x="220" y="62" text-anchor="middle" font-size="5.5">{"messages": [...],</text>
+  <text x="220" y="73" text-anchor="middle" font-size="5.5"> "iteration": 0}</text>
+  <text x="220" y="87" text-anchor="middle" font-size="5.5" fill="#666">config = {"thread_id": "..."}</text>
+  <!-- Arrow -->
+  <line x1="288" y1="65" x2="310" y2="65" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arD)"/>
+  <!-- Execution -->
+  <rect x="315" y="20" width="150" height="90" rx="4" fill="#dcfce7" stroke="#22c55e" stroke-width="1.5"/>
+  <text x="390" y="36" text-anchor="middle" font-size="6.5" font-weight="bold">Execution</text>
+  <text x="390" y="50" text-anchor="middle" font-size="5.5">1. Enter at entry_point</text>
+  <text x="390" y="62" text-anchor="middle" font-size="5.5">2. Run node function</text>
+  <text x="390" y="74" text-anchor="middle" font-size="5.5">3. Evaluate conditional edges</text>
+  <text x="390" y="86" text-anchor="middle" font-size="5.5">4. Route to next node / END</text>
+  <text x="390" y="100" text-anchor="middle" font-size="5.5">5. Checkpoint state at each step</text>
+  <!-- Arrow -->
+  <line x1="468" y1="65" x2="490" y2="65" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arD)"/>
+  <!-- Result -->
+  <rect x="495" y="35" width="145" height="60" rx="4" fill="#fce7f3" stroke="#ec4899" stroke-width="1.5"/>
+  <text x="567" y="52" text-anchor="middle" font-size="6.5" font-weight="bold">Result</text>
+  <text x="567" y="66" text-anchor="middle" font-size="5.5">Final state (all fields)</text>
+  <text x="567" y="78" text-anchor="middle" font-size="5.5">messages[-1] = final answer</text>
+  <text x="567" y="90" text-anchor="middle" font-size="5.5" fill="#666">Or: paused state (HITL)</text>
+  <!-- Bottom note -->
+  <text x="325" y="132" text-anchor="middle" font-size="6" fill="#666">thread_id enables: multi-turn conversations, resume after restart, human approval workflows</text>
+</svg>
+<div class="diagram-caption">Compiled graph: checkpointer + interrupt + streaming all configured at compile time</div>
+</div>
+
+<h2>Graph Pattern Catalog</h2>
+
+<table>
+<tr><th>Pattern</th><th>Structure</th><th>When to Use</th><th>Complexity</th></tr>
+<tr><td>Linear chain</td><td>A → B → C → END</td><td>Simple sequential processing</td><td>Low</td></tr>
+<tr><td>Agent loop</td><td>Agent ↔ Tools (conditional exit)</td><td>Standard tool-using agent</td><td>Medium</td></tr>
+<tr><td>Branching</td><td>Router → Branch A / B → Merge</td><td>Multi-path workflows</td><td>Medium</td></tr>
+<tr><td>Parallel</td><td>Node → [A, B, C] → Merge</td><td>Independent sub-tasks</td><td>Medium</td></tr>
+<tr><td>Human-in-the-loop</td><td>Agent → INTERRUPT → Human → Continue</td><td>High-stakes actions</td><td>Medium</td></tr>
+<tr><td>Supervisor</td><td>Supervisor → Sub-agents → Supervisor</td><td>Multi-agent coordination</td><td>High</td></tr>
+<tr><td>Iterative refinement</td><td>Generate → Evaluate → Refine (loop)</td><td>Quality improvement</td><td>Medium</td></tr>
+</table>
+
+<h2>Core Implementation Code</h2>
+
+<h3>Complete Working Agent</h3>
+<div class="prompt">from langgraph.graph import StateGraph, END
+from langgraph.prebuilt import ToolNode
+from langchain_openai import ChatOpenAI
+from langchain_core.messages import HumanMessage
+from langchain_core.tools import tool
+from typing import TypedDict, Annotated
+from operator import add
+
+@tool
+def search_web(query: str) -> str:
+    """Search the web for current information."""
+    return f"Search results for: {query}..."
+
+tools = [search_web]
+
+class State(TypedDict):
+    messages: Annotated[list, add]
+
+llm = ChatOpenAI(model="gpt-4o-mini").bind_tools(tools)
+
+def call_model(state: State) -> dict:
+    return {"messages": [llm.invoke(state["messages"])]}
+
+def should_continue(state: State) -> str:
+    last = state["messages"][-1]
+    if hasattr(last, "tool_calls") and last.tool_calls:
+        return "tools"
+    return END
+
+graph = StateGraph(State)
+graph.add_node("agent", call_model)
+graph.add_node("tools", ToolNode(tools))
+graph.set_entry_point("agent")
+graph.add_conditional_edges("agent", should_continue, {"tools": "tools", END: END})
+graph.add_edge("tools", "agent")
+agent = graph.compile()</div>
+
+<h3>Checkpointing (Multi-Turn Memory)</h3>
+<div class="prompt">from langgraph.checkpoint.memory import MemorySaver
+
+agent = graph.compile(checkpointer=MemorySaver())
+config = {"configurable": {"thread_id": "user-123-session-1"}}
+
+# First message
+agent.invoke({"messages": [HumanMessage("My name is Himanshu")]}, config)
+# Later (same thread_id = remembers):
+result = agent.invoke({"messages": [HumanMessage("What's my name?")]}, config)
+# → "Himanshu" (state restored from checkpoint)</div>
+
+<h3>Human-in-the-Loop (Interrupt Before Action)</h3>
+<div class="prompt">agent = graph.compile(checkpointer=checkpointer, interrupt_before=["tools"])
+
+result = agent.invoke({"messages": [HumanMessage("Delete all logs")]}, config)
+# → Pauses before tool execution (state saved)
+
+# Review pending action:
+pending = result["messages"][-1].tool_calls[0]
+# If approved: agent.invoke(None, config)  # Resume
+# If rejected: agent.update_state(config, {"messages": [
+#     ToolMessage(content="Rejected by human.", tool_call_id=pending["id"])]})</div>
+
+<h3>Streaming (Real-Time Output)</h3>
+<div class="prompt">async for event in agent.astream_events(
+    {"messages": [HumanMessage("Explain quantum computing")]}, config, version="v2"):
+    if event["event"] == "on_chat_model_stream":
+        print(event["data"]["chunk"].content, end="", flush=True)  # Token-by-token
+    elif event["event"] == "on_tool_end":
+        print(f"\n[Tool: {event['data']['output']}]")</div>
+
+<h2>State Management Reference</h2>
+
+<table>
+<tr><th>Mechanism</th><th>How</th><th>When</th></tr>
+<tr><td>State TypedDict</td><td>Data passed between nodes within one run</td><td>Always (core mechanism)</td></tr>
+<tr><td>Checkpointing</td><td>State saved/restored across runs (thread_id)</td><td>Multi-turn conversations</td></tr>
+<tr><td>Annotated[list, add]</td><td>Append-only state fields</td><td>Message history accumulation</td></tr>
+<tr><td>State reducers</td><td>Custom merge logic for state updates</td><td>Complex state management</td></tr>
+<tr><td>MemorySaver</td><td>In-memory (dev) — lost on restart</td><td>Development/testing</td></tr>
+<tr><td>PostgresSaver</td><td>Durable DB checkpoint</td><td>Production deployment</td></tr>
+</table>
+
+<h2>Failure Modes → Fixes</h2>
+
+<table>
+<tr><th>Failure Mode</th><th>Cause</th><th>Prevention</th></tr>
+<tr><td>Infinite loop</td><td>Agent keeps calling tools without converging</td><td>Max iteration counter in state + conditional exit</td></tr>
+<tr><td>Tool call with bad args</td><td>LLM hallucinates parameters</td><td>Pydantic validation on tool inputs, return helpful error</td></tr>
+<tr><td>Node exception</td><td>Unhandled error in node function</td><td>Try/except in nodes, fallback state update</td></tr>
+<tr><td>State grows unbounded</td><td>Messages accumulate forever</td><td>Summarize old messages, window the history</td></tr>
+<tr><td>Deadlock</td><td>Conditional edge has no matching route</td><td>Always have a default/fallback route</td></tr>
+<tr><td>Checkpoint corruption</td><td>Inconsistent state saved</td><td>Use transactions (PostgresSaver), validate on load</td></tr>
+</table>
+
+<h2>Production Configuration</h2>
+
+<table>
+<tr><th>Concern</th><th>Development</th><th>Production</th></tr>
+<tr><td>Checkpointer</td><td>MemorySaver()</td><td>PostgresSaver / SqliteSaver</td></tr>
+<tr><td>Tracing</td><td>Print statements</td><td>LangSmith (LANGCHAIN_TRACING_V2=true)</td></tr>
+<tr><td>Streaming</td><td>astream_events</td><td>SSE via FastAPI StreamingResponse</td></tr>
+<tr><td>Latency per node</td><td>200-2000ms (LLM) + tool time</td><td>Stream to hide latency</td></tr>
+<tr><td>Cost per run</td><td>$0.001-0.005 per node</td><td>Set max_iterations to cap</td></tr>
+<tr><td>Testing</td><td>Unit test nodes as functions</td><td>Integration test full graph + trajectory</td></tr>
+</table>
+
+<div class="tip">
+<b>Architecture Decision:</b> Use LangGraph as primary agent orchestration. Explicit state machines give full control over behavior. Unlike AutoGen/CrewAI (opinionated, less control) or raw code (no structure), LangGraph balances flexibility with structure. First-party LangChain integration. Trade-off: more boilerplate than simple chain, learning curve for graph thinking. Worth it for anything beyond a simple ReAct loop.<br/>
+<b>Next →</b> Topic 5: Tool Use Design (making tools that agents can reliably call)
+</div>
+
+</body>
+</html>

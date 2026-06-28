@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Module 4, Topic 10 — Production Agents</title>
+<style>
+@page { margin: 0.5cm; size: A4; }
+body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+ul { margin: 0 0 2px 12px; padding: 0; }
+li { margin-bottom: 0.5px; }
+.tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+.prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+.two-col { column-count: 2; column-gap: 10px; }
+code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+th { background: #f3f4f6; font-weight: bold; }
+.diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+.diagram svg { max-width: 100%; }
+.diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+.section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+@media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+<h1>Module 4, Topic 10 — Production Agents</h1>
+
+<p class="section-intro">Production agents need guardrails notebooks don't — step budgets, token caps, timeouts, fallback to simpler systems. The gap between "works in notebook" and "handles 1000 users at 3am" is where most agent projects fail. Default to chains (fixed pipelines); use agents only when tool selection or multi-step reasoning is genuinely needed. Every production agent must have: streaming, cost cap, timeout, and a fallback path.</p>
+
+<p><b>Problem Statement:</b> A notebook agent that works 90% of the time fails spectacularly in production — infinite loops burn credits, unhandled errors crash servers, and slow responses frustrate users. Production deployment requires engineering discipline: guardrails, streaming, fallback systems, and observability at every layer.</p>
+
+<h2>Production Agent Stack</h2>
+
+<div class="diagram">
+<svg width="680" height="210" viewBox="0 0 680 210">
+  <defs>
+    <marker id="arK" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5" fill="#4F46E5"/></marker>
+  </defs>
+  <!-- Client -->
+  <rect x="100" y="5" width="480" height="28" rx="4" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="340" y="18" text-anchor="middle" font-size="7" font-weight="bold">CLIENT: Streaming UI + Approval Buttons + Retry Logic + Loading States</text>
+  <text x="340" y="28" text-anchor="middle" font-size="5.5">SSE connection | Show intermediate steps | "Agent is searching..." | Timeout UX</text>
+  <line x1="340" y1="35" x2="340" y2="45" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arK)"/>
+  <!-- FastAPI -->
+  <rect x="100" y="47" width="480" height="28" rx="4" fill="#dcfce7" stroke="#22c55e" stroke-width="1.5"/>
+  <text x="340" y="60" text-anchor="middle" font-size="7" font-weight="bold">FastAPI: Auth + Rate Limiting + Timeout (30s) + Streaming Response (SSE)</text>
+  <text x="340" y="70" text-anchor="middle" font-size="5.5">POST /chat/stream | Thread management | Request logging | CORS</text>
+  <line x1="340" y1="77" x2="340" y2="87" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arK)"/>
+  <!-- Guardrails -->
+  <rect x="100" y="89" width="480" height="28" rx="4" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="340" y="102" text-anchor="middle" font-size="7" font-weight="bold">GUARDRAILS: Step Budget (10) + Token Cap (50K) + Cost Cap ($0.50) + Content Filter</text>
+  <text x="340" y="112" text-anchor="middle" font-size="5.5">Complexity router (chain vs agent) | Input validation | Output sanitization | PII detection</text>
+  <line x1="340" y1="119" x2="340" y2="129" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arK)"/>
+  <!-- Agent -->
+  <rect x="100" y="131" width="310" height="35" rx="4" fill="#f3e8ff" stroke="#a855f7" stroke-width="2"/>
+  <text x="255" y="146" text-anchor="middle" font-size="7" font-weight="bold">LangGraph Agent: State Machine + Checkpoint + Tracing (LangSmith)</text>
+  <text x="255" y="160" text-anchor="middle" font-size="5.5">Conditional routing | Tool execution | HITL interrupt | Per-step streaming</text>
+  <!-- Tools -->
+  <rect x="110" y="175" width="90" height="28" rx="3" fill="#e0e7ff" stroke="#6366f1" stroke-width="1.2"/>
+  <text x="155" y="188" text-anchor="middle" font-size="6" font-weight="bold">TOOLS</text>
+  <text x="155" y="198" text-anchor="middle" font-size="5.5">APIs, DB, Search</text>
+  <line x1="155" y1="168" x2="155" y2="173" stroke="#4F46E5" stroke-width="1" marker-end="url(#arK)"/>
+  <!-- Checkpoint -->
+  <rect x="220" y="175" width="90" height="28" rx="3" fill="#e0e7ff" stroke="#6366f1" stroke-width="1.2"/>
+  <text x="265" y="188" text-anchor="middle" font-size="6" font-weight="bold">CHECKPOINT</text>
+  <text x="265" y="198" text-anchor="middle" font-size="5.5">PostgresSaver</text>
+  <line x1="265" y1="168" x2="265" y2="173" stroke="#4F46E5" stroke-width="1" marker-end="url(#arK)"/>
+  <!-- Tracing -->
+  <rect x="330" y="175" width="75" height="28" rx="3" fill="#e0e7ff" stroke="#6366f1" stroke-width="1.2"/>
+  <text x="367" y="188" text-anchor="middle" font-size="6" font-weight="bold">LANGSMITH</text>
+  <text x="367" y="198" text-anchor="middle" font-size="5.5">Tracing</text>
+  <line x1="367" y1="168" x2="367" y2="173" stroke="#4F46E5" stroke-width="1" marker-end="url(#arK)"/>
+  <!-- Fallback -->
+  <rect x="430" y="131" width="150" height="70" rx="4" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="505" y="148" text-anchor="middle" font-size="7" font-weight="bold" fill="#dc2626">FALLBACK</text>
+  <text x="505" y="162" text-anchor="middle" font-size="5.5">Simple chain</text>
+  <text x="505" y="174" text-anchor="middle" font-size="5.5">(no tools, just LLM)</text>
+  <text x="505" y="188" text-anchor="middle" font-size="5.5" fill="#dc2626">Triggers when:</text>
+  <text x="505" y="198" text-anchor="middle" font-size="5.5">budget hit | timeout | error</text>
+  <!-- Fallback arrow -->
+  <line x1="412" y1="155" x2="428" y2="155" stroke="#dc2626" stroke-width="1.2" stroke-dasharray="4" marker-end="url(#arK)"/>
+</svg>
+<div class="diagram-caption">Production stack: Client → FastAPI → Guardrails → Agent (with fallback) → Tools + Checkpoint + Tracing</div>
+</div>
+
+<h2>Cost Comparison Chart</h2>
+
+<div class="diagram">
+<svg width="550" height="130" viewBox="0 0 550 130">
+  <!-- Bars -->
+  <text x="5" y="15" font-size="6.5" font-weight="bold">Cost at 10,000 queries/day:</text>
+  <!-- Chain -->
+  <rect x="5" y="25" width="50" height="18" rx="2" fill="#dcfce7" stroke="#22c55e"/>
+  <text x="60" y="37" font-size="6">Direct Chain: $20/day ($600/mo) — 0.5-2s latency</text>
+  <!-- Simple Agent -->
+  <rect x="5" y="48" width="120" height="18" rx="2" fill="#dbeafe" stroke="#3b82f6"/>
+  <text x="130" y="60" font-size="6">Simple Agent (1-3 tools): $80/day ($2,400/mo) — 2-8s latency</text>
+  <!-- Complex Agent -->
+  <rect x="5" y="71" width="250" height="18" rx="2" fill="#fef3c7" stroke="#f59e0b"/>
+  <text x="260" y="83" font-size="6">Complex Agent (planning): $350/day ($10,500/mo) — 5-20s latency</text>
+  <!-- Multi-Agent -->
+  <rect x="5" y="94" width="420" height="18" rx="2" fill="#fee2e2" stroke="#dc2626"/>
+  <text x="430" y="106" font-size="6">Multi-Agent: $1,200/day ($36,000/mo) — 10-60s</text>
+  <!-- Key insight -->
+  <text x="275" y="125" text-anchor="middle" font-size="6.5" fill="#dc2626" font-weight="bold">Rule: Default to chain. Use agent only when tool selection or multi-step reasoning is needed.</text>
+</svg>
+<div class="diagram-caption">Cost scales dramatically with complexity — most queries (70-80%) should use chains, not agents</div>
+</div>
+
+<h2>Execution Mode Selection</h2>
+
+<table>
+<tr><th>Pattern</th><th>Latency</th><th>Cost/Query</th><th>Reliability</th><th>When to Use</th></tr>
+<tr><td>Direct chain</td><td>0.5-2s</td><td>$0.001-0.005</td><td>High</td><td>Fixed tasks, summarization, no tool selection</td></tr>
+<tr><td>Simple agent (1-3 tools)</td><td>2-8s</td><td>$0.01-0.05</td><td>Medium</td><td>Variable tasks, tool selection needed</td></tr>
+<tr><td>Complex agent (planning)</td><td>5-20s</td><td>$0.05-0.30</td><td>Lower</td><td>Multi-step research, composition</td></tr>
+<tr><td>Multi-agent</td><td>10-60s</td><td>$0.10-1.00</td><td>Lowest</td><td>Domain separation, quality validation</td></tr>
+</table>
+
+<h2>Implementation Code</h2>
+
+<h3>FastAPI Streaming Endpoint</h3>
+<div class="prompt">from fastapi import FastAPI
+from fastapi.responses import StreamingResponse
+import json, time
+
+app = FastAPI(title="Agent API")
+
+@app.post("/chat/stream")
+async def chat_stream(query: str, thread_id: str = "default", max_steps: int = 10):
+    config = {"configurable": {"thread_id": thread_id}}
+
+    async def event_generator():
+        start = time.time()
+        for event in agent.stream(
+            {"messages": [HumanMessage(query)], "step_count": 0, "max_steps": max_steps},
+            config):
+            if time.time() - start > 30:  # Timeout guard
+                yield f"data: {json.dumps({'type': 'error', 'content': 'Timed out'})}\n\n"
+                break
+            for node_name, output in event.items():
+                for msg in output.get("messages", []):
+                    if hasattr(msg, "tool_calls") and msg.tool_calls:
+                        yield f"data: {json.dumps({'type': 'tool_call', 'tool': msg.tool_calls[0]['name']})}\n\n"
+                    elif msg.content:
+                        yield f"data: {json.dumps({'type': 'response', 'content': msg.content})}\n\n"
+        yield f"data: {json.dumps({'type': 'done', 'ms': int((time.time()-start)*1000)})}\n\n"
+
+    return StreamingResponse(event_generator(), media_type="text/event-stream")</div>
+
+<h3>Human-in-the-Loop (HITL) Pattern</h3>
+<div class="prompt">hitl_agent = graph.compile(checkpointer=checkpointer, interrupt_before=["tools"])
+
+@app.post("/chat/hitl")
+async def chat_with_approval(query: str, thread_id: str):
+    config = {"configurable": {"thread_id": thread_id}}
+    result = hitl_agent.invoke(
+        {"messages": [HumanMessage(query)], "step_count": 0, "max_steps": 10}, config)
+    state = hitl_agent.get_state(config)
+    if state.next:  # Paused before tool execution
+        pending = result["messages"][-1].tool_calls[0]
+        return {"status": "awaiting_approval",
+                "pending": {"tool": pending["name"], "args": pending["args"]}}
+    return {"status": "complete", "response": result["messages"][-1].content}
+
+@app.post("/chat/approve")
+async def approve_action(thread_id: str, approved: bool):
+    config = {"configurable": {"thread_id": thread_id}}
+    if approved:
+        result = hitl_agent.invoke(None, config)  # Resume
+    else:
+        # Inject rejection message
+        hitl_agent.update_state(config, {"messages": [
+            ToolMessage(content="Rejected by user.", tool_call_id=...)]})
+        result = hitl_agent.invoke(None, config)
+    return {"response": result["messages"][-1].content}</div>
+
+<h3>Graceful Degradation (Fallback to Chain)</h3>
+<div class="prompt">async def invoke_with_fallback(query: str, thread_id: str, max_steps: int = 10):
+    """Agent first. If fails or hits budget, fall back to simple chain."""
+    config = {"configurable": {"thread_id": thread_id}}
+    try:
+        result = agent.invoke(
+            {"messages": [HumanMessage(query)], "step_count": 0, "max_steps": max_steps}, config)
+        if result.get("step_count", 0) >= max_steps:
+            return await _fallback(query, "step_limit")
+        return {"response": result["messages"][-1].content, "mode": "agent"}
+    except Exception as e:
+        return await _fallback(query, f"error:{type(e).__name__}")
+
+async def _fallback(query: str, reason: str):
+    response = fallback_llm.invoke([
+        SystemMessage(content="Answer concisely. No tools available."),
+        HumanMessage(content=query)])
+    return {"response": response.content, "mode": "fallback", "reason": reason}</div>
+
+<h3>Complexity Router (Chain vs Agent)</h3>
+<div class="prompt">def select_execution_mode(query: str, user_tier: str) -> str:
+    """Route to cheapest viable mode."""
+    if user_tier == "free": return "chain"
+    needs_tools = any(kw in query.lower() for kw in ["search", "calculate", "look up", "find"])
+    needs_planning = len(query.split()) > 30 or "and then" in query.lower()
+    if needs_planning: return "complex_agent"
+    elif needs_tools: return "simple_agent"
+    return "chain"</div>
+
+<h2>Guardrails Configuration</h2>
+
+<table>
+<tr><th>Guardrail</th><th>Default Value</th><th>Purpose</th><th>Trigger Action</th></tr>
+<tr><td>Step budget</td><td>10 steps</td><td>Prevent infinite loops</td><td>Force END, use fallback</td></tr>
+<tr><td>Timeout</td><td>30 seconds</td><td>Prevent hanging requests</td><td>Return partial + error</td></tr>
+<tr><td>Token cap</td><td>50K tokens per request</td><td>Prevent cost explosion</td><td>Force END</td></tr>
+<tr><td>Cost cap</td><td>$0.50 per request</td><td>Hard cost limit</td><td>Switch to fallback</td></tr>
+<tr><td>Tool retries</td><td>2 max per tool</td><td>Prevent retry storms</td><td>Return error to agent</td></tr>
+<tr><td>Content filter</td><td>Check output before streaming</td><td>Prevent PII/harmful content</td><td>Sanitize or block</td></tr>
+<tr><td>Rate limit</td><td>10 queries/min per user</td><td>Prevent abuse</td><td>HTTP 429</td></tr>
+</table>
+
+<h2>Failure Modes → Fixes</h2>
+
+<table>
+<tr><th>Failure Mode</th><th>Symptom</th><th>Mitigation</th></tr>
+<tr><td>Agent loops</td><td>Response never returns</td><td>Step budget (10) + timeout (30s)</td></tr>
+<tr><td>Cost spike</td><td>One query costs $5</td><td>Token cap (50K) + cost cap per request</td></tr>
+<tr><td>Tool API down</td><td>Retries forever</td><td>Tool timeout (5s) + max 2 retries + fallback</td></tr>
+<tr><td>LLM rate limited</td><td>429 errors</td><td>Exponential backoff + queue + fallback model</td></tr>
+<tr><td>PII in output</td><td>Leaks user data</td><td>Output content filter before streaming</td></tr>
+<tr><td>Concurrent corruption</td><td>Two requests, same thread</td><td>Lock thread or queue requests</td></tr>
+</table>
+
+<h2>Deployment Topology</h2>
+
+<table>
+<tr><th>Scale</th><th>Architecture</th><th>Users</th><th>Monthly Cost</th></tr>
+<tr><td>Prototype</td><td>FastAPI + LangGraph + SQLite</td><td>10-50</td><td>$50-200 (API only)</td></tr>
+<tr><td>Production</td><td>LB → 2-4 FastAPI + Postgres + Redis + LangSmith</td><td>100-1000</td><td>$500-5000</td></tr>
+<tr><td>Scale</td><td>API Gateway → Auto-scaling + Managed DB + Task Queue</td><td>1000+</td><td>$5000+</td></tr>
+</table>
+
+<h2>Observability Checklist</h2>
+
+<table>
+<tr><th>What to Log</th><th>Why</th><th>Tool</th></tr>
+<tr><td>Every request (query, thread, timestamp)</td><td>Audit trail</td><td>Structured logging</td></tr>
+<tr><td>Every step (node, action, latency)</td><td>Debugging trajectories</td><td>LangSmith tracing</td></tr>
+<tr><td>Latency histogram (p50, p95, p99)</td><td>Performance regression</td><td>Prometheus/Datadog</td></tr>
+<tr><td>Token usage per request</td><td>Cost tracking</td><td>LangSmith + billing alerts</td></tr>
+<tr><td>Fallback trigger rate</td><td>Agent reliability signal</td><td>Custom metric</td></tr>
+<tr><td>Error rate by type</td><td>Prioritize fixes</td><td>Error tracking (Sentry)</td></tr>
+</table>
+
+<h2>When NOT to Use an Agent</h2>
+
+<table>
+<tr><th>Use a CHAIN when:</th><th>Use an AGENT when:</th></tr>
+<tr><td>Task always follows same steps</td><td>Task varies by input</td></tr>
+<tr><td>No tool selection needed</td><td>Must choose between tools</td></tr>
+<tr><td>Latency &lt; 2s required</td><td>User tolerates 5-15s</td></tr>
+<tr><td>Output format is fixed</td><td>Output depends on findings</td></tr>
+<tr><td>70-80% of production queries</td><td>20-30% that need reasoning</td></tr>
+</table>
+
+<div class="tip">
+<b>Architecture Decision:</b> Default to simple chains. Use agents only when task requires tool selection or multi-step reasoning. MANDATORY guardrails on all agent deployments: step budget, timeout, cost cap, and fallback path. Agents are 5-50× more expensive, 3-10× slower, and less predictable. A complexity router saves agent overhead on 70-80% of queries. The gap between notebook and production is where most projects fail — solve it with guardrails, not hope.<br/>
+<b>Next →</b> Module 5: Deployment & Capstone (FastAPI, MCP, Responsible AI)
+</div>
+
+</body>
+</html>

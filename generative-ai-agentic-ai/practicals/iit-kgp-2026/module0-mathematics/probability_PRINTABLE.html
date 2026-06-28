@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Stage 6 — Probability Thinking — Printable Notes</title>
+<style>
+  @page { margin: 0.5cm; size: A4; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+  h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+  h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+  h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+  ul { margin: 0 0 2px 12px; padding: 0; }
+  li { margin-bottom: 0.5px; }
+  .tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+  .prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+  .two-col { column-count: 2; column-gap: 10px; }
+  .three-col { column-count: 3; column-gap: 10px; }
+  code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+  table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+  th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+  th { background: #f3f4f6; font-weight: bold; }
+  .diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+  .diagram svg { max-width: 100%; }
+  .diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+  .diagram-row { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 8px; margin: 4px 0; break-inside: avoid; }
+  .diagram-row .diagram { flex: 1; min-width: 120px; max-width: 300px; }
+  .section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+  @media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+
+<h1>Stage 6 — Probability Thinking</h1>
+<p><b>Summary:</b> Probability is the mathematics of uncertainty, and modern AI is fundamentally the science of estimating conditional probabilities from data.</p>
+
+<h2>Why This Matters for AI</h2>
+<ul>
+<li><b>LLM Prediction</b> — Every LLM prediction is a conditional probability: <code>P(NextToken | PreviousTokens)</code> — this single idea powers GPT, Claude, Gemini, and every modern language model</li>
+<li><b>Classification</b> — Classification models output probabilities: <code>P(Spam | Email)</code>, <code>P(Fraud | Transaction)</code></li>
+<li><b>Bayesian Reasoning</b> — underpins uncertainty quantification, A/B testing, and model calibration</li>
+<li><b>Loss Functions</b> — Probability connects directly to loss functions: cross-entropy loss IS negative log probability</li>
+<li><b>Uncertainty</b> — Without probability, AI would have no principled way to handle the inherent uncertainty of real-world predictions</li>
+</ul>
+
+<!-- SVG DIAGRAMS -->
+<div class="diagram-row">
+<div class="diagram">
+<svg width="260" height="170" viewBox="0 0 260 170" xmlns="http://www.w3.org/2000/svg">
+  <rect x="5" y="5" width="250" height="160" fill="none" stroke="#ccc" stroke-width="1" rx="4"/>
+  <text x="130" y="18" text-anchor="middle" font-size="8" font-weight="bold" fill="#1a1a1a">Venn Diagram: Marginal, Joint &amp; Conditional</text>
+  <!-- Circle A -->
+  <circle cx="100" cy="95" r="50" fill="#4F46E5" fill-opacity="0.15" stroke="#4F46E5" stroke-width="1.5"/>
+  <!-- Circle B -->
+  <circle cx="160" cy="95" r="50" fill="#f59e0b" fill-opacity="0.15" stroke="#f59e0b" stroke-width="1.5"/>
+  <!-- Intersection highlight -->
+  <path d="M130,58 A50,50 0 0,1 130,132 A50,50 0 0,1 130,58" fill="#4F46E5" fill-opacity="0.25" stroke="none"/>
+  <!-- Labels -->
+  <text x="75" y="95" text-anchor="middle" font-size="7" fill="#4F46E5" font-weight="bold">P(A)</text>
+  <text x="75" y="105" text-anchor="middle" font-size="6" fill="#4F46E5">Marginal</text>
+  <text x="185" y="95" text-anchor="middle" font-size="7" fill="#f59e0b" font-weight="bold">P(B)</text>
+  <text x="185" y="105" text-anchor="middle" font-size="6" fill="#f59e0b">Marginal</text>
+  <text x="130" y="90" text-anchor="middle" font-size="6.5" fill="#1a1a1a" font-weight="bold">P(A∩B)</text>
+  <text x="130" y="100" text-anchor="middle" font-size="6" fill="#1a1a1a">Joint</text>
+  <!-- Conditional annotation -->
+  <text x="130" y="150" text-anchor="middle" font-size="6.5" fill="#4F46E5">P(A|B) = P(A∩B) / P(B) → "Zoom into B, find A"</text>
+  <!-- Universe label -->
+  <text x="240" y="162" text-anchor="end" font-size="6" fill="#ccc">S (Universe)</text>
+</svg>
+<div class="diagram-caption">Marginal = full circle; Joint = overlap; Conditional = overlap relative to one circle</div>
+</div>
+
+<div class="diagram">
+<svg width="280" height="170" viewBox="0 0 280 170" xmlns="http://www.w3.org/2000/svg">
+  <rect x="5" y="5" width="270" height="160" fill="none" stroke="#ccc" stroke-width="1" rx="4"/>
+  <text x="140" y="18" text-anchor="middle" font-size="8" font-weight="bold" fill="#1a1a1a">LLM Token Prediction: P(NextToken | Previous)</text>
+  <!-- Token boxes -->
+  <rect x="20" y="40" width="40" height="22" fill="#4F46E5" fill-opacity="0.15" stroke="#4F46E5" rx="3"/>
+  <text x="40" y="55" text-anchor="middle" font-size="7" fill="#4F46E5" font-weight="bold">The</text>
+  <rect x="70" y="40" width="40" height="22" fill="#4F46E5" fill-opacity="0.15" stroke="#4F46E5" rx="3"/>
+  <text x="90" y="55" text-anchor="middle" font-size="7" fill="#4F46E5" font-weight="bold">cat</text>
+  <rect x="120" y="40" width="40" height="22" fill="#4F46E5" fill-opacity="0.15" stroke="#4F46E5" rx="3"/>
+  <text x="140" y="55" text-anchor="middle" font-size="7" fill="#4F46E5" font-weight="bold">sat</text>
+  <rect x="170" y="40" width="40" height="22" fill="#4F46E5" fill-opacity="0.15" stroke="#4F46E5" rx="3"/>
+  <text x="190" y="55" text-anchor="middle" font-size="7" fill="#4F46E5" font-weight="bold">on</text>
+  <!-- Arrow to prediction -->
+  <line x1="215" y1="51" x2="230" y2="51" stroke="#1a1a1a" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <defs><marker id="arrowhead" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#1a1a1a"/></marker></defs>
+  <!-- Predicted token with probability -->
+  <rect x="233" y="35" width="35" height="32" fill="#f59e0b" fill-opacity="0.2" stroke="#f59e0b" stroke-width="1.5" rx="3"/>
+  <text x="250" y="50" text-anchor="middle" font-size="7" fill="#f59e0b" font-weight="bold">the</text>
+  <text x="250" y="62" text-anchor="middle" font-size="6" fill="#1a1a1a">0.42</text>
+  <!-- Probability distribution -->
+  <text x="140" y="82" text-anchor="middle" font-size="6.5" fill="#1a1a1a">Softmax probability distribution over vocabulary:</text>
+  <!-- Bar chart -->
+  <rect x="40" y="90" width="55" height="10" fill="#f59e0b" fill-opacity="0.7" rx="1"/>
+  <text x="100" y="98" font-size="6" fill="#1a1a1a">"the" → 0.42</text>
+  <rect x="40" y="103" width="35" height="10" fill="#4F46E5" fill-opacity="0.5" rx="1"/>
+  <text x="80" y="111" font-size="6" fill="#1a1a1a">"a" → 0.25</text>
+  <rect x="40" y="116" width="20" height="10" fill="#4F46E5" fill-opacity="0.3" rx="1"/>
+  <text x="65" y="124" font-size="6" fill="#1a1a1a">"his" → 0.13</text>
+  <rect x="40" y="129" width="10" height="10" fill="#ccc" fill-opacity="0.5" rx="1"/>
+  <text x="55" y="137" font-size="6" fill="#1a1a1a">"top" → 0.05</text>
+  <rect x="40" y="142" width="5" height="10" fill="#ccc" fill-opacity="0.3" rx="1"/>
+  <text x="50" y="150" font-size="6" fill="#1a1a1a">... others → 0.15</text>
+  <!-- Formula -->
+  <text x="200" y="135" text-anchor="middle" font-size="6.5" fill="#4F46E5" font-weight="bold">P("the" | "The cat sat on")</text>
+  <text x="200" y="148" text-anchor="middle" font-size="6" fill="#1a1a1a">= 0.42 (highest probability)</text>
+</svg>
+<div class="diagram-caption">LLM generates text by predicting P(NextToken | AllPreviousTokens) at each step</div>
+</div>
+</div>
+
+<h2>6.1 Probability Basics</h2>
+<p class="section-intro">The real world is uncertain. Probability gives us a precise mathematical language to reason about and quantify that uncertainty. This section establishes the fundamental building blocks.</p>
+
+<div class="two-col">
+<h3>1. Deterministic vs Random</h3>
+<ul>
+<li><b>Meaning</b> — A deterministic process gives the same output every time for the same input (2 + 3 always = 5). A random process has multiple possible outcomes — you can't predict which one will occur with certainty.</li>
+<li><b>Why It Exists</b> — We need to distinguish between problems that have guaranteed answers and problems that have uncertain outcomes. This distinction determines whether we need probability at all.</li>
+<li><b>Example</b> — Deterministic: <code>Math.sqrt(16) = 4</code> (always). Random: tomorrow's weather, next user click, dice roll.</li>
+<li><b>Mental Model</b> — Deterministic = a calculator (same button always gives same answer). Random = a weather forecast (multiple outcomes possible, with different likelihoods).</li>
+<li><b>AI Connection</b> — AI exists BECAUSE real-world problems are random. If user behavior, language, and preferences were deterministic, we wouldn't need machine learning — simple rules would suffice.</li>
+</ul>
+
+<h3>2. Events</h3>
+<ul>
+<li><b>Meaning</b> — An event is a specific outcome (or set of outcomes) that we care about detecting or predicting. It's the "thing we want to measure the probability of."</li>
+<li><b>Why It Exists</b> — We can't assign probability to everything at once. We need to define exactly which outcome we're asking about: "What's the probability of THIS specific thing happening?"</li>
+<li><b>Example</b> — Getting heads on a coin toss. Tomorrow being rainy. An email being spam. A user clicking "buy."</li>
+<li><b>Mental Model</b> — Think of probability as a security camera recording everything. Events are the specific situations you're trying to detect from the footage.</li>
+<li><b>AI Connection</b> — Every AI prediction is about the probability of an event: spam/not-spam, fraud/legitimate, cat/dog, next-token-is-"the".</li>
+</ul>
+
+<h3>3. Independent Events</h3>
+<ul>
+<li><b>Meaning</b> — Two events are independent if knowing that one happened doesn't change the probability of the other. They have no influence on each other whatsoever.</li>
+<li><b>Why It Exists</b> — Independence simplifies computation enormously. If events are independent, their joint probability is just the product of individual probabilities — no complex interaction to model.</li>
+<li><b>Formula</b> — Events A and B are independent if <code>P(A|B) = P(A)</code> (knowing B doesn't change A's probability)</li>
+<li><b>Example</b> — A coin flip and a die roll are independent: getting heads doesn't affect whether you roll a 6. But rain and wet roads are NOT independent — rain makes wet roads much more likely.</li>
+<li><b>Mental Model</b> — Ask: "Does knowing A happened change my belief about B?" If NO → independent. If YES → dependent (and AI can exploit this dependency).</li>
+<li><b>AI Connection</b> — AI succeeds precisely because most real-world variables are NOT independent. If features were all independent, we wouldn't need complex models — Naive Bayes would be optimal. Dependencies are where the signal lives.</li>
+<li><b>Common Mistake</b> — Independent ≠ disjoint. Independent events CAN happen together (they just don't influence each other). Disjoint events CANNOT happen together.</li>
+</ul>
+
+<h3>4. Disjoint Events (Mutually Exclusive)</h3>
+<ul>
+<li><b>Meaning</b> — Events that cannot occur at the same time. If one happens, the other definitely didn't. Their intersection is empty.</li>
+<li><b>Why It Exists</b> — Many classification problems require exactly one label: an email is spam OR not-spam (never both). Disjoint events model these either/or scenarios.</li>
+<li><b>Formula</b> — <code>A ∩ B = ∅</code> (no overlap). For disjoint events: <code>P(A ∪ B) = P(A) + P(B)</code> (simple addition).</li>
+<li><b>Example</b> — Coin: heads and tails are disjoint (can't get both). Classification: a single image is cat OR dog (not both in single-label classification).</li>
+<li><b>Mental Model</b> — Two non-overlapping circles in a Venn diagram. Being in one means you can't be in the other.</li>
+<li><b>AI Connection</b> — Single-label classification: softmax outputs sum to 1 because classes are mutually exclusive. Multi-label classification (an image can be "outdoor" AND "sunny") uses sigmoid instead because classes are NOT disjoint.</li>
+</ul>
+</div>
+
+<h2>6.2 Probability Rules</h2>
+<p class="section-intro">These rules are the "laws of physics" for probability — all valid probability calculations must obey them. AI model outputs that violate these rules are mathematically broken.</p>
+
+<div class="two-col">
+<h3>5. Fundamental Rules</h3>
+<ul>
+<li><b>Meaning</b> — A set of axioms that all probabilities must satisfy. These aren't suggestions — they're mathematical requirements for any valid probability assignment.</li>
+<li><b>Why It Exists</b> — Without rules, "probabilities" could be nonsensical (negative, or exceeding 1, or not summing correctly). The rules keep everything consistent and meaningful.</li>
+<li><b>Rules:</b>
+  <ul>
+    <li><code>0 ≤ P(A) ≤ 1</code> — probability is always between 0 and 1</li>
+    <li><code>P(Certain Event) = 1</code> — something guaranteed has probability 1</li>
+    <li><code>P(Impossible Event) = 0</code> — something impossible has probability 0</li>
+    <li><code>P(Not A) = 1 - P(A)</code> — complement rule</li>
+    <li>Sum of all mutually exclusive outcomes = 1</li>
+  </ul>
+</li>
+<li><b>Example</b> — If P(Rain) = 0.7, then P(No Rain) = 1 - 0.7 = 0.3. They must sum to 1.</li>
+<li><b>Mental Model</b> — A probability "budget" of exactly 1.0 that must be divided among all possible outcomes. No outcome gets negative budget, and nothing is left unallocated.</li>
+<li><b>AI Connection</b> — Softmax ensures neural network outputs satisfy these rules (non-negative, sum to 1). Any model output claiming P(spam) = 1.3 is mathematically invalid.</li>
+</ul>
+
+<h3>6. Multiplication Rule</h3>
+<ul>
+<li><b>Meaning</b> — The probability that two events BOTH happen (joint probability) is calculated by multiplying. For independent events: <code>P(A AND B) = P(A) × P(B)</code>.</li>
+<li><b>Why It Exists</b> — We need to calculate the probability of multiple things happening together: "What's the probability of getting heads on the first AND second flip?"</li>
+<li><b>Formula</b> — Independent: <code>P(A ∩ B) = P(A) × P(B)</code>. General: <code>P(A ∩ B) = P(A) × P(B|A)</code></li>
+<li><b>Example</b> — P(two heads in a row) = P(H) × P(H) = 0.5 × 0.5 = 0.25. Only 1 in 4 trials gives two consecutive heads.</li>
+<li><b>Mental Model</b> — AND → Multiply. Each additional requirement makes the combined event less likely (multiplying by a number &lt; 1 always reduces).</li>
+<li><b>AI Connection</b> — LLM sequence probability: <code>P("The cat sat") = P("The") × P("cat"|"The") × P("sat"|"The cat")</code>. Each token's probability is multiplied to get the sequence probability.</li>
+</ul>
+</div>
+
+<h2>6.3 Probability Approaches</h2>
+<p class="section-intro">There are fundamentally three ways to assign probabilities. Each has strengths and limitations, and understanding the differences tells you where your probability estimates are coming from.</p>
+
+<div class="two-col">
+<h3>7. Equal Likelihood Approach</h3>
+<ul>
+<li><b>Meaning</b> — When all outcomes are equally likely (fair coin, fair die), probability is simply the ratio of favorable outcomes to total outcomes. Pure logic and counting, no data needed.</li>
+<li><b>Why It Exists</b> — For perfectly symmetric situations (dice, coins, cards), we can deduce probabilities from structure alone without needing observations.</li>
+<li><b>Formula</b> — <code>P(A) = Favorable Outcomes / Total Outcomes</code></li>
+<li><b>Example</b> — Fair die: P(rolling a 6) = 1/6. Fair coin: P(heads) = 1/2. Drawing a red card from a standard deck: 26/52 = 1/2.</li>
+<li><b>Mental Model</b> — A perfectly balanced scale. Each outcome weighs exactly the same, so probability = counting.</li>
+<li><b>AI Connection</b> — Useful for building intuition, but rarely applies in real AI. User behavior, language patterns, and real data are almost never equally likely. This approach is the starting point, not the destination.</li>
+<li><b>Common Mistake</b> — Don't assume equal likelihood without justification. P(earthquake tomorrow) ≠ 1/2 just because there are two outcomes (earthquake or not). Equal likelihood must be established, not assumed.</li>
+</ul>
+
+<h3>8. Relative Frequency Approach</h3>
+<ul>
+<li><b>Meaning</b> — Estimate probability from historical data: count how often an event occurred in past observations and divide by total observations. The more data, the better the estimate.</li>
+<li><b>Why It Exists</b> — Most real-world probabilities can't be deduced from logic alone. We NEED data. "What percentage of emails are spam?" requires looking at actual email history.</li>
+<li><b>Formula</b> — <code>P(A) ≈ Number of times A occurred / Total observations</code></li>
+<li><b>Example</b> — Out of 1000 emails, 300 were spam: P(Spam) ≈ 300/1000 = 0.30. Out of 100 customers, 70 ordered tea: P(Tea) ≈ 0.70.</li>
+<li><b>Mental Model</b> — A tally counter. Keep counting occurrences and dividing by total attempts. More tallies = more accurate estimate.</li>
+<li><b>AI Connection</b> — This is THE foundation of machine learning. ML models learn probabilities from data. Word frequencies in language models, click-through rates in recommendations, conversion rates in ads — all relative frequency estimates refined by models.</li>
+</ul>
+
+<h3>9. Judgmental (Subjective) Approach</h3>
+<ul>
+<li><b>Meaning</b> — Estimate probability using expertise, experience, and reasoning when data is scarce or unavailable. It's an educated guess by a domain expert.</li>
+<li><b>Why It Exists</b> — Not every question has historical data. "What's the probability this startup succeeds?" or "What's the risk of this new technology failing?" require human judgment.</li>
+<li><b>Example</b> — A doctor estimates 70% chance a patient has the flu based on symptoms and experience (before tests return). A PM estimates 80% chance a feature ships on time.</li>
+<li><b>Mental Model</b> — Expert intuition. The number might be imprecise, but it captures real knowledge that no dataset contains yet.</li>
+<li><b>AI Connection</b> — Bayesian priors often come from expert judgment. AI is increasingly replacing subjective human judgment with data-driven estimates, but human priors remain important for cold-start problems and rare events.</li>
+</ul>
+</div>
+
+<h2>6.4 Types of Probability</h2>
+<p class="section-intro">This is the most important section. The distinction between marginal, joint, and conditional probability is the foundation of all machine learning. Every AI prediction is one of these three types.</p>
+
+<div class="two-col">
+<h3>10. Marginal Probability</h3>
+<ul>
+<li><b>Meaning</b> — The probability of a single event considered in isolation, ignoring all other variables. It's the "overall" probability without any conditions or context.</li>
+<li><b>Why It Exists</b> — Before we can understand how variables interact, we need to know their individual baseline rates. "How common is spam overall?" is the starting point before asking "how common is spam given this word?"</li>
+<li><b>Formula</b> — <code>P(A)</code> — just the probability of A, nothing else considered</li>
+<li><b>Example</b> — P(Spam) = 0.30 (30% of all emails are spam, regardless of content). P(Rain) = 0.15 (it rains 15% of days, regardless of cloud cover).</li>
+<li><b>Mental Model</b> — Looking at one column of a spreadsheet while ignoring all other columns. The "zoomed out" view.</li>
+<li><b>AI Connection</b> — The prior probability in Bayesian models. The base rate that conditional probability updates. If P(Spam) = 0.30 overall, that's the starting point before examining email content.</li>
+</ul>
+
+<h3>11. Joint Probability</h3>
+<ul>
+<li><b>Meaning</b> — The probability that two (or more) events occur TOGETHER. It measures how often events co-occur — the overlap in a Venn diagram.</li>
+<li><b>Why It Exists</b> — Many AI problems require knowing how likely multiple conditions are to be true simultaneously: "spam AND contains the word 'free'" or "male AND purchases electronics."</li>
+<li><b>Formula</b> — <code>P(A ∩ B)</code> — probability of A AND B both happening</li>
+<li><b>Example</b> — P(Spam AND contains "free") = 0.20 (20% of emails are both spam AND contain "free"). This is the overlap region.</li>
+<li><b>Mental Model</b> — The intersection zone in a Venn diagram. The area where both circles overlap.</li>
+<li><b>AI Connection</b> — Measures relationships between variables. Frequently co-occurring words have high joint probability: P("artificial" AND "intelligence") is much higher than P("artificial" AND "banana"). Word co-occurrence patterns are how Word2Vec learns embeddings.</li>
+</ul>
+
+<h3>12. Conditional Probability</h3>
+<ul>
+<li><b>Meaning</b> — The probability of an event GIVEN that we know some additional information. It updates our belief based on new evidence. This is THE most important concept in all of AI probability.</li>
+<li><b>Why It Exists</b> — In practice, we almost always have some context. We don't ask "what's the probability of rain?" — we ask "what's the probability of rain GIVEN that it's cloudy?" The context (condition) dramatically changes the answer.</li>
+<li><b>Formula</b> — <code>P(A|B) = P(A ∩ B) / P(B)</code> — read as "probability of A given B"</li>
+<li><b>Example</b> — P(Spam | contains "free") = 0.65. Knowing the email contains "free" changes spam probability from 0.30 (marginal) to 0.65 (conditional). The evidence updated our belief.</li>
+<li><b>Mental Model</b> — The word <b>"GIVEN"</b> is the trigger. Whenever you see or hear "given," think conditional probability. It means: "restrict your universe to only cases where the condition is true, then calculate."</li>
+<li><b>AI Connection</b> — Almost every AI prediction is conditional probability:
+  <ul>
+    <li>Spam: <code>P(Spam | Email Content)</code></li>
+    <li>Recommendation: <code>P(Click | User History)</code></li>
+    <li>Medical: <code>P(Disease | Symptoms)</code></li>
+    <li>LLM: <code>P(Next Token | Previous Tokens)</code></li>
+    <li>Image: <code>P(Cat | Pixel Values)</code></li>
+  </ul>
+</li>
+<li><b>Common Mistake</b> — <code>P(A|B) ≠ P(B|A)</code>. P(Sick | Positive Test) ≠ P(Positive Test | Sick). Confusing these is called the "prosecutor's fallacy" and leads to disastrous real-world decisions.</li>
+</ul>
+</div>
+
+<div class="tip"><b>In plain English:</b> Conditional probability is the mathematical formalization of "learning from context." Every time you update a belief based on new information, you're doing conditional probability. An LLM predicting the next word is asking: "Given everything I've seen so far, what word is most likely next?"</div>
+
+<!-- Third SVG: Conditional Probability Calculation -->
+<div class="diagram">
+<svg width="380" height="100" viewBox="0 0 380 100" xmlns="http://www.w3.org/2000/svg">
+  <rect x="2" y="2" width="376" height="96" fill="none" stroke="#ccc" stroke-width="1" rx="4"/>
+  <text x="190" y="16" text-anchor="middle" font-size="8" font-weight="bold" fill="#1a1a1a">Conditional Probability: From Marginal to Updated Belief</text>
+  <!-- Step 1: Marginal -->
+  <rect x="15" y="30" width="80" height="55" fill="#4F46E5" fill-opacity="0.08" stroke="#4F46E5" rx="3"/>
+  <text x="55" y="44" text-anchor="middle" font-size="6.5" fill="#4F46E5" font-weight="bold">Prior (Marginal)</text>
+  <text x="55" y="58" text-anchor="middle" font-size="7" fill="#1a1a1a">P(Spam) = 0.30</text>
+  <text x="55" y="72" text-anchor="middle" font-size="6" fill="#666">"Overall rate"</text>
+  <!-- Arrow 1 -->
+  <line x1="100" y1="57" x2="120" y2="57" stroke="#1a1a1a" stroke-width="1" marker-end="url(#arrowhead)"/>
+  <!-- Step 2: Evidence -->
+  <rect x="125" y="30" width="90" height="55" fill="#f59e0b" fill-opacity="0.1" stroke="#f59e0b" rx="3"/>
+  <text x="170" y="44" text-anchor="middle" font-size="6.5" fill="#f59e0b" font-weight="bold">+ Evidence</text>
+  <text x="170" y="58" text-anchor="middle" font-size="7" fill="#1a1a1a">Email has "free"</text>
+  <text x="170" y="72" text-anchor="middle" font-size="6" fill="#666">"New information"</text>
+  <!-- Arrow 2 -->
+  <line x1="220" y1="57" x2="240" y2="57" stroke="#1a1a1a" stroke-width="1" marker-end="url(#arrowhead)"/>
+  <!-- Step 3: Conditional -->
+  <rect x="245" y="30" width="120" height="55" fill="#4F46E5" fill-opacity="0.15" stroke="#4F46E5" stroke-width="1.5" rx="3"/>
+  <text x="305" y="44" text-anchor="middle" font-size="6.5" fill="#4F46E5" font-weight="bold">Posterior (Conditional)</text>
+  <text x="305" y="58" text-anchor="middle" font-size="7" fill="#1a1a1a">P(Spam|"free") = 0.65</text>
+  <text x="305" y="72" text-anchor="middle" font-size="6" fill="#666">"Updated belief"</text>
+  <!-- Bottom formula -->
+  <text x="190" y="95" text-anchor="middle" font-size="6.5" fill="#4F46E5">P(A|B) = P(A∩B) / P(B) = 0.20 / 0.308 ≈ 0.65</text>
+</svg>
+<div class="diagram-caption">Evidence transforms marginal probability (prior) into conditional probability (posterior) — the core mechanism of AI inference</div>
+</div>
+
+<h2>Quick Reference Tables</h2>
+
+<h3>Table 1 — Core Concepts Overview</h3>
+<table>
+<tr><th>#</th><th>Topic</th><th>Key Question</th><th>Core Idea</th><th>AI Connection</th></tr>
+<tr><td>1</td><td>Deterministic vs Random</td><td>Is the outcome guaranteed?</td><td>Random = uncertainty exists</td><td>AI exists because the world is uncertain</td></tr>
+<tr><td>2</td><td>Events</td><td>What outcome are we measuring?</td><td>Something we want to detect</td><td>Spam, fraud, click, next token</td></tr>
+<tr><td>3</td><td>Independent Events</td><td>Does A affect B?</td><td>No influence between them</td><td>AI learns useful dependencies</td></tr>
+<tr><td>4</td><td>Disjoint Events</td><td>Can A and B happen together?</td><td>Cannot co-occur</td><td>Single-label classification (softmax)</td></tr>
+<tr><td>5</td><td>Probability Rules</td><td>Is this a valid probability?</td><td>Must be in [0,1], must sum to 1</td><td>Softmax ensures valid outputs</td></tr>
+<tr><td>6</td><td>Multiplication Rule</td><td>What is P(A AND B)?</td><td>AND → Multiply</td><td>Sequence probability in LLMs</td></tr>
+<tr><td>7</td><td>Equal Likelihood</td><td>All outcomes equally fair?</td><td>Count favorable / total</td><td>Building intuition, rarely applies in AI</td></tr>
+<tr><td>8</td><td>Relative Frequency</td><td>How often did it happen?</td><td>Occurrences / total</td><td>Foundation of ML — learn from data</td></tr>
+<tr><td>9</td><td>Judgmental</td><td>What does expertise suggest?</td><td>Expert estimate</td><td>Bayesian priors, cold-start</td></tr>
+<tr><td>10</td><td>Marginal Probability</td><td>How likely overall?</td><td>P(A) in isolation</td><td>Base rate, prior probability</td></tr>
+<tr><td>11</td><td>Joint Probability</td><td>How likely together?</td><td>P(A ∩ B) co-occurrence</td><td>Word co-occurrence, feature relationships</td></tr>
+<tr><td>12</td><td>Conditional Probability</td><td>How likely given context?</td><td>P(A|B) = updated belief</td><td>EVERYTHING in AI: P(Y|X)</td></tr>
+</table>
+
+<h3>Table 2 — The Three Probability Types</h3>
+<table>
+<tr><th>Type</th><th>Notation</th><th>Meaning</th><th>Example</th><th>AI Example</th></tr>
+<tr><td>Marginal</td><td>P(A)</td><td>Probability of A overall</td><td>P(Spam) = 0.30</td><td>Overall spam rate</td></tr>
+<tr><td>Joint</td><td>P(A ∩ B)</td><td>Probability of A and B together</td><td>P(Spam ∩ "free") = 0.20</td><td>Co-occurrence</td></tr>
+<tr><td>Conditional</td><td>P(A|B)</td><td>Probability of A given B is true</td><td>P(Spam | "free") = 0.65</td><td>Updated belief after evidence</td></tr>
+</table>
+
+<h3>Table 3 — Probability Approaches Comparison</h3>
+<table>
+<tr><th>Approach</th><th>Source</th><th>Best For</th><th>Limitation</th></tr>
+<tr><td>Equal Likelihood</td><td>Logic / counting</td><td>Coins, dice, cards</td><td>Rarely true in real AI</td></tr>
+<tr><td>Relative Frequency</td><td>Historical data</td><td>Statistics, ML</td><td>Needs sufficient data</td></tr>
+<tr><td>Judgmental</td><td>Expert experience</td><td>New/rare situations</td><td>Human bias</td></tr>
+</table>
+
+<h3>Table 4 — Independent vs Disjoint</h3>
+<table>
+<tr><th>Question</th><th>Independent</th><th>Disjoint</th></tr>
+<tr><td>Can happen together?</td><td>YES</td><td>NO</td></tr>
+<tr><td>Influence each other?</td><td>NO</td><td>Not relevant</td></tr>
+<tr><td>Example</td><td>Coin flip &amp; die roll</td><td>Heads vs Tails</td></tr>
+<tr><td>P(A ∩ B)</td><td>P(A) × P(B)</td><td>0 (impossible)</td></tr>
+<tr><td>AI Example</td><td>Unrelated features</td><td>Single-label classes</td></tr>
+</table>
+
+<h3>Table 5 — Probability Rules Cheat Sheet</h3>
+<table>
+<tr><th>Rule</th><th>Statement</th><th>Why It Matters</th></tr>
+<tr><td>Boundedness</td><td><code>0 ≤ P(A) ≤ 1</code></td><td>No negative or &gt;1 probabilities</td></tr>
+<tr><td>Certainty</td><td><code>P(Certain) = 1</code></td><td>Guaranteed events</td></tr>
+<tr><td>Impossibility</td><td><code>P(Impossible) = 0</code></td><td>Cannot-happen events</td></tr>
+<tr><td>Complement</td><td><code>P(Not A) = 1 - P(A)</code></td><td>Quick way to compute "other"</td></tr>
+<tr><td>Total</td><td>All outcomes sum to 1</td><td>Budget is exactly 1.0</td></tr>
+<tr><td>Multiplication (indep.)</td><td><code>P(A ∩ B) = P(A) × P(B)</code></td><td>AND for independent events</td></tr>
+<tr><td>Multiplication (general)</td><td><code>P(A ∩ B) = P(A) × P(B|A)</code></td><td>AND for dependent events</td></tr>
+</table>
+
+<h3>Table 6 — AI Problems as Conditional Probability</h3>
+<table>
+<tr><th>AI Problem</th><th>Probability Form</th><th>What's Being Conditioned On</th></tr>
+<tr><td>Spam Detection</td><td>P(Spam | Email)</td><td>Email content</td></tr>
+<tr><td>Fraud Detection</td><td>P(Fraud | Transaction)</td><td>Transaction details</td></tr>
+<tr><td>Medical Diagnosis</td><td>P(Disease | Symptoms)</td><td>Patient symptoms</td></tr>
+<tr><td>Recommendation</td><td>P(Click | User History)</td><td>Past behavior</td></tr>
+<tr><td>Search Ranking</td><td>P(Relevant | Query)</td><td>Search query</td></tr>
+<tr><td>Image Classification</td><td>P(Class | Image)</td><td>Pixel values</td></tr>
+<tr><td>Speech Recognition</td><td>P(Text | Audio)</td><td>Audio waveform</td></tr>
+<tr><td>LLM Generation</td><td>P(NextToken | PreviousTokens)</td><td>All preceding context</td></tr>
+<tr><td>Machine Learning</td><td>P(Y | X)</td><td>Input features</td></tr>
+</table>
+
+<h3>Table 7 — Probability Language Translation</h3>
+<table>
+<tr><th>Math Notation</th><th>Plain English</th></tr>
+<tr><td>P(A)</td><td>Probability of A</td></tr>
+<tr><td>P(A ∩ B)</td><td>Probability of A AND B</td></tr>
+<tr><td>P(A | B)</td><td>Probability of A GIVEN B</td></tr>
+<tr><td>A ∩ B = ∅</td><td>A and B are mutually exclusive</td></tr>
+<tr><td>P(Aᶜ) = 1 - P(A)</td><td>Complement: everything else</td></tr>
+<tr><td>Independent</td><td>No influence between events</td></tr>
+<tr><td>Disjoint</td><td>Cannot happen simultaneously</td></tr>
+</table>
+
+<h2>Memory Map</h2>
+<div class="prompt">The World is Uncertain (Random, not Deterministic)
+      ↓
+We Define Events (what we care about detecting)
+      ↓
+Probability Rules (valid assignments: [0,1], sum to 1)
+      ↓
+How to Estimate Probability
+  ├── Equal Likelihood (logic — rare in real AI)
+  ├── Relative Frequency (data — foundation of ML)
+  └── Judgmental (expertise — priors)
+      ↓
+Three Types of Probability
+  ├── Marginal: P(A) — overall rate
+  ├── Joint: P(A ∩ B) — co-occurrence
+  └── Conditional: P(A|B) — updated belief given evidence
+      ↓
+The Big Insight:
+  Modern AI = Estimating P(Y | X) from data
+      ↓
+Applications:
+  ├── P(Spam | Email)
+  ├── P(Click | User)
+  ├── P(Disease | Symptoms)
+  └── P(NextToken | PreviousTokens) ← This IS an LLM
+      ↓
+Foundation for:
+  ├── Bayes Theorem
+  ├── Machine Learning
+  ├── Deep Learning
+  ├── Transformers
+  └── LLMs</div>
+
+<h2>Interview / Revision Summary</h2>
+<table>
+<tr><th>Concept</th><th>Remember This</th></tr>
+<tr><td>Probability</td><td>Mathematics of uncertainty; values in [0, 1]</td></tr>
+<tr><td>Event</td><td>Something we care about happening</td></tr>
+<tr><td>Independent</td><td>No influence; P(A|B) = P(A)</td></tr>
+<tr><td>Disjoint</td><td>Cannot happen together; P(A ∩ B) = 0</td></tr>
+<tr><td>Complement</td><td>P(Not A) = 1 - P(A)</td></tr>
+<tr><td>Multiplication</td><td>AND → Multiply</td></tr>
+<tr><td>Equal Likelihood</td><td>Fair situations only: favorable / total</td></tr>
+<tr><td>Relative Frequency</td><td>Learn from data: occurrences / total</td></tr>
+<tr><td>Marginal</td><td>P(A) — overall rate, ignoring context</td></tr>
+<tr><td>Joint</td><td>P(A ∩ B) — both together</td></tr>
+<tr><td>Conditional</td><td>P(A|B) — updated belief after evidence</td></tr>
+<tr><td>Modern AI</td><td>Estimating P(Y|X) — conditional probability from data</td></tr>
+<tr><td>LLM</td><td>P(NextToken|PreviousTokens) repeated millions of times</td></tr>
+</table>
+
+<h3>If Someone Asks: "How does Probability connect to AI and LLMs?"</h3>
+<div class="tip">Probability provides the mathematical framework for AI to handle uncertainty. Every AI prediction is fundamentally a conditional probability estimation: given input features X, what's the probability of output Y? A spam classifier computes P(Spam|EmailContent), a recommender computes P(Click|UserHistory), and an LLM computes P(NextToken|AllPreviousTokens). The training process uses relative frequency — learning these conditional probabilities from millions of examples in data. The loss function (cross-entropy) is directly derived from probability theory: it measures how far the model's predicted probability distribution is from reality. Softmax converts raw neural network outputs into valid probabilities (non-negative, summing to 1). In essence, the entire deep learning pipeline — from data to training to inference — is a sophisticated system for estimating conditional probabilities at massive scale.</div>
+
+</body>
+</html>

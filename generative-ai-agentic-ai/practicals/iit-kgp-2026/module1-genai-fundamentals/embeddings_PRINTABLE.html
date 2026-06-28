@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Embeddings — Printable Notes</title>
+<style>
+  @page { margin: 0.5cm; size: A4; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+  h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+  h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+  h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+  ul { margin: 0 0 2px 12px; padding: 0; }
+  li { margin-bottom: 0.5px; }
+  .tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+  .prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+  .two-col { column-count: 2; column-gap: 10px; }
+  code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+  table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+  th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+  th { background: #f3f4f6; font-weight: bold; }
+  .diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+  .diagram svg { max-width: 100%; }
+  .diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+  .section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+  @media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+<h1>Topic 3 — Embeddings</h1>
+<p><b>Summary:</b> Embeddings are dense vectors representing meaning in geometric space — similar concepts live close together, different concepts live far apart. The foundation of semantic search and RAG.</p>
+
+<h2>Why It Exists</h2>
+<ul>
+<li><b>Problem</b> — after tokenization, you have IDs like [348, 14372]. But 348 and 349 aren't semantically related. Need a representation where relationships are geometric.</li>
+<li><b>One-hot fails</b> — 50K-dimensional sparse vector. "Cat" and "kitten" equally far from each other as "cat" and "telescope." No similarity.</li>
+<li><b>Solution</b> — learn a 768-float vector per token where similar meanings = nearby vectors. Distance = semantic difference.</li>
+<li><b>Mental Model</b> — <b>GPS coordinates for meaning</b>. Nearby GPS = nearby places. Nearby embeddings = nearby meanings.</li>
+</ul>
+
+<h2>How It Works</h2>
+
+<div class="diagram">
+<svg width="420" height="80" viewBox="0 0 420 80">
+<defs><marker id="arrE" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto"><path d="M0,0 L6,2 L0,4 Z" fill="#4F46E5"/></marker></defs>
+<rect x="10" y="20" width="70" height="35" rx="3" fill="#f3f4f6" stroke="#ddd"/>
+<text x="45" y="35" text-anchor="middle" font-size="6pt" font-weight="bold">Token ID</text>
+<text x="45" y="47" text-anchor="middle" font-size="5.5pt" fill="#666">7592</text>
+<line x1="80" y1="37" x2="105" y2="37" stroke="#4F46E5" stroke-width="1" marker-end="url(#arrE)"/>
+<rect x="105" y="15" width="120" height="45" rx="3" fill="#ede9fe" stroke="#4F46E5"/>
+<text x="165" y="30" text-anchor="middle" font-size="6pt" font-weight="bold" fill="#4F46E5">Embedding Matrix</text>
+<text x="165" y="42" text-anchor="middle" font-size="5pt" fill="#666">50K rows × 768 cols</text>
+<text x="165" y="52" text-anchor="middle" font-size="5pt" fill="#666">(learned lookup table)</text>
+<line x1="225" y1="37" x2="250" y2="37" stroke="#4F46E5" stroke-width="1" marker-end="url(#arrE)"/>
+<rect x="250" y="20" width="160" height="35" rx="3" fill="#dcfce7" stroke="#22c55e"/>
+<text x="330" y="33" text-anchor="middle" font-size="6pt" font-weight="bold" fill="#166534">Embedding Vector</text>
+<text x="330" y="47" text-anchor="middle" font-size="5pt" fill="#666">[0.23, -0.14, 0.87, ..., -0.56] (768 floats)</text>
+</svg>
+<div class="diagram-caption">Embedding = learned lookup table. Token ID → row in matrix → dense vector representing meaning.</div>
+</div>
+
+<h2>Similarity in Embedding Space</h2>
+
+<div class="diagram">
+<svg width="300" height="140" viewBox="0 0 300 140">
+<defs><marker id="arrE2" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto"><path d="M0,0 L6,2 L0,4 Z" fill="#4F46E5"/></marker></defs>
+<line x1="30" y1="120" x2="280" y2="120" stroke="#eee" stroke-width="0.5"/>
+<line x1="30" y1="120" x2="30" y2="10" stroke="#eee" stroke-width="0.5"/>
+<circle cx="80" cy="40" r="4" fill="#4F46E5"/><text x="90" y="43" font-size="6pt" fill="#4F46E5">"cat"</text>
+<circle cx="100" cy="50" r="4" fill="#4F46E5"/><text x="110" y="53" font-size="6pt" fill="#4F46E5">"kitten"</text>
+<circle cx="95" cy="60" r="4" fill="#4F46E5"/><text x="105" y="63" font-size="6pt" fill="#4F46E5">"pet"</text>
+<circle cx="220" cy="90" r="4" fill="#e8590c"/><text x="230" y="93" font-size="6pt" fill="#e8590c">"python"</text>
+<circle cx="240" cy="80" r="4" fill="#e8590c"/><text x="250" y="83" font-size="6pt" fill="#e8590c">"code"</text>
+<circle cx="230" cy="100" r="4" fill="#e8590c"/><text x="240" y="103" font-size="6pt" fill="#e8590c">"software"</text>
+<line x1="80" y1="42" x2="98" y2="48" stroke="#4F46E5" stroke-width="0.5" stroke-dasharray="2,2"/>
+<text x="120" y="125" font-size="6pt" fill="#495057">Similar words cluster together. Distance = semantic difference.</text>
+</svg>
+<div class="diagram-caption">In embedding space, semantically related words form clusters. "cat" is near "kitten" but far from "python" (programming).</div>
+</div>
+
+<h2>Static vs Contextual Embeddings</h2>
+<table>
+<tr><th>Type</th><th>Example</th><th>"bank" in "river bank"</th><th>"bank" in "bank account"</th></tr>
+<tr><td>Static (Word2Vec)</td><td>One fixed vector</td><td>Same vector ✗</td><td>Same vector ✗</td></tr>
+<tr><td>Contextual (BERT)</td><td>Depends on sentence</td><td>Nature-related vector ✓</td><td>Finance-related vector ✓</td></tr>
+</table>
+<div class="tip"><b>Modern standard:</b> Always contextual (BERT, GPT). Static embeddings (Word2Vec) are outdated. Context determines meaning.</div>
+
+<h2>Embedding Types</h2>
+<table>
+<tr><th>Level</th><th>What Gets Embedded</th><th>Dim</th><th>Use Case</th></tr>
+<tr><td>Token</td><td>Single subword</td><td>768-4096</td><td>First layer of every LLM</td></tr>
+<tr><td>Sentence</td><td>Entire sentence</td><td>384-768</td><td>Semantic search, RAG retrieval</td></tr>
+<tr><td>Document</td><td>Entire document</td><td>384-768</td><td>Document clustering, recommendations</td></tr>
+</table>
+
+<h2>The RAG Connection</h2>
+
+<div class="diagram">
+<svg width="400" height="60" viewBox="0 0 400 60">
+<defs><marker id="arrR" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto"><path d="M0,0 L6,2 L0,4 Z" fill="#4F46E5"/></marker></defs>
+<rect x="5" y="15" width="70" height="28" rx="3" fill="#f3f4f6" stroke="#ddd"/>
+<text x="40" y="32" text-anchor="middle" font-size="5.5pt">Docs + Query</text>
+<line x1="75" y1="29" x2="95" y2="29" stroke="#4F46E5" stroke-width="1" marker-end="url(#arrR)"/>
+<rect x="95" y="15" width="70" height="28" rx="3" fill="#ede9fe" stroke="#4F46E5"/>
+<text x="130" y="32" text-anchor="middle" font-size="5.5pt">Embed both</text>
+<line x1="165" y1="29" x2="185" y2="29" stroke="#4F46E5" stroke-width="1" marker-end="url(#arrR)"/>
+<rect x="185" y="15" width="80" height="28" rx="3" fill="#ede9fe" stroke="#4F46E5"/>
+<text x="225" y="32" text-anchor="middle" font-size="5.5pt">Cosine similarity</text>
+<line x1="265" y1="29" x2="285" y2="29" stroke="#4F46E5" stroke-width="1" marker-end="url(#arrR)"/>
+<rect x="285" y="15" width="80" height="28" rx="3" fill="#dcfce7" stroke="#22c55e"/>
+<text x="325" y="32" text-anchor="middle" font-size="5.5pt">Top-K similar</text>
+<text x="200" y="52" text-anchor="middle" font-size="5.5pt" fill="#495057">Embeddings are the ENGINE of RAG retrieval</text>
+</svg>
+<div class="diagram-caption">RAG = embed docs + embed query + find similar using cosine similarity. No embeddings = no RAG.</div>
+</div>
+
+<h2>Common Misconceptions</h2>
+<table>
+<tr><th>Wrong</th><th>Correct</th></tr>
+<tr><td>Each dimension has a clear meaning</td><td>Meaning is distributed across all 768 dims — no single "happiness" axis</td></tr>
+<tr><td>Embeddings are fixed</td><td>Contextual (modern): same word gets different vectors in different sentences</td></tr>
+<tr><td>Bigger = better</td><td>384-dim often sufficient. 768 adds cost with diminishing returns for most tasks.</td></tr>
+<tr><td>Embeddings capture truth</td><td>They capture statistical patterns — including biases in training data</td></tr>
+</table>
+
+<h2>Key Terminology</h2>
+<table>
+<tr><th>Term</th><th>Meaning</th></tr>
+<tr><td>Embedding</td><td>Dense vector representing meaning in geometric space</td></tr>
+<tr><td>Embedding dimension</td><td>Length of the vector (384, 768, 1536, 4096)</td></tr>
+<tr><td>Cosine similarity</td><td>Measures angle between vectors: 1=identical direction, 0=unrelated, -1=opposite</td></tr>
+<tr><td>Semantic space</td><td>The high-dimensional space where embeddings live</td></tr>
+<tr><td>Mean pooling</td><td>Average all token embeddings to get one sentence embedding</td></tr>
+</table>
+
+<h2>Connection Map</h2>
+<div class="prompt">TOKENIZATION (text → token IDs)
+    ↓
+EMBEDDINGS (IDs → meaning vectors) ← you are here
+    ↓
+ATTENTION (which tokens to focus on?)
+    ↓
+Used in: RAG retrieval, semantic search, clustering, recommendations</div>
+
+<h2>Top Takeaways</h2>
+<table>
+<tr><th>#</th><th>Insight</th></tr>
+<tr><td>1</td><td>Embeddings place meaning in geometric space: similar = close, different = far</td></tr>
+<tr><td>2</td><td>Modern embeddings are contextual — "bank" changes based on surrounding words</td></tr>
+<tr><td>3</td><td>The embedding matrix is a learned lookup table (one row per token in vocabulary)</td></tr>
+<tr><td>4</td><td>Cosine similarity between embeddings = how semantically related two texts are</td></tr>
+<tr><td>5</td><td>Embeddings ARE the engine of RAG: embed docs → embed query → find similar</td></tr>
+<tr><td>6</td><td>384-dim (MiniLM) is the sweet spot for most retrieval tasks (fast + accurate enough)</td></tr>
+</table>
+
+<h2>Ready to Move On?</h2>
+<div class="tip">
+☐ I can explain why one-hot encoding doesn't work (sparse, no similarity)<br>
+☐ I understand that embeddings place meaning in geometric space (similar = close)<br>
+☐ I know the difference between static (Word2Vec) and contextual (BERT) embeddings<br>
+☐ I can describe how embeddings enable semantic search (embed query → find similar docs)<br><br>
+<b>Next → Attention (how the model focuses on relevant parts of the input)</b>
+</div>
+
+</body>
+</html>

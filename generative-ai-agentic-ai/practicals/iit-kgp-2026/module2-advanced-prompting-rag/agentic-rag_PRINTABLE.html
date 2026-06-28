@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Agentic RAG — Practitioner's Playbook</title>
+<style>
+  @page { margin: 0.5cm; size: A4; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+  h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+  h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+  h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+  ul { margin: 0 0 2px 12px; padding: 0; }
+  li { margin-bottom: 0.5px; }
+  .tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+  .prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+  .two-col { column-count: 2; column-gap: 10px; }
+  code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+  table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+  th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+  th { background: #f3f4f6; font-weight: bold; }
+  .diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+  .diagram svg { max-width: 100%; }
+  .diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+  .section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+  @media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+<h1>Module 2, Topic 10 — Agentic RAG</h1>
+<p class="section-intro">Agentic RAG adds reasoning loops around retrieval — the system can plan which documents to fetch, verify that retrieved context is sufficient, retry with refined queries, and combine information across multiple retrieval steps. Think of it as upgrading from a single SQL query to a stored procedure that makes decisions. Module 1 introduced agents conceptually (ReAct, tool use). Here you're engineering the decision of WHEN to use agentic patterns vs simpler RAG, and HOW to implement them with LangGraph state machines.</p>
+<p><b>Problem:</b> Simple retrieve-then-generate fails on complex questions needing multi-step retrieval, cross-document reasoning, or dynamic routing. "Compare auth in v1 vs v2" needs multiple passes, decomposition, and synthesis.</p>
+
+<h2>When to Go Agentic — Decision Tree</h2>
+<div class="diagram">
+<svg width="450" height="155" viewBox="0 0 450 155">
+<defs><marker id="arrA" markerWidth="5" markerHeight="4" refX="5" refY="2" orient="auto"><path d="M0,0 L5,2 L0,4 Z" fill="#4F46E5"/></marker></defs>
+<rect x="130" y="5" width="190" height="20" rx="3" fill="#ede9fe" stroke="#4F46E5"/>
+<text x="225" y="18" text-anchor="middle" font-size="6pt" font-weight="bold">Can a single retrieval pass answer it?</text>
+<line x1="175" y1="25" x2="80" y2="42" stroke="#4F46E5" marker-end="url(#arrA)"/>
+<text x="105" y="35" font-size="5pt" fill="#059669">YES (80% of queries)</text>
+<rect x="15" y="42" width="135" height="20" rx="3" fill="#dcfce7" stroke="#22c55e"/>
+<text x="82" y="55" text-anchor="middle" font-size="5.5pt" font-weight="bold">→ Simple RAG (1-3s, $0.0006)</text>
+<line x1="285" y1="25" x2="360" y2="42" stroke="#4F46E5" marker-end="url(#arrA)"/>
+<text x="340" y="35" font-size="5pt" fill="#ef4444">NO</text>
+<rect x="285" y="42" width="155" height="20" rx="3" fill="#fef3c7" stroke="#f59e0b"/>
+<text x="362" y="55" text-anchor="middle" font-size="5.5pt">Needs multiple domains or sub-questions?</text>
+<line x1="320" y1="62" x2="265" y2="78" stroke="#4F46E5" marker-end="url(#arrA)"/>
+<text x="275" y="72" font-size="5pt">Just routing</text>
+<rect x="195" y="78" width="140" height="18" rx="3" fill="#dcfce7" stroke="#22c55e"/>
+<text x="265" y="90" text-anchor="middle" font-size="5.5pt">→ Routed RAG (1.5-3.5s, 2 LLM calls)</text>
+<line x1="400" y1="62" x2="400" y2="78" stroke="#4F46E5" marker-end="url(#arrA)"/>
+<text x="410" y="72" font-size="5pt">Multi-part</text>
+<rect x="345" y="78" width="100" height="18" rx="3" fill="#fef3c7" stroke="#f59e0b"/>
+<text x="395" y="90" text-anchor="middle" font-size="5.5pt">Needs verification?</text>
+<line x1="370" y1="96" x2="320" y2="112" stroke="#4F46E5" marker-end="url(#arrA)"/>
+<text x="330" y="106" font-size="5pt" fill="#ef4444">NO</text>
+<rect x="245" y="112" width="150" height="18" rx="3" fill="#dcfce7" stroke="#22c55e"/>
+<text x="320" y="124" text-anchor="middle" font-size="5.5pt">→ Decomposed RAG (3-8s, 3-5 calls)</text>
+<line x1="420" y1="96" x2="420" y2="112" stroke="#4F46E5" marker-end="url(#arrA)"/>
+<text x="432" y="106" font-size="5pt" fill="#059669">YES</text>
+<rect x="395" y="112" width="55" height="18" rx="3" fill="#dcfce7" stroke="#22c55e"/>
+<text x="422" y="124" text-anchor="middle" font-size="5.5pt" font-weight="bold">Self-RAG</text>
+<text x="225" y="148" font-size="5.5pt" fill="#ef4444" text-anchor="middle" font-weight="bold">⚠ Full agentic (5-30s, 10-50× cost) — only for complex research/analysis. Don't default here.</text>
+</svg>
+<div class="diagram-caption">80% of queries should use simple RAG. Only escalate when the question genuinely can't be answered in one pass.</div>
+</div>
+
+<h2>Pattern Comparison</h2>
+<table>
+<tr><th>Pattern</th><th>Use When</th><th>LLM Calls</th><th>Latency</th><th>Cost (vs simple)</th></tr>
+<tr><td>Simple RAG</td><td>"What is X?" — single-fact lookup</td><td>1</td><td>1-3s</td><td>1×</td></tr>
+<tr><td>Routed RAG</td><td>Multiple collections/domains</td><td>2</td><td>1.5-3.5s</td><td>1.5×</td></tr>
+<tr><td>Decomposed RAG</td><td>"Compare X vs Y" — multi-part</td><td>3-5</td><td>3-8s</td><td>3-5×</td></tr>
+<tr><td>Self-RAG</td><td>High-stakes, needs grounding check</td><td>3-9</td><td>5-15s</td><td>5-10×</td></tr>
+<tr><td>CRAG (Corrective)</td><td>Detect and fix bad retrieval</td><td>3-7</td><td>5-15s</td><td>5-10×</td></tr>
+<tr><td>Full Agentic (tools)</td><td>Multi-hop reasoning + actions</td><td>5-15</td><td>5-30s</td><td>10-50×</td></tr>
+</table>
+<div class="tip"><b>Budget rule:</b> Route 80% simple, 15% routed/decomposed, 5% agentic. Monitor and adjust based on query complexity distribution.</div>
+
+<h2>Pattern Architectures</h2>
+<div class="diagram">
+<svg width="440" height="140" viewBox="0 0 440 140">
+<defs><marker id="arrA2" markerWidth="5" markerHeight="4" refX="5" refY="2" orient="auto"><path d="M0,0 L5,2 L0,4 Z" fill="#4F46E5"/></marker></defs>
+<text x="5" y="12" font-size="5.5pt" font-weight="bold">Simple:</text>
+<rect x="55" y="3" width="45" height="14" rx="2" fill="#dbeafe" stroke="#3b82f6"/><text x="77" y="13" text-anchor="middle" font-size="4.5pt">Query</text>
+<line x1="100" y1="10" x2="110" y2="10" stroke="#4F46E5" marker-end="url(#arrA2)"/>
+<rect x="110" y="3" width="55" height="14" rx="2" fill="#dcfce7" stroke="#22c55e"/><text x="137" y="13" text-anchor="middle" font-size="4.5pt">Retrieve</text>
+<line x1="165" y1="10" x2="175" y2="10" stroke="#4F46E5" marker-end="url(#arrA2)"/>
+<rect x="175" y="3" width="55" height="14" rx="2" fill="#fef3c7" stroke="#f59e0b"/><text x="202" y="13" text-anchor="middle" font-size="4.5pt">Generate</text>
+<text x="250" y="13" font-size="5pt" fill="#666">1 call, 1-3s</text>
+
+<text x="5" y="32" font-size="5.5pt" font-weight="bold">Routed:</text>
+<rect x="55" y="23" width="45" height="14" rx="2" fill="#dbeafe" stroke="#3b82f6"/><text x="77" y="33" text-anchor="middle" font-size="4.5pt">Query</text>
+<line x1="100" y1="30" x2="110" y2="30" stroke="#4F46E5" marker-end="url(#arrA2)"/>
+<rect x="110" y="23" width="40" height="14" rx="2" fill="#ede9fe" stroke="#4F46E5"/><text x="130" y="33" text-anchor="middle" font-size="4.5pt">Route</text>
+<line x1="150" y1="30" x2="160" y2="30" stroke="#4F46E5" marker-end="url(#arrA2)"/>
+<rect x="160" y="23" width="55" height="14" rx="2" fill="#dcfce7" stroke="#22c55e"/><text x="187" y="33" text-anchor="middle" font-size="4.5pt">Retrieve</text>
+<line x1="215" y1="30" x2="225" y2="30" stroke="#4F46E5" marker-end="url(#arrA2)"/>
+<rect x="225" y="23" width="55" height="14" rx="2" fill="#fef3c7" stroke="#f59e0b"/><text x="252" y="33" text-anchor="middle" font-size="4.5pt">Generate</text>
+<text x="300" y="33" font-size="5pt" fill="#666">2 calls, 1.5-3.5s</text>
+
+<text x="5" y="52" font-size="5.5pt" font-weight="bold">Decomposed:</text>
+<rect x="75" y="43" width="45" height="14" rx="2" fill="#dbeafe" stroke="#3b82f6"/><text x="97" y="53" text-anchor="middle" font-size="4.5pt">Query</text>
+<line x1="120" y1="50" x2="130" y2="50" stroke="#4F46E5" marker-end="url(#arrA2)"/>
+<rect x="130" y="43" width="55" height="14" rx="2" fill="#ede9fe" stroke="#4F46E5"/><text x="157" y="53" text-anchor="middle" font-size="4.5pt">Decompose</text>
+<line x1="185" y1="50" x2="195" y2="50" stroke="#4F46E5" marker-end="url(#arrA2)"/>
+<rect x="195" y="43" width="70" height="14" rx="2" fill="#dcfce7" stroke="#22c55e"/><text x="230" y="53" text-anchor="middle" font-size="4.5pt">Retrieve × N</text>
+<line x1="265" y1="50" x2="275" y2="50" stroke="#4F46E5" marker-end="url(#arrA2)"/>
+<rect x="275" y="43" width="60" height="14" rx="2" fill="#fef3c7" stroke="#f59e0b"/><text x="305" y="53" text-anchor="middle" font-size="4.5pt">Synthesize</text>
+<text x="355" y="53" font-size="5pt" fill="#666">3-5 calls, 3-8s</text>
+
+<text x="5" y="72" font-size="5.5pt" font-weight="bold">Self-RAG:</text>
+<rect x="65" y="63" width="45" height="14" rx="2" fill="#dbeafe" stroke="#3b82f6"/><text x="87" y="73" text-anchor="middle" font-size="4.5pt">Query</text>
+<line x1="110" y1="70" x2="120" y2="70" stroke="#4F46E5" marker-end="url(#arrA2)"/>
+<rect x="120" y="63" width="50" height="14" rx="2" fill="#dcfce7" stroke="#22c55e"/><text x="145" y="73" text-anchor="middle" font-size="4.5pt">Retrieve</text>
+<line x1="170" y1="70" x2="180" y2="70" stroke="#4F46E5" marker-end="url(#arrA2)"/>
+<rect x="180" y="63" width="50" height="14" rx="2" fill="#fef3c7" stroke="#f59e0b"/><text x="205" y="73" text-anchor="middle" font-size="4.5pt">Generate</text>
+<line x1="230" y1="70" x2="240" y2="70" stroke="#4F46E5" marker-end="url(#arrA2)"/>
+<rect x="240" y="63" width="50" height="14" rx="2" fill="#fce7f3" stroke="#ec4899"/><text x="265" y="73" text-anchor="middle" font-size="4.5pt">Verify</text>
+<path d="M 265 77 C 265 90, 145 90, 145 77" fill="none" stroke="#ec4899" stroke-dasharray="2"/>
+<text x="205" y="88" text-anchor="middle" font-size="4pt" fill="#ec4899">retry if not grounded (max 3×)</text>
+<text x="320" y="73" font-size="5pt" fill="#666">3-9 calls, 5-15s</text>
+
+<text x="5" y="105" font-size="5.5pt" font-weight="bold">CRAG:</text>
+<rect x="55" y="96" width="45" height="14" rx="2" fill="#dbeafe" stroke="#3b82f6"/><text x="77" y="106" text-anchor="middle" font-size="4.5pt">Query</text>
+<line x1="100" y1="103" x2="108" y2="103" stroke="#4F46E5" marker-end="url(#arrA2)"/>
+<rect x="108" y="96" width="50" height="14" rx="2" fill="#dcfce7" stroke="#22c55e"/><text x="133" y="106" text-anchor="middle" font-size="4.5pt">Retrieve</text>
+<line x1="158" y1="103" x2="166" y2="103" stroke="#4F46E5" marker-end="url(#arrA2)"/>
+<rect x="166" y="96" width="50" height="14" rx="2" fill="#ede9fe" stroke="#4F46E5"/><text x="191" y="106" text-anchor="middle" font-size="4.5pt">Grade</text>
+<line x1="216" y1="103" x2="224" y2="103" stroke="#4F46E5" marker-end="url(#arrA2)"/>
+<rect x="224" y="96" width="80" height="14" rx="2" fill="#fef3c7" stroke="#f59e0b"/><text x="264" y="106" text-anchor="middle" font-size="4.5pt">If bad → refine/web</text>
+<line x1="304" y1="103" x2="312" y2="103" stroke="#4F46E5" marker-end="url(#arrA2)"/>
+<rect x="312" y="96" width="55" height="14" rx="2" fill="#dcfce7" stroke="#22c55e"/><text x="339" y="106" text-anchor="middle" font-size="4.5pt">Generate</text>
+<text x="385" y="106" font-size="5pt" fill="#666">3-7 calls</text>
+
+<text x="225" y="130" font-size="5.5pt" fill="#4F46E5" text-anchor="middle" font-weight="bold">Use LangGraph for all patterns beyond simple — gives explicit state machine control</text>
+</svg>
+<div class="diagram-caption">Each pattern adds complexity and LLM calls. Escalate only when simpler patterns demonstrably fail on your query types.</div>
+</div>
+
+<h2>Implementation — Key Patterns</h2>
+
+<h3>Query Router</h3>
+<div class="prompt">class RouteTarget(str, Enum):
+    API_DOCS = "api_docs"
+    TUTORIALS = "tutorials"
+    CHANGELOGS = "changelogs"
+
+router = ChatOpenAI(model="gpt-4o-mini", temperature=0).with_structured_output(QueryRoute)
+
+def route_query(question):
+    return router.invoke(f"""Classify: api_docs (endpoints, params), 
+    tutorials (how-to), changelogs (version changes). Q: {question}""")
+# Cost: ~$0.0001 per query. Fast classification.</div>
+
+<h3>Query Decomposition</h3>
+<div class="prompt">class SubQueries(BaseModel):
+    queries: list[str] = Field(min_length=2, max_length=4)
+    strategy: str  # How to combine sub-answers
+
+decomposer = llm.with_structured_output(SubQueries)
+result = decomposer.invoke(f"Break into 2-4 sub-questions: {question}")
+# "Compare auth v1 vs v2" → ["How does auth work in v1?", 
+#                              "How does auth work in v2?",
+#                              "Migration steps from v1 to v2?"]</div>
+
+<h3>Self-RAG with LangGraph</h3>
+<div class="prompt">from langgraph.graph import StateGraph, END
+
+graph = StateGraph(SelfRAGState)
+graph.add_node("retrieve", retrieve)
+graph.add_node("generate", generate)
+graph.add_node("check_grounding", check_grounding)  # "Is answer in context?"
+graph.add_node("check_relevance", check_relevance)  # "Does it answer Q?"
+
+graph.set_entry_point("retrieve")
+graph.add_edge("retrieve", "generate")
+graph.add_edge("generate", "check_grounding")
+graph.add_edge("check_grounding", "check_relevance")
+graph.add_conditional_edges("check_relevance", should_retry, {
+    "accept": END,      # Both checks pass → done
+    "retry": "retrieve" # Failed → re-query (max 3 iterations)
+})
+self_rag = graph.compile()</div>
+
+<h3>Agentic with Tools</h3>
+<div class="prompt">from langgraph.prebuilt import ToolNode
+
+@tool
+def search_docs(query: str, collection: str = "default") -> str:
+    """Search documentation."""
+    return "\n---\n".join([d.page_content for d in retriever.invoke(query)[:3]])
+
+@tool
+def get_current_version(product: str) -> str:
+    """Get current version of a product."""
+    return versions.get(product, "unknown")
+
+tools = [search_docs, get_current_version]
+llm_with_tools = ChatOpenAI(model="gpt-4o-mini").bind_tools(tools)
+
+# Agent decides: use tool or respond? Loop until done (max 10 steps)</div>
+
+<h3>Complexity Classifier (Route to Right Pattern)</h3>
+<div class="prompt">def select_pipeline(question: str) -> str:
+    if len(question.split()) < 10 and not any(
+        w in question.lower() for w in ["compare", "vs", "difference", "steps"]
+    ):
+        return "simple_rag"        # 80% of queries → fast path
+    if any(w in question.lower() for w in ["compare", "vs", "difference"]):
+        return "decomposed_rag"    # Multi-part comparison
+    if len(question.split()) > 20:
+        return "decomposed_rag"    # Complex question
+    return "routed_rag"            # Default middle ground</div>
+
+<h2>When NOT to Go Agentic</h2>
+<div class="tip">
+<b>Don't use agentic RAG when:</b><br>
+• Simple factual lookup → single-shot is better (faster, cheaper, more reliable)<br>
+• High-throughput + low-latency requirements → agentic is too slow (5-30s)<br>
+• Can pre-compute answers (batch processing) → avoid real-time loops<br>
+• Corpus is small + well-organized → simple RAG with good chunking is enough<br>
+• You haven't maxed out simple RAG quality first → optimize retrieval/chunking before adding agents<br><br>
+<b>Rule of thumb:</b> If improving chunking or adding a reranker would fix the problem, don't reach for agentic.
+</div>
+
+<h2>Configuration Reference</h2>
+<table>
+<tr><th>Parameter</th><th>Value</th><th>Why</th></tr>
+<tr><td>Router model</td><td>gpt-4o-mini</td><td>Cheap + fast for classification (~$0.0001)</td></tr>
+<tr><td>Max iterations (self-RAG)</td><td>3</td><td>Diminishing returns, cost control</td></tr>
+<tr><td>Max sub-queries</td><td>4</td><td>More = more latency, rarely needed</td></tr>
+<tr><td>Tool timeout</td><td>5s per call</td><td>Prevent hanging on external APIs</td></tr>
+<tr><td>Agent max steps</td><td>10</td><td>Prevent infinite loops</td></tr>
+<tr><td>Complexity threshold</td><td>Only multi-step/comparison</td><td>Don't over-engineer simple questions</td></tr>
+<tr><td>State persistence</td><td>LangGraph checkpointing</td><td>Required for multi-turn agents</td></tr>
+</table>
+
+<h2>Failure Modes → Fixes</h2>
+<table>
+<tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr>
+<tr><td>Agent loops forever</td><td>No termination condition</td><td>max_steps + timeout enforced</td></tr>
+<tr><td>Bad sub-questions</td><td>Decomposer prompt too vague</td><td>Add examples, constrain format</td></tr>
+<tr><td>Router sends to wrong collection</td><td>Insufficient training examples</td><td>Add few-shot to router prompt</td></tr>
+<tr><td>Self-RAG never accepts</td><td>Grounding check too strict</td><td>Lower threshold, accept "partial"</td></tr>
+<tr><td>Multi-hop loses context</td><td>Facts not accumulated in state</td><td>Ensure state carries all facts through graph</td></tr>
+<tr><td>Agentic too slow for users</td><td>Using for simple questions</td><td>Complexity classifier routes to simple path</td></tr>
+<tr><td>Tool calls fail silently</td><td>No error handling in tools</td><td>Wrap with try/except, return error msg</td></tr>
+</table>
+
+<h2>Evaluation Targets</h2>
+<table>
+<tr><th>Metric</th><th>Target</th></tr>
+<tr><td>Complexity classifier accuracy</td><td>> 90% (right pipeline selected)</td></tr>
+<tr><td>Routing accuracy</td><td>> 92% (correct collection)</td></tr>
+<tr><td>Answer quality (complex queries)</td><td>> 0.85 RAGAS faithfulness</td></tr>
+<tr><td>Avg iterations (self-RAG)</td><td>&lt; 2.5 before accepting</td></tr>
+<tr><td>Tool call success rate</td><td>> 95%</td></tr>
+<tr><td>Total latency (agentic)</td><td>&lt; 15s p95</td></tr>
+<tr><td>Cost per agentic query</td><td>&lt; $0.01</td></tr>
+</table>
+
+<h2>Ready to Ship?</h2>
+<div class="tip">
+☐ Complexity classifier routes 80%+ to simple RAG (fast path)<br>
+☐ Router tested with representative queries from each domain<br>
+☐ Decomposition produces useful sub-questions (20 examples reviewed)<br>
+☐ Self-RAG terminates reliably (max iterations enforced, tested)<br>
+☐ Agent has explicit termination (max steps + timeout)<br>
+☐ All tools have error handling (no silent failures)<br>
+☐ Latency acceptable for the UX (agentic = 5-15s, users informed)<br>
+☐ Cost monitored per pattern (simple vs agentic spending)<br>
+☐ State management for multi-turn (LangGraph checkpoints)<br>
+☐ Fallback: if agentic fails → degrade to simple RAG gracefully<br><br>
+<b>Module 2 complete! → Revision week (Aug 29 – Sep 5) → Proctored Test 1</b>
+</div>
+
+</body>
+</html>

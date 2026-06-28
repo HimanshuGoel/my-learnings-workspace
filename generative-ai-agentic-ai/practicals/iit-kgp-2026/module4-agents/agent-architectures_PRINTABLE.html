@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Module 4, Topic 3 — Agent Architectures</title>
+<style>
+@page { margin: 0.5cm; size: A4; }
+body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+ul { margin: 0 0 2px 12px; padding: 0; }
+li { margin-bottom: 0.5px; }
+.tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+.prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+.two-col { column-count: 2; column-gap: 10px; }
+code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+th { background: #f3f4f6; font-weight: bold; }
+.diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+.diagram svg { max-width: 100%; }
+.diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+.section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+@media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+<h1>Module 4, Topic 3 — Agent Architectures</h1>
+
+<p class="section-intro">Agent architectures define how an LLM system reasons, acts, and loops. The simplest is ReAct (reason-act-observe loop). More complex patterns add planning, reflection, or multiple agents. The architecture choice is the foundational decision — start simple with ReAct (handles 80% of tasks), add complexity only when measured quality is insufficient for your specific task class.</p>
+
+<p><b>Problem Statement:</b> A raw LLM can't take multi-step actions. Agent architectures provide the loop structure that lets an LLM reason about what to do, execute an action (tool call), observe the result, and decide whether to continue or stop. Choosing the wrong architecture wastes cost on simple tasks or fails on complex ones.</p>
+
+<h2>ReAct Loop — The Universal Agent Pattern</h2>
+
+<div class="diagram">
+<svg width="500" height="170" viewBox="0 0 500 170">
+  <defs>
+    <marker id="arA" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5" fill="#4F46E5"/></marker>
+  </defs>
+  <!-- Input -->
+  <rect x="10" y="65" width="60" height="30" rx="4" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="40" y="83" text-anchor="middle" font-size="7" font-weight="bold">Input</text>
+  <line x1="72" y1="80" x2="100" y2="80" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arA)"/>
+  <!-- Think -->
+  <rect x="105" y="55" width="90" height="45" rx="20" fill="#f3e8ff" stroke="#a855f7" stroke-width="1.5"/>
+  <text x="150" y="73" text-anchor="middle" font-size="7" font-weight="bold">THINK</text>
+  <text x="150" y="85" text-anchor="middle" font-size="5.5">LLM Reasoning</text>
+  <text x="150" y="95" text-anchor="middle" font-size="5">"I need to search..."</text>
+  <!-- Arrow to Act -->
+  <line x1="197" y1="77" x2="225" y2="77" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arA)"/>
+  <!-- Act -->
+  <rect x="230" y="55" width="80" height="45" rx="4" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="270" y="73" text-anchor="middle" font-size="7" font-weight="bold">ACT</text>
+  <text x="270" y="85" text-anchor="middle" font-size="5.5">Execute Tool</text>
+  <text x="270" y="95" text-anchor="middle" font-size="5">search("weather")</text>
+  <!-- Arrow to Observe -->
+  <line x1="312" y1="77" x2="340" y2="77" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arA)"/>
+  <!-- Observe -->
+  <rect x="345" y="55" width="80" height="45" rx="4" fill="#dcfce7" stroke="#22c55e" stroke-width="1.5"/>
+  <text x="385" y="73" text-anchor="middle" font-size="7" font-weight="bold">OBSERVE</text>
+  <text x="385" y="85" text-anchor="middle" font-size="5.5">Tool Result</text>
+  <text x="385" y="95" text-anchor="middle" font-size="5">"Sunny, 22°C"</text>
+  <!-- Loop back arrow -->
+  <path d="M385,102 L385,135 L150,135 L150,102" fill="none" stroke="#4F46E5" stroke-width="1.2" stroke-dasharray="4" marker-end="url(#arA)"/>
+  <text x="267" y="147" text-anchor="middle" font-size="5.5" fill="#4F46E5">Loop until LLM decides: "I have enough → respond"</text>
+  <!-- Exit -->
+  <line x1="427" y1="77" x2="460" y2="77" stroke="#22c55e" stroke-width="1.5" marker-end="url(#arA)"/>
+  <rect x="462" y="65" width="35" height="25" rx="3" fill="#dcfce7" stroke="#22c55e" stroke-width="1.5"/>
+  <text x="479" y="81" text-anchor="middle" font-size="6" font-weight="bold">END</text>
+  <!-- Labels -->
+  <text x="440" y="60" font-size="5" fill="#22c55e">No tool call</text>
+  <text x="250" y="25" text-anchor="middle" font-size="6" fill="#666">Terminates when: LLM produces no tool_calls (final answer) OR max_iterations hit</text>
+  <text x="250" y="160" text-anchor="middle" font-size="6" fill="#999">Typical: 1-5 loops | Max safe: 10 iterations | Budget: count tool calls in state</text>
+</svg>
+<div class="diagram-caption">ReAct (Reason-Act-Observe) — the default agent loop used by 80% of production agents</div>
+</div>
+
+<h2>Pattern Comparison (Side by Side)</h2>
+
+<div class="diagram">
+<svg width="680" height="185" viewBox="0 0 680 185">
+  <defs>
+    <marker id="arB" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto"><path d="M0,0 L6,2 L0,4" fill="#4F46E5"/></marker>
+  </defs>
+  <!-- ReAct -->
+  <rect x="5" y="5" width="155" height="170" rx="4" fill="#f9fafb" stroke="#22c55e" stroke-width="1.5"/>
+  <text x="82" y="20" text-anchor="middle" font-size="7" font-weight="bold" fill="#22c55e">ReAct (Default)</text>
+  <rect x="45" y="28" width="70" height="18" rx="3" fill="#f3e8ff" stroke="#a855f7"/><text x="80" y="40" text-anchor="middle" font-size="5.5">Think</text>
+  <line x1="80" y1="48" x2="80" y2="55" stroke="#4F46E5" marker-end="url(#arB)"/>
+  <rect x="45" y="57" width="70" height="18" rx="3" fill="#fef3c7" stroke="#f59e0b"/><text x="80" y="69" text-anchor="middle" font-size="5.5">Act (tool)</text>
+  <line x1="80" y1="77" x2="80" y2="84" stroke="#4F46E5" marker-end="url(#arB)"/>
+  <rect x="45" y="86" width="70" height="18" rx="3" fill="#dcfce7" stroke="#22c55e"/><text x="80" y="98" text-anchor="middle" font-size="5.5">Observe</text>
+  <path d="M117,95 C135,95 135,37 117,37" fill="none" stroke="#4F46E5" stroke-width="1" stroke-dasharray="3" marker-end="url(#arB)"/>
+  <text x="82" y="120" text-anchor="middle" font-size="5.5">1-5 steps | 2-5s</text>
+  <text x="82" y="130" text-anchor="middle" font-size="5.5">$0.01-0.05/task</text>
+  <text x="82" y="143" text-anchor="middle" font-size="5" fill="#22c55e">✓ Simple, reliable</text>
+  <text x="82" y="153" text-anchor="middle" font-size="5" fill="#dc2626">✗ Fails on 5+ steps</text>
+  <text x="82" y="165" text-anchor="middle" font-size="5" fill="#666">Use for: 80% of tasks</text>
+
+  <!-- Plan-and-Execute -->
+  <rect x="170" y="5" width="165" height="170" rx="4" fill="#f9fafb" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="252" y="20" text-anchor="middle" font-size="7" font-weight="bold" fill="#f59e0b">Plan-and-Execute</text>
+  <rect x="200" y="28" width="70" height="18" rx="3" fill="#e0e7ff" stroke="#6366f1"/><text x="235" y="40" text-anchor="middle" font-size="5.5">Plan (decompose)</text>
+  <line x1="235" y1="48" x2="235" y2="55" stroke="#4F46E5" marker-end="url(#arB)"/>
+  <rect x="200" y="57" width="70" height="18" rx="3" fill="#fef3c7" stroke="#f59e0b"/><text x="235" y="69" text-anchor="middle" font-size="5.5">Execute step 1</text>
+  <line x1="235" y1="77" x2="235" y2="84" stroke="#4F46E5" marker-end="url(#arB)"/>
+  <rect x="200" y="86" width="70" height="18" rx="3" fill="#fef3c7" stroke="#f59e0b"/><text x="235" y="98" text-anchor="middle" font-size="5.5">Execute step N</text>
+  <line x1="235" y1="106" x2="235" y2="113" stroke="#4F46E5" marker-end="url(#arB)"/>
+  <rect x="195" y="115" width="80" height="18" rx="3" fill="#fce7f3" stroke="#ec4899"/><text x="235" y="127" text-anchor="middle" font-size="5.5">Replan/Synthesize</text>
+  <text x="252" y="143" text-anchor="middle" font-size="5.5">5-30 steps | 10-30s</text>
+  <text x="252" y="153" text-anchor="middle" font-size="5.5">$0.05-0.20/task</text>
+  <text x="252" y="163" text-anchor="middle" font-size="5" fill="#22c55e">✓ Complex multi-step</text>
+  <text x="252" y="173" text-anchor="middle" font-size="5" fill="#dc2626">✗ Planning overhead</text>
+
+  <!-- Reflexion -->
+  <rect x="345" y="5" width="155" height="170" rx="4" fill="#f9fafb" stroke="#a855f7" stroke-width="1.5"/>
+  <text x="422" y="20" text-anchor="middle" font-size="7" font-weight="bold" fill="#a855f7">Reflexion (Self-Critique)</text>
+  <rect x="375" y="28" width="70" height="18" rx="3" fill="#dcfce7" stroke="#22c55e"/><text x="410" y="40" text-anchor="middle" font-size="5.5">Generate</text>
+  <line x1="410" y1="48" x2="410" y2="55" stroke="#4F46E5" marker-end="url(#arB)"/>
+  <rect x="375" y="57" width="70" height="18" rx="3" fill="#fce7f3" stroke="#ec4899"/><text x="410" y="69" text-anchor="middle" font-size="5.5">Evaluate</text>
+  <line x1="410" y1="77" x2="410" y2="84" stroke="#4F46E5" marker-end="url(#arB)"/>
+  <rect x="375" y="86" width="70" height="18" rx="3" fill="#f3e8ff" stroke="#a855f7"/><text x="410" y="98" text-anchor="middle" font-size="5.5">Refine</text>
+  <path d="M447,95 C465,95 465,37 447,37" fill="none" stroke="#a855f7" stroke-width="1" stroke-dasharray="3" marker-end="url(#arB)"/>
+  <text x="422" y="120" text-anchor="middle" font-size="5.5">3-5 attempts | 30-120s</text>
+  <text x="422" y="130" text-anchor="middle" font-size="5.5">$0.20-1.00/task</text>
+  <text x="422" y="143" text-anchor="middle" font-size="5" fill="#22c55e">✓ High quality output</text>
+  <text x="422" y="153" text-anchor="middle" font-size="5" fill="#dc2626">✗ Expensive, slow</text>
+  <text x="422" y="165" text-anchor="middle" font-size="5" fill="#666">Use for: code gen, writing</text>
+
+  <!-- LLM Compiler -->
+  <rect x="510" y="5" width="165" height="170" rx="4" fill="#f9fafb" stroke="#6366f1" stroke-width="1.5"/>
+  <text x="592" y="20" text-anchor="middle" font-size="7" font-weight="bold" fill="#6366f1">LLM Compiler (Parallel)</text>
+  <rect x="545" y="28" width="70" height="18" rx="3" fill="#e0e7ff" stroke="#6366f1"/><text x="580" y="40" text-anchor="middle" font-size="5.5">Decompose → DAG</text>
+  <line x1="555" y1="48" x2="545" y2="57" stroke="#4F46E5" marker-end="url(#arB)"/>
+  <line x1="580" y1="48" x2="580" y2="57" stroke="#4F46E5" marker-end="url(#arB)"/>
+  <line x1="605" y1="48" x2="615" y2="57" stroke="#4F46E5" marker-end="url(#arB)"/>
+  <rect x="525" y="58" width="35" height="16" rx="3" fill="#fef3c7" stroke="#f59e0b"/><text x="542" y="69" text-anchor="middle" font-size="5">Task A</text>
+  <rect x="563" y="58" width="35" height="16" rx="3" fill="#fef3c7" stroke="#f59e0b"/><text x="580" y="69" text-anchor="middle" font-size="5">Task B</text>
+  <rect x="601" y="58" width="35" height="16" rx="3" fill="#fef3c7" stroke="#f59e0b"/><text x="618" y="69" text-anchor="middle" font-size="5">Task C</text>
+  <text x="580" y="55" text-anchor="middle" font-size="4.5" fill="#6366f1">parallel</text>
+  <line x1="580" y1="76" x2="580" y2="85" stroke="#4F46E5" marker-end="url(#arB)"/>
+  <rect x="550" y="87" width="60" height="16" rx="3" fill="#dcfce7" stroke="#22c55e"/><text x="580" y="98" text-anchor="middle" font-size="5.5">Merge</text>
+  <text x="592" y="120" text-anchor="middle" font-size="5.5">5-20 steps | Medium</text>
+  <text x="592" y="130" text-anchor="middle" font-size="5.5">Reduces wall-clock time</text>
+  <text x="592" y="143" text-anchor="middle" font-size="5" fill="#22c55e">✓ Fast for independent tasks</text>
+  <text x="592" y="153" text-anchor="middle" font-size="5" fill="#dc2626">✗ High complexity</text>
+  <text x="592" y="165" text-anchor="middle" font-size="5" fill="#666">Use for: latency-critical</text>
+</svg>
+<div class="diagram-caption">Four main agent patterns — complexity and cost increase left to right</div>
+</div>
+
+<h2>Pattern Selection Table</h2>
+
+<table>
+<tr><th>Pattern</th><th>How It Works</th><th>When to Use</th><th>Complexity</th><th>Latency</th><th>Reliability</th><th>Cost/Task</th></tr>
+<tr><td><b>ReAct</b></td><td>Think → Act → Observe → Repeat</td><td>Default for most (1-3 tool calls)</td><td>Low</td><td>2-5s</td><td>High</td><td>$0.01-0.05</td></tr>
+<tr><td><b>Tool-Calling</b></td><td>LLM outputs structured function calls</td><td>API integration, structured output</td><td>Low</td><td>1-3s</td><td>High</td><td>$0.005-0.02</td></tr>
+<tr><td><b>Plan-and-Execute</b></td><td>Create plan → Execute steps → Synthesize</td><td>Complex multi-step (5+ steps)</td><td>Medium</td><td>10-30s</td><td>Medium</td><td>$0.05-0.20</td></tr>
+<tr><td><b>LLM Compiler</b></td><td>Decompose into parallel-executable DAG</td><td>Latency-critical complex tasks</td><td>High</td><td>Medium</td><td>Medium</td><td>$0.05-0.15</td></tr>
+<tr><td><b>Reflexion</b></td><td>Execute → Evaluate → Retry with feedback</td><td>Quality-critical (code gen, writing)</td><td>High</td><td>30-120s</td><td>High (eventually)</td><td>$0.20-1.00</td></tr>
+</table>
+
+<h2>Decision Flowchart</h2>
+<ul>
+<li><b>Is the task simple (1-3 tool calls)?</b> → YES → ReAct or Tool-Calling Agent</li>
+<li><b>Does it need a multi-step plan?</b> → YES → Plan-and-Execute</li>
+<li><b>Can subtasks run in parallel?</b> → YES → LLM Compiler</li>
+<li><b>Does quality matter more than speed?</b> → YES → Reflexion (self-critique loop)</li>
+<li><b>None of the above?</b> → Plan-and-Execute with step budget</li>
+</ul>
+
+<h2>Implementation: ReAct Agent (LangGraph)</h2>
+
+<div class="prompt">from langgraph.graph import StateGraph, END
+from langgraph.prebuilt import ToolNode
+from langchain_openai import ChatOpenAI
+from langchain_core.tools import tool
+from typing import TypedDict, Annotated
+from langgraph.graph.message import add_messages
+
+class AgentState(TypedDict):
+    messages: Annotated[list, add_messages]
+
+@tool
+def search_database(query: str) -> str:
+    """Search the internal knowledge base for information."""
+    return f"Found 3 results for: {query}"
+
+@tool
+def calculate(expression: str) -> str:
+    """Evaluate a mathematical expression."""
+    return str(eval(expression))
+
+tools = [search_database, calculate]
+llm = ChatOpenAI(model="gpt-4o", temperature=0).bind_tools(tools)
+
+def call_model(state: AgentState) -> dict:
+    return {"messages": [llm.invoke(state["messages"])]}
+
+def should_continue(state: AgentState) -> str:
+    last = state["messages"][-1]
+    if last.tool_calls:
+        return "tools"
+    return END
+
+workflow = StateGraph(AgentState)
+workflow.add_node("agent", call_model)
+workflow.add_node("tools", ToolNode(tools))
+workflow.set_entry_point("agent")
+workflow.add_conditional_edges("agent", should_continue, {"tools": "tools", END: END})
+workflow.add_edge("tools", "agent")
+app = workflow.compile()</div>
+
+<h3>Step Budget (Safety Guard)</h3>
+<div class="prompt">MAX_ITERATIONS = 10
+
+def should_continue(state: AgentState) -> str:
+    tool_call_count = sum(1 for m in state["messages"] 
+                          if hasattr(m, "tool_calls") and m.tool_calls)
+    if tool_call_count >= MAX_ITERATIONS:
+        return END  # Force stop — prevent infinite loops
+    if state["messages"][-1].tool_calls:
+        return "tools"
+    return END</div>
+
+<h2>Failure Modes → Fixes</h2>
+
+<table>
+<tr><th>Failure Mode</th><th>Symptom</th><th>Mitigation</th></tr>
+<tr><td>Infinite loop</td><td>Agent keeps calling same tool</td><td>Max iteration limit (default: 10)</td></tr>
+<tr><td>Tool hallucination</td><td>Agent calls tool that doesn't exist</td><td>Strict tool binding, validate before execute</td></tr>
+<tr><td>Plan too granular</td><td>20+ steps for a simple task</td><td>Limit plan to 7 steps max in prompt</td></tr>
+<tr><td>Plan too vague</td><td>"Do the thing" as a step</td><td>Few-shot examples in planner prompt</td></tr>
+<tr><td>Wrong pattern choice</td><td>ReAct for 15-step research task</td><td>Architecture selection checklist (above)</td></tr>
+<tr><td>Cost spiral</td><td>Agent burns $5 on a $0.10 task</td><td>Token budget per invocation, step budget</td></tr>
+</table>
+
+<h2>Production Comparison</h2>
+
+<table>
+<tr><th>Concern</th><th>ReAct</th><th>Plan-and-Execute</th><th>Reflexion</th></tr>
+<tr><td>Avg latency</td><td>2-5s</td><td>10-30s</td><td>30-120s</td></tr>
+<tr><td>Avg cost/task</td><td>$0.01-0.05</td><td>$0.05-0.20</td><td>$0.20-1.00</td></tr>
+<tr><td>Predictability</td><td>High</td><td>Medium</td><td>Low</td></tr>
+<tr><td>When it fails</td><td>Wrong tool choice</td><td>Bad plan</td><td>Never converges</td></tr>
+<tr><td>Recovery</td><td>Retry the single call</td><td>Replan from failed step</td><td>Fallback to simpler agent</td></tr>
+</table>
+
+<h2>Configuration Reference</h2>
+
+<table>
+<tr><th>Setting</th><th>ReAct</th><th>Plan-Execute</th><th>Reflexion</th></tr>
+<tr><td>Max iterations</td><td>10</td><td>7 steps + 3 replans</td><td>3-5 attempts</td></tr>
+<tr><td>Model</td><td>gpt-4o-mini (cost) / gpt-4o (quality)</td><td>gpt-4o (planner needs reasoning)</td><td>gpt-4o (quality-critical)</td></tr>
+<tr><td>Temperature</td><td>0 (deterministic)</td><td>0 (planning), 0.3 (execution)</td><td>0.7 (creativity)</td></tr>
+<tr><td>Timeout</td><td>15s</td><td>60s</td><td>120s</td></tr>
+<tr><td>Cost cap</td><td>$0.10</td><td>$0.50</td><td>$2.00</td></tr>
+</table>
+
+<div class="tip">
+<b>Architecture Decision:</b> Default to ReAct. 80% of real tasks need 1-3 tool calls. Upgrade to Plan-and-Execute only when task completion rate drops below 70% with ReAct, or tasks consistently need 5+ sequential steps. Use Reflexion only for high-value tasks where quality justifies 10x cost. Document the specific failure cases that trigger each upgrade.<br/>
+<b>Next →</b> Topic 4: LangGraph Fundamentals (implementing these patterns as explicit state machines)
+</div>
+
+</body>
+</html>

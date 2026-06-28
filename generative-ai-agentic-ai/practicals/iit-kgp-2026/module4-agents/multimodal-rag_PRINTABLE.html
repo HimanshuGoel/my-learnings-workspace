@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Module 4, Topic 2 — Multimodal RAG</title>
+<style>
+@page { margin: 0.5cm; size: A4; }
+body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+ul { margin: 0 0 2px 12px; padding: 0; }
+li { margin-bottom: 0.5px; }
+.tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+.prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+.two-col { column-count: 2; column-gap: 10px; }
+code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+th { background: #f3f4f6; font-weight: bold; }
+.diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+.diagram svg { max-width: 100%; }
+.diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+.section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+@media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+<h1>Module 4, Topic 2 — Multimodal RAG</h1>
+
+<p class="section-intro">Real documents have tables, charts, diagrams, and mixed layouts that standard text-only RAG misses entirely. Multimodal RAG extends pipelines to handle PDFs by extracting text AND visual elements, describing images with VLMs for embedding, then attaching original images at generation time for maximum answer quality. The key insight: embed text descriptions for retrieval, but send actual images to the VLM for generation.</p>
+
+<p><b>Problem Statement:</b> Standard RAG only handles clean text. When your knowledge base contains PDFs with charts, tables, and diagrams, text extraction loses critical visual information. Multimodal RAG bridges this by combining text retrieval with visual understanding — ensuring the AI can reason over charts and tables just as a human reader would.</p>
+
+<h2>Three Approaches Comparison</h2>
+
+<div class="diagram">
+<svg width="680" height="220" viewBox="0 0 680 220">
+  <defs>
+    <marker id="arr1" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5" fill="#4F46E5"/></marker>
+  </defs>
+  <!-- Approach 1 -->
+  <rect x="5" y="5" width="210" height="200" rx="5" fill="#f9fafb" stroke="#d1d5db" stroke-width="1"/>
+  <text x="110" y="20" text-anchor="middle" font-size="7" font-weight="bold" fill="#4F46E5">Approach 1: Extract-then-Embed</text>
+  <rect x="15" y="30" width="55" height="25" rx="3" fill="#dbeafe" stroke="#3b82f6"/><text x="42" y="46" text-anchor="middle" font-size="5.5">PDF</text>
+  <line x1="72" y1="42" x2="85" y2="42" stroke="#4F46E5" marker-end="url(#arr1)"/>
+  <rect x="88" y="30" width="60" height="25" rx="3" fill="#fef3c7" stroke="#f59e0b"/><text x="118" y="42" text-anchor="middle" font-size="5">OCR + VLM</text><text x="118" y="50" text-anchor="middle" font-size="5">→ All Text</text>
+  <line x1="150" y1="42" x2="163" y2="42" stroke="#4F46E5" marker-end="url(#arr1)"/>
+  <rect x="166" y="30" width="40" height="25" rx="3" fill="#dcfce7" stroke="#22c55e"/><text x="186" y="46" text-anchor="middle" font-size="5">Embed</text>
+  <rect x="15" y="62" width="190" height="35" rx="3" fill="#fff" stroke="#d1d5db"/>
+  <text x="110" y="74" text-anchor="middle" font-size="5.5" fill="#22c55e">✓ Simplest — works with existing text RAG</text>
+  <text x="110" y="84" text-anchor="middle" font-size="5.5" fill="#dc2626">✗ Loses visual structure & chart details</text>
+  <text x="110" y="94" text-anchor="middle" font-size="5.5" fill="#666">Quality: Medium | Cost: Low | Complexity: Low</text>
+  <!-- Approach 2 -->
+  <rect x="225" y="5" width="210" height="200" rx="5" fill="#f9fafb" stroke="#d1d5db" stroke-width="1"/>
+  <text x="330" y="20" text-anchor="middle" font-size="7" font-weight="bold" fill="#4F46E5">Approach 2: Multi-Modal Embed</text>
+  <rect x="235" y="30" width="55" height="25" rx="3" fill="#dbeafe" stroke="#3b82f6"/><text x="262" y="46" text-anchor="middle" font-size="5.5">PDF</text>
+  <line x1="292" y1="36" x2="310" y2="33" stroke="#4F46E5" marker-end="url(#arr1)"/>
+  <line x1="292" y1="48" x2="310" y2="51" stroke="#4F46E5" marker-end="url(#arr1)"/>
+  <rect x="313" y="22" width="55" height="18" rx="3" fill="#fef3c7" stroke="#f59e0b"/><text x="340" y="34" text-anchor="middle" font-size="5">Text Embed</text>
+  <rect x="313" y="43" width="55" height="18" rx="3" fill="#f3e8ff" stroke="#a855f7"/><text x="340" y="55" text-anchor="middle" font-size="5">CLIP Embed</text>
+  <line x1="370" y1="35" x2="385" y2="42" stroke="#4F46E5" marker-end="url(#arr1)"/>
+  <line x1="370" y1="52" x2="385" y2="47" stroke="#4F46E5" marker-end="url(#arr1)"/>
+  <rect x="388" y="33" width="40" height="22" rx="3" fill="#dcfce7" stroke="#22c55e"/><text x="408" y="47" text-anchor="middle" font-size="5">Same VS</text>
+  <rect x="235" y="68" width="190" height="35" rx="3" fill="#fff" stroke="#d1d5db"/>
+  <text x="330" y="80" text-anchor="middle" font-size="5.5" fill="#22c55e">✓ Preserves visual info, retrieves images</text>
+  <text x="330" y="90" text-anchor="middle" font-size="5.5" fill="#dc2626">✗ Cross-modal embedding quality varies</text>
+  <text x="330" y="100" text-anchor="middle" font-size="5.5" fill="#666">Quality: Medium | Cost: Low | Complexity: High</text>
+  <!-- Approach 3 -->
+  <rect x="445" y="5" width="230" height="200" rx="5" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.5"/>
+  <text x="560" y="20" text-anchor="middle" font-size="7" font-weight="bold" fill="#4F46E5">Approach 3: Late Fusion ★ RECOMMENDED</text>
+  <rect x="455" y="30" width="45" height="25" rx="3" fill="#dbeafe" stroke="#3b82f6"/><text x="477" y="46" text-anchor="middle" font-size="5.5">PDF</text>
+  <line x1="502" y1="36" x2="515" y2="33" stroke="#4F46E5" marker-end="url(#arr1)"/>
+  <line x1="502" y1="48" x2="515" y2="51" stroke="#4F46E5" marker-end="url(#arr1)"/>
+  <rect x="518" y="22" width="65" height="18" rx="3" fill="#fef3c7" stroke="#f59e0b"/><text x="550" y="34" text-anchor="middle" font-size="5">VLM Describe</text>
+  <rect x="518" y="43" width="65" height="18" rx="3" fill="#e0e7ff" stroke="#6366f1"/><text x="550" y="55" text-anchor="middle" font-size="5">Store Originals</text>
+  <line x1="585" y1="35" x2="600" y2="42" stroke="#4F46E5" marker-end="url(#arr1)"/>
+  <rect x="603" y="30" width="60" height="25" rx="3" fill="#dcfce7" stroke="#22c55e"/><text x="633" y="40" text-anchor="middle" font-size="5">Retrieve text</text><text x="633" y="49" text-anchor="middle" font-size="5">+ attach img</text>
+  <rect x="455" y="68" width="210" height="35" rx="3" fill="#fff" stroke="#d1d5db"/>
+  <text x="560" y="80" text-anchor="middle" font-size="5.5" fill="#22c55e">✓ Best quality — VLM sees actual images</text>
+  <text x="560" y="90" text-anchor="middle" font-size="5.5" fill="#dc2626">✗ Most expensive (VLM tokens at query time)</text>
+  <text x="560" y="100" text-anchor="middle" font-size="5.5" fill="#666">Quality: Highest | Cost: High | Complexity: Medium</text>
+  <!-- Summary bar -->
+  <rect x="5" y="210" width="670" height="12" rx="2" fill="#e0e7ff"/>
+  <text x="340" y="219" text-anchor="middle" font-size="6" font-weight="bold">Hybrid recommended: VLM descriptions for retrieval (Approach 1) + original images at generation (Approach 3)</text>
+</svg>
+<div class="diagram-caption">Three approaches to multimodal RAG — Hybrid of Approach 1 + 3 gives best quality/cost balance</div>
+</div>
+
+<h2>Recommended Architecture (Hybrid Pipeline)</h2>
+
+<div class="diagram">
+<svg width="680" height="195" viewBox="0 0 680 195">
+  <defs>
+    <marker id="arr2" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5" fill="#4F46E5"/></marker>
+  </defs>
+  <!-- INDEX TIME -->
+  <text x="5" y="12" font-size="7" font-weight="bold" fill="#4F46E5">INDEX TIME (one-time per document)</text>
+  <rect x="5" y="18" width="60" height="35" rx="3" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/><text x="35" y="33" text-anchor="middle" font-size="6" font-weight="bold">PDF/Doc</text><text x="35" y="44" text-anchor="middle" font-size="5.5">Input</text>
+  <line x1="68" y1="35" x2="90" y2="35" stroke="#4F46E5" stroke-width="1.2" marker-end="url(#arr2)"/>
+  <rect x="93" y="18" width="75" height="35" rx="3" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.2"/><text x="130" y="33" text-anchor="middle" font-size="5.5" font-weight="bold">Parse</text><text x="130" y="44" text-anchor="middle" font-size="5">(Unstructured)</text>
+  <!-- Branch -->
+  <line x1="170" y1="28" x2="200" y2="18" stroke="#4F46E5" stroke-width="1" marker-end="url(#arr2)"/>
+  <line x1="170" y1="42" x2="200" y2="52" stroke="#4F46E5" stroke-width="1" marker-end="url(#arr2)"/>
+  <!-- Text path -->
+  <rect x="203" y="5" width="70" height="25" rx="3" fill="#dcfce7" stroke="#22c55e"/><text x="238" y="16" text-anchor="middle" font-size="5.5">Text chunks</text><text x="238" y="25" text-anchor="middle" font-size="5">(NarrativeText)</text>
+  <line x1="275" y1="17" x2="305" y2="17" stroke="#4F46E5" stroke-width="1" marker-end="url(#arr2)"/>
+  <!-- Image path -->
+  <rect x="203" y="40" width="70" height="25" rx="3" fill="#f3e8ff" stroke="#a855f7"/><text x="238" y="51" text-anchor="middle" font-size="5.5">Images/Tables</text><text x="238" y="61" text-anchor="middle" font-size="5">(extracted)</text>
+  <line x1="275" y1="52" x2="305" y2="52" stroke="#4F46E5" stroke-width="1" marker-end="url(#arr2)"/>
+  <rect x="308" y="40" width="78" height="25" rx="3" fill="#fce7f3" stroke="#ec4899"/><text x="347" y="51" text-anchor="middle" font-size="5.5">VLM Describe</text><text x="347" y="61" text-anchor="middle" font-size="5">(gpt-4o-mini)</text>
+  <line x1="388" y1="52" x2="418" y2="35" stroke="#4F46E5" stroke-width="1" marker-end="url(#arr2)"/>
+  <!-- Embed -->
+  <rect x="308" y="5" width="78" height="25" rx="3" fill="#e0e7ff" stroke="#6366f1"/><text x="347" y="16" text-anchor="middle" font-size="5.5">Embed</text><text x="347" y="25" text-anchor="middle" font-size="5">(text-embedding-3)</text>
+  <line x1="388" y1="17" x2="418" y2="25" stroke="#4F46E5" stroke-width="1" marker-end="url(#arr2)"/>
+  <!-- Vector Store -->
+  <rect x="420" y="15" width="75" height="35" rx="3" fill="#dcfce7" stroke="#22c55e" stroke-width="1.5"/><text x="457" y="30" text-anchor="middle" font-size="6" font-weight="bold">Vector Store</text><text x="457" y="42" text-anchor="middle" font-size="5">(Chroma/Pinecone)</text>
+  <!-- Store originals -->
+  <rect x="308" y="70" width="78" height="20" rx="3" fill="#fef3c7" stroke="#f59e0b"/><text x="347" y="83" text-anchor="middle" font-size="5">Store original img</text>
+  <line x1="275" y1="60" x2="305" y2="75" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3" marker-end="url(#arr2)"/>
+
+  <!-- QUERY TIME -->
+  <text x="5" y="112" font-size="7" font-weight="bold" fill="#4F46E5">QUERY TIME (per user question)</text>
+  <rect x="5" y="118" width="60" height="30" rx="3" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/><text x="35" y="133" text-anchor="middle" font-size="6" font-weight="bold">Query</text><text x="35" y="143" text-anchor="middle" font-size="5">User Q</text>
+  <line x1="68" y1="133" x2="95" y2="133" stroke="#4F46E5" stroke-width="1.2" marker-end="url(#arr2)"/>
+  <rect x="98" y="118" width="80" height="30" rx="3" fill="#e0e7ff" stroke="#6366f1"/><text x="138" y="131" text-anchor="middle" font-size="5.5">Embed + Search</text><text x="138" y="141" text-anchor="middle" font-size="5">top-K retrieval</text>
+  <line x1="180" y1="133" x2="210" y2="133" stroke="#4F46E5" stroke-width="1.2" marker-end="url(#arr2)"/>
+  <rect x="213" y="115" width="100" height="35" rx="3" fill="#fef3c7" stroke="#f59e0b"/><text x="263" y="129" text-anchor="middle" font-size="5.5">Retrieved chunks +</text><text x="263" y="139" text-anchor="middle" font-size="5.5" font-weight="bold">attach original images</text><text x="263" y="148" text-anchor="middle" font-size="5">(late fusion)</text>
+  <line x1="315" y1="133" x2="345" y2="133" stroke="#4F46E5" stroke-width="1.2" marker-end="url(#arr2)"/>
+  <rect x="348" y="118" width="90" height="30" rx="3" fill="#fce7f3" stroke="#ec4899" stroke-width="1.5"/><text x="393" y="131" text-anchor="middle" font-size="6" font-weight="bold">VLM Generate</text><text x="393" y="141" text-anchor="middle" font-size="5">(gpt-4o + images)</text>
+  <line x1="440" y1="133" x2="470" y2="133" stroke="#4F46E5" stroke-width="1.2" marker-end="url(#arr2)"/>
+  <rect x="473" y="120" width="55" height="25" rx="3" fill="#dcfce7" stroke="#22c55e" stroke-width="1.5"/><text x="500" y="136" text-anchor="middle" font-size="6" font-weight="bold">Answer</text>
+  <!-- Annotation -->
+  <text x="340" y="170" text-anchor="middle" font-size="6" fill="#666">Key insight: Descriptions enable good retrieval; original images enable accurate generation</text>
+  <text x="340" y="182" text-anchor="middle" font-size="6" fill="#666">Cost per doc (50p, 20 imgs): ~$0.50–$1.00 to index | Query: ~$0.005 (text) to $0.05 (with images)</text>
+</svg>
+<div class="diagram-caption">Recommended hybrid architecture — VLM descriptions for indexing + original images attached at generation time</div>
+</div>
+
+<h2>Approach Comparison Table</h2>
+
+<table>
+<tr><th>Pattern</th><th>When to Use</th><th>Quality</th><th>Cost</th><th>Complexity</th></tr>
+<tr><td>Text-only extraction (OCR + layout)</td><td>Simple docs, mostly text</td><td>Medium</td><td>Low</td><td>Low</td></tr>
+<tr><td>VLM description + text RAG</td><td>Charts, diagrams needing interpretation</td><td>High</td><td>Medium</td><td>Medium</td></tr>
+<tr><td>Multi-modal embeddings (CLIP)</td><td>Image-heavy content, visual search</td><td>Medium</td><td>Low</td><td>High</td></tr>
+<tr><td>Late fusion (images to VLM)</td><td>Maximum quality needed</td><td>Highest</td><td>High</td><td>Medium</td></tr>
+<tr><td><b>Hybrid (description + late fusion)</b></td><td><b>Real-world documents (recommended)</b></td><td><b>High</b></td><td><b>Medium</b></td><td><b>Medium</b></td></tr>
+</table>
+
+<h2>Implementation Code</h2>
+
+<h3>Step 1: Document Parsing (Unstructured)</h3>
+<div class="prompt">from unstructured.partition.pdf import partition_pdf
+
+elements = partition_pdf(
+    filename="document.pdf",
+    strategy="hi_res",              # Use layout detection model
+    extract_images_in_pdf=True,     # Extract embedded images
+    infer_table_structure=True,     # Detect and structure tables
+    include_page_breaks=True,
+)
+
+text_elements = [e for e in elements if e.category in ("NarrativeText", "Title", "ListItem")]
+table_elements = [e for e in elements if e.category == "Table"]
+image_elements = [e for e in elements if e.category == "Image"]</div>
+
+<h3>Step 2: VLM Description for Indexing</h3>
+<div class="prompt">def describe_image_for_rag(image_path: str, context: str = "") -> str:
+    """Use VLM to create a text description of an image for embedding."""
+    with open(image_path, "rb") as f:
+        img_b64 = base64.b64encode(f.read()).decode()
+    
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",  # Cheaper model for descriptions
+        messages=[{"role": "user", "content": [
+            {"type": "text", "text": f"""Describe this image in detail for a search index.
+Include: all text visible, data values, relationships shown, key takeaways.
+Document context: {context}
+Be specific and factual — this description will be used for retrieval."""},
+            {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{img_b64}"}},
+        ]}], max_tokens=500)
+    return response.choices[0].message.content</div>
+
+<h3>Step 3: Build Multimodal Index</h3>
+<div class="prompt">from langchain_chroma import Chroma
+from langchain_openai import OpenAIEmbeddings
+from langchain.schema import Document
+
+embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+documents = []
+
+for elem in text_elements:
+    documents.append(Document(page_content=elem.text,
+        metadata={"type": "text", "page": elem.metadata.page_number}))
+
+for elem in table_elements:
+    description = process_table_element(elem.metadata.text_as_html)
+    documents.append(Document(page_content=description,
+        metadata={"type": "table", "page": elem.metadata.page_number,
+                  "original_html": elem.metadata.text_as_html}))
+
+for elem in image_elements:
+    description = describe_image_for_rag(elem.metadata.image_path)
+    documents.append(Document(page_content=description,
+        metadata={"type": "image", "page": elem.metadata.page_number,
+                  "image_path": elem.metadata.image_path}))
+
+vectorstore = Chroma.from_documents(documents, embeddings)</div>
+
+<h3>Step 4: Multimodal Retrieval + Generation</h3>
+<div class="prompt">def multimodal_rag_query(question: str, vectorstore, k: int = 5) -> str:
+    docs = vectorstore.similarity_search(question, k=k)
+    text_context, images_to_send = [], []
+    
+    for doc in docs:
+        if doc.metadata["type"] == "text":
+            text_context.append(doc.page_content)
+        elif doc.metadata["type"] == "table":
+            text_context.append(f"[Table]:\n{doc.metadata['original_html']}")
+        elif doc.metadata["type"] == "image":
+            text_context.append(f"[Image]: {doc.page_content}")
+            images_to_send.append(doc.metadata["image_path"])
+    
+    content = [{"type": "text", "text": f"Context:\n{'---'.join(text_context)}\n\nQ: {question}"}]
+    for img_path in images_to_send[:3]:  # Cost control: max 3 images
+        with open(img_path, "rb") as f:
+            content.append({"type": "image_url",
+                "image_url": {"url": f"data:image/png;base64,{base64.b64encode(f.read()).decode()}"}})
+    
+    response = client.chat.completions.create(model="gpt-4o",
+        messages=[{"role": "system", "content": "Answer from context. Cite sources."},
+                  {"role": "user", "content": content}], max_tokens=1000)
+    return response.choices[0].message.content</div>
+
+<h2>Failure Modes → Fixes</h2>
+
+<table>
+<tr><th>Failure Mode</th><th>Symptom</th><th>Fix</th></tr>
+<tr><td>PDF parsing misses tables</td><td>Tables appear as garbled text</td><td>Use <code>strategy="hi_res"</code> with layout detection model</td></tr>
+<tr><td>Images not extracted</td><td>Empty image elements</td><td>Check PDF has embedded images (not vector graphics)</td></tr>
+<tr><td>VLM description too vague</td><td>"This is a chart" (unhelpful)</td><td>Better prompt: "include all data values, axis labels, trends"</td></tr>
+<tr><td>Wrong image retrieved</td><td>Description matches but image doesn't help</td><td>Add page context to description, improve embedding</td></tr>
+<tr><td>Token budget blown</td><td>Multiple images exceed context</td><td>Limit to 2-3 images, summarize text context</td></tr>
+<tr><td>OCR errors</td><td>Garbled text from scanned docs</td><td>Use dedicated OCR (Tesseract) + VLM verification</td></tr>
+</table>
+
+<h2>Cost & Latency Reference</h2>
+
+<table>
+<tr><th>Operation</th><th>Cost</th><th>Latency</th><th>When</th></tr>
+<tr><td>VLM description per image</td><td>$0.01–0.05</td><td>2-5s</td><td>Index time (one-time)</td></tr>
+<tr><td>Full 50-page PDF indexing</td><td>$0.50–1.00</td><td>10-60s</td><td>Index time</td></tr>
+<tr><td>Query (text-only retrieval)</td><td>~$0.005</td><td>1-3s</td><td>Each query</td></tr>
+<tr><td>Query (with image attachment)</td><td>$0.01–0.05</td><td>3-8s</td><td>Each query with images</td></tr>
+<tr><td>Table processing (VLM summary)</td><td>$0.005–0.01</td><td>1-2s</td><td>Index time</td></tr>
+</table>
+
+<h2>Configuration Reference</h2>
+
+<table>
+<tr><th>Setting</th><th>Recommended</th><th>Reason</th></tr>
+<tr><td>Parsing strategy</td><td><code>hi_res</code></td><td>Detects tables/images accurately</td></tr>
+<tr><td>Description model</td><td>gpt-4o-mini</td><td>Cheaper for indexing (save 4o for generation)</td></tr>
+<tr><td>Generation model</td><td>gpt-4o</td><td>Best visual understanding at query time</td></tr>
+<tr><td>Max images per query</td><td>3</td><td>Cost/quality balance</td></tr>
+<tr><td>Embedding model</td><td>text-embedding-3-small</td><td>Good quality, low cost</td></tr>
+<tr><td>Chunk strategy</td><td>By element type (semantic)</td><td>Preserves document structure</td></tr>
+<tr><td>Image caching</td><td>Always cache descriptions</td><td>Never re-describe unchanged images</td></tr>
+</table>
+
+<div class="tip">
+<b>Architecture Decision:</b> Use "VLM description + text RAG + late fusion for top results" (hybrid). Pure text extraction loses too much from charts/diagrams. Pure multi-modal embeddings aren't reliable enough yet. The hybrid gives good retrieval (via text descriptions) PLUS high-quality answers (via sending actual images to VLM at generation time). Trade-off: higher indexing cost ($0.01-0.05/image) + query cost when images involved.<br/>
+<b>Next →</b> Topic 3: Agent Architectures (ReAct, Plan-and-Execute, pattern selection)
+</div>
+
+</body>
+</html>

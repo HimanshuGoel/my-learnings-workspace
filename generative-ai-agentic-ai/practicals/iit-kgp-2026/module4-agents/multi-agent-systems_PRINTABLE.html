@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Module 4, Topic 6 — Multi-Agent Systems</title>
+<style>
+@page { margin: 0.5cm; size: A4; }
+body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+ul { margin: 0 0 2px 12px; padding: 0; }
+li { margin-bottom: 0.5px; }
+.tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+.prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+.two-col { column-count: 2; column-gap: 10px; }
+code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+th { background: #f3f4f6; font-weight: bold; }
+.diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+.diagram svg { max-width: 100%; }
+.diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+.section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+@media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+<h1>Module 4, Topic 6 — Multi-Agent Systems</h1>
+
+<p class="section-intro">Multi-agent coordinates specialized LLM agents for complex problems. BUT 90% of apps don't need this — a single agent with tools handles most cases. Multi-agent is justified only when single-agent quality is demonstrably insufficient AND tasks naturally decompose into separate expertise domains. Each additional agent multiplies latency, cost, and debugging complexity.</p>
+
+<p><b>Problem Statement:</b> Some tasks require different types of expertise (research, code, writing) that are hard to combine in one system prompt, or need quality validation where one agent checks another's work. Multi-agent provides this — but only use it when you've proven a single agent can't handle the task class.</p>
+
+<h2>Four Multi-Agent Patterns</h2>
+
+<div class="diagram">
+<svg width="680" height="210" viewBox="0 0 680 210">
+  <defs>
+    <marker id="arF" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto"><path d="M0,0 L6,2 L0,4" fill="#4F46E5"/></marker>
+  </defs>
+  <!-- Supervisor -->
+  <rect x="5" y="5" width="160" height="135" rx="4" fill="#f9fafb" stroke="#4F46E5" stroke-width="1.5"/>
+  <text x="85" y="18" text-anchor="middle" font-size="7" font-weight="bold" fill="#4F46E5">SUPERVISOR</text>
+  <rect x="45" y="25" width="75" height="22" rx="3" fill="#f3e8ff" stroke="#a855f7" stroke-width="1.5"/><text x="82" y="39" text-anchor="middle" font-size="6" font-weight="bold">Supervisor</text>
+  <line x1="55" y1="49" x2="35" y2="60" stroke="#4F46E5" marker-end="url(#arF)"/>
+  <line x1="82" y1="49" x2="82" y2="60" stroke="#4F46E5" marker-end="url(#arF)"/>
+  <line x1="110" y1="49" x2="130" y2="60" stroke="#4F46E5" marker-end="url(#arF)"/>
+  <rect x="15" y="62" width="40" height="20" rx="3" fill="#dcfce7" stroke="#22c55e"/><text x="35" y="75" text-anchor="middle" font-size="5">Research</text>
+  <rect x="62" y="62" width="40" height="20" rx="3" fill="#dbeafe" stroke="#3b82f6"/><text x="82" y="75" text-anchor="middle" font-size="5">Code</text>
+  <rect x="109" y="62" width="40" height="20" rx="3" fill="#fef3c7" stroke="#f59e0b"/><text x="129" y="75" text-anchor="middle" font-size="5">Write</text>
+  <path d="M35,84 L35,95 L82,95 L82,49" fill="none" stroke="#4F46E5" stroke-width="0.8" stroke-dasharray="2" marker-end="url(#arF)"/>
+  <text x="85" y="105" text-anchor="middle" font-size="5.5">Routes tasks, collects results</text>
+  <text x="85" y="115" text-anchor="middle" font-size="5" fill="#22c55e">✓ Central control</text>
+  <text x="85" y="125" text-anchor="middle" font-size="5" fill="#dc2626">✗ Routing overhead</text>
+  <text x="85" y="135" text-anchor="middle" font-size="5" fill="#666">5-20s | Most common</text>
+
+  <!-- Pipeline -->
+  <rect x="175" y="5" width="160" height="135" rx="4" fill="#f9fafb" stroke="#22c55e" stroke-width="1.5"/>
+  <text x="255" y="18" text-anchor="middle" font-size="7" font-weight="bold" fill="#22c55e">PIPELINE</text>
+  <rect x="185" y="30" width="55" height="20" rx="3" fill="#dcfce7" stroke="#22c55e"/><text x="212" y="43" text-anchor="middle" font-size="5.5">Research</text>
+  <line x1="242" y1="40" x2="260" y2="40" stroke="#4F46E5" marker-end="url(#arF)"/>
+  <rect x="263" y="30" width="55" height="20" rx="3" fill="#dbeafe" stroke="#3b82f6"/><text x="290" y="43" text-anchor="middle" font-size="5.5">Writer</text>
+  <line x1="290" y1="52" x2="290" y2="62" stroke="#4F46E5" marker-end="url(#arF)"/>
+  <rect x="263" y="64" width="55" height="20" rx="3" fill="#fef3c7" stroke="#f59e0b"/><text x="290" y="77" text-anchor="middle" font-size="5.5">Editor</text>
+  <line x1="290" y1="86" x2="290" y2="96" stroke="#4F46E5" marker-end="url(#arF)"/>
+  <rect x="263" y="98" width="55" height="20" rx="3" fill="#fce7f3" stroke="#ec4899"/><text x="290" y="111" text-anchor="middle" font-size="5.5">Publish</text>
+  <text x="255" y="128" text-anchor="middle" font-size="5" fill="#22c55e">✓ Clear flow, easy to debug</text>
+  <text x="255" y="138" text-anchor="middle" font-size="5" fill="#666">10-30s | Content creation</text>
+
+  <!-- Debate -->
+  <rect x="345" y="5" width="160" height="135" rx="4" fill="#f9fafb" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="425" y="18" text-anchor="middle" font-size="7" font-weight="bold" fill="#f59e0b">DEBATE / CRITIQUE</text>
+  <rect x="365" y="32" width="60" height="22" rx="3" fill="#dcfce7" stroke="#22c55e"/><text x="395" y="46" text-anchor="middle" font-size="5.5">Generator</text>
+  <line x1="427" y1="43" x2="445" y2="43" stroke="#4F46E5" marker-end="url(#arF)"/>
+  <rect x="448" y="32" width="50" height="22" rx="3" fill="#fee2e2" stroke="#dc2626"/><text x="473" y="46" text-anchor="middle" font-size="5.5">Critic</text>
+  <path d="M473,56 L473,75 L395,75 L395,56" fill="none" stroke="#4F46E5" stroke-width="1" stroke-dasharray="3" marker-end="url(#arF)"/>
+  <text x="435" y="68" text-anchor="middle" font-size="5" fill="#4F46E5">feedback loop</text>
+  <rect x="380" y="82" width="70" height="20" rx="3" fill="#f3e8ff" stroke="#a855f7"/><text x="415" y="95" text-anchor="middle" font-size="5.5">Reviser</text>
+  <text x="425" y="115" text-anchor="middle" font-size="5" fill="#22c55e">✓ Quality improvement</text>
+  <text x="425" y="125" text-anchor="middle" font-size="5" fill="#dc2626">✗ Expensive (3-5 loops)</text>
+  <text x="425" y="135" text-anchor="middle" font-size="5" fill="#666">10-30s | High-stakes output</text>
+
+  <!-- Swarm -->
+  <rect x="515" y="5" width="160" height="135" rx="4" fill="#f9fafb" stroke="#a855f7" stroke-width="1.5"/>
+  <text x="595" y="18" text-anchor="middle" font-size="7" font-weight="bold" fill="#a855f7">SWARM</text>
+  <rect x="535" y="35" width="45" height="20" rx="3" fill="#dcfce7" stroke="#22c55e"/><text x="557" y="48" text-anchor="middle" font-size="5">Agent A</text>
+  <rect x="610" y="35" width="45" height="20" rx="3" fill="#dbeafe" stroke="#3b82f6"/><text x="632" y="48" text-anchor="middle" font-size="5">Agent B</text>
+  <rect x="535" y="70" width="45" height="20" rx="3" fill="#fef3c7" stroke="#f59e0b"/><text x="557" y="83" text-anchor="middle" font-size="5">Agent C</text>
+  <rect x="610" y="70" width="45" height="20" rx="3" fill="#fce7f3" stroke="#ec4899"/><text x="632" y="83" text-anchor="middle" font-size="5">Agent D</text>
+  <line x1="582" y1="45" x2="608" y2="45" stroke="#4F46E5" stroke-width="0.8" stroke-dasharray="2"/>
+  <line x1="557" y1="57" x2="557" y2="68" stroke="#4F46E5" stroke-width="0.8" stroke-dasharray="2"/>
+  <line x1="632" y1="57" x2="632" y2="68" stroke="#4F46E5" stroke-width="0.8" stroke-dasharray="2"/>
+  <line x1="582" y1="80" x2="608" y2="80" stroke="#4F46E5" stroke-width="0.8" stroke-dasharray="2"/>
+  <text x="595" y="102" text-anchor="middle" font-size="5">Peer handoff, no central control</text>
+  <text x="595" y="115" text-anchor="middle" font-size="5" fill="#22c55e">✓ Flexible routing</text>
+  <text x="595" y="125" text-anchor="middle" font-size="5" fill="#dc2626">✗ Hard to debug/predict</text>
+  <text x="595" y="135" text-anchor="middle" font-size="5" fill="#666">Variable | Customer support</text>
+
+  <!-- When NOT to use -->
+  <rect x="5" y="148" width="670" height="55" rx="4" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="340" y="162" text-anchor="middle" font-size="7" font-weight="bold" fill="#dc2626">When NOT to Use Multi-Agent (90% of cases)</text>
+  <text x="30" y="177" font-size="6">• Single agent can do it — if tools cover capabilities, don't add agents</text>
+  <text x="30" y="188" font-size="6">• Context is shared — if all agents need same context, one agent is more efficient</text>
+  <text x="350" y="177" font-size="6">• Latency matters — each handoff adds 1-5s of LLM call time</text>
+  <text x="350" y="188" font-size="6">• Cost multiplies — N agents ≈ N× token cost</text>
+  <text x="340" y="200" text-anchor="middle" font-size="6" fill="#dc2626" font-weight="bold">Rule: Start with single agent + tools. Add multi-agent ONLY when measured quality is insufficient.</text>
+</svg>
+<div class="diagram-caption">Four multi-agent patterns + when NOT to use (most apps don't need this)</div>
+</div>
+
+<h2>Pattern Selection Table</h2>
+
+<table>
+<tr><th>Pattern</th><th>When</th><th>Complexity</th><th>Latency</th><th>Cost vs Single</th><th>Best For</th></tr>
+<tr><td><b>Single agent + tools</b></td><td>90% of cases (start here!)</td><td>Low</td><td>2-10s</td><td>1×</td><td>Most applications</td></tr>
+<tr><td>Supervisor + specialists</td><td>Different domains need expertise</td><td>Medium</td><td>5-20s</td><td>2-4×</td><td>Customer support routing</td></tr>
+<tr><td>Pipeline</td><td>Sequential processing with roles</td><td>Medium</td><td>10-30s</td><td>N× (N agents)</td><td>Content creation, code review</td></tr>
+<tr><td>Debate/critique</td><td>Need quality validation</td><td>Medium</td><td>10-30s</td><td>3-5×</td><td>High-stakes outputs</td></tr>
+<tr><td>Swarm</td><td>Dynamic, unpredictable routing</td><td>High</td><td>Variable</td><td>3-10×</td><td>Complex customer conversations</td></tr>
+</table>
+
+<h2>Supervisor Implementation (LangGraph)</h2>
+
+<div class="prompt">from langgraph.graph import StateGraph, END
+from langchain_openai import ChatOpenAI
+from typing import TypedDict, Annotated
+from operator import add
+
+class MultiAgentState(TypedDict):
+    messages: Annotated[list, add]
+    next_agent: str
+
+def research_agent(state: MultiAgentState) -> dict:
+    llm = ChatOpenAI(model="gpt-4o-mini")
+    response = llm.invoke([
+        {"role": "system", "content": "You are a research specialist."},
+        *state["messages"]])
+    return {"messages": [response]}
+
+def code_agent(state: MultiAgentState) -> dict:
+    llm = ChatOpenAI(model="gpt-4o-mini")
+    response = llm.invoke([
+        {"role": "system", "content": "You are a coding specialist."},
+        *state["messages"]])
+    return {"messages": [response]}
+
+def supervisor(state: MultiAgentState) -> dict:
+    """Route to the right specialist or finish."""
+    llm = ChatOpenAI(model="gpt-4o-mini")
+    decision = llm.invoke([
+        {"role": "system", "content": "Route: research | code | FINISH"},
+        *state["messages"]])
+    # Parse decision from response
+    return {"next_agent": parse_routing(decision.content)}
+
+def route_supervisor(state: MultiAgentState) -> str:
+    return state["next_agent"]
+
+graph = StateGraph(MultiAgentState)
+graph.add_node("supervisor", supervisor)
+graph.add_node("research", research_agent)
+graph.add_node("code", code_agent)
+graph.set_entry_point("supervisor")
+graph.add_conditional_edges("supervisor", route_supervisor, {
+    "research": "research", "code": "code", "FINISH": END})
+graph.add_edge("research", "supervisor")  # After specialist → back to supervisor
+graph.add_edge("code", "supervisor")
+multi_agent = graph.compile()</div>
+
+<h2>When to Deploy: Single vs Multi-Agent</h2>
+
+<table>
+<tr><th>Metric</th><th>Single Agent</th><th>Multi-Agent Required</th></tr>
+<tr><td>Task complexity</td><td>Simple to moderate</td><td>Complex, multi-domain</td></tr>
+<tr><td>Latency requirement</td><td>&lt; 5s</td><td>10-30s acceptable</td></tr>
+<tr><td>Quality improvement</td><td>N/A</td><td>&gt; 20% over single agent (measured!)</td></tr>
+<tr><td>Development cost</td><td>Low</td><td>3-5× more code to maintain</td></tr>
+<tr><td>Debugging ease</td><td>Manageable</td><td>Significantly harder</td></tr>
+<tr><td>Cost per query</td><td>$0.01-0.05</td><td>$0.05-0.30</td></tr>
+</table>
+
+<h2>Failure Modes → Fixes</h2>
+
+<table>
+<tr><th>Failure Mode</th><th>Symptom</th><th>Fix</th></tr>
+<tr><td>Supervisor loops</td><td>Task bounces between agents</td><td>Max handoff counter (limit 5-10 transitions)</td></tr>
+<tr><td>Agent generates wrong role</td><td>Code agent writes prose</td><td>Stronger system prompts, structured output</td></tr>
+<tr><td>Agents contradict each other</td><td>Conflicting information</td><td>Add reconciliation step, use debate pattern</td></tr>
+<tr><td>Token budget explodes</td><td>Full message history passed everywhere</td><td>Summarize between handoffs, limit context per agent</td></tr>
+<tr><td>Single agent failure cascades</td><td>One broken agent blocks pipeline</td><td>Timeout + fallback per agent node</td></tr>
+<tr><td>Over-engineering</td><td>Multi-agent for simple task</td><td>Start single agent, measure if quality insufficient</td></tr>
+</table>
+
+<h2>Cost Comparison at Scale</h2>
+
+<table>
+<tr><th>Approach</th><th>Cost/Query</th><th>At 1000 queries/day</th><th>Latency</th></tr>
+<tr><td>Single agent (3 tools)</td><td>$0.02</td><td>$20/day ($600/mo)</td><td>3-5s</td></tr>
+<tr><td>Supervisor + 2 specialists</td><td>$0.08</td><td>$80/day ($2,400/mo)</td><td>8-15s</td></tr>
+<tr><td>Pipeline (3 agents)</td><td>$0.12</td><td>$120/day ($3,600/mo)</td><td>10-20s</td></tr>
+<tr><td>Debate (3 iterations)</td><td>$0.15</td><td>$150/day ($4,500/mo)</td><td>15-30s</td></tr>
+</table>
+
+<div class="tip">
+<b>Architecture Decision:</b> Default to single agent + tools. Multi-agent only when: (1) Single agent quality is demonstrably insufficient (measured, not assumed), (2) Task naturally decomposes into independent expertise domains, (3) Latency of 10-30s is acceptable, (4) You have engineering capacity to maintain and debug. Multi-agent adds 2-5× latency, N× cost, and exponential debugging complexity.<br/>
+<b>Next →</b> Topic 7: Planning & Reasoning (decomposing complex tasks into steps)
+</div>
+
+</body>
+</html>

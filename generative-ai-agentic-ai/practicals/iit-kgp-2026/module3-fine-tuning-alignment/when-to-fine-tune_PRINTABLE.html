@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>When to Fine-Tune — Decision Guide</title>
+<style>
+  @page { margin: 0.5cm; size: A4; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+  h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+  h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+  h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+  ul { margin: 0 0 2px 12px; padding: 0; }
+  li { margin-bottom: 0.5px; }
+  .tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+  .prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+  .two-col { column-count: 2; column-gap: 10px; }
+  code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+  table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+  th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+  th { background: #f3f4f6; font-weight: bold; }
+  .diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+  .diagram svg { max-width: 100%; }
+  .diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+  .section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+  @media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+<h1>Module 3, Topic 1 — When to Fine-Tune</h1>
+<p class="section-intro">Fine-tuning modifies model weights by training on task-specific examples — it changes the model's DEFAULT behavior so it does things your way without being told. This is the most important topic in Module 3 because the #1 mistake practitioners make is fine-tuning when better prompting or RAG would have solved the problem at 1/100th the cost.</p>
+<p><b>Problem:</b> Before spending GPU hours and money, you need a rigorous framework to determine if fine-tuning is actually the right intervention — or if you're solving the wrong problem with an expensive hammer.</p>
+
+<h2>The Decision Ladder</h2>
+<div class="diagram">
+<svg width="440" height="200" viewBox="0 0 440 200">
+<defs><marker id="arrFT" markerWidth="5" markerHeight="4" refX="5" refY="2" orient="auto"><path d="M0,0 L5,2 L0,4 Z" fill="#4F46E5"/></marker></defs>
+
+<!-- Step 1 -->
+<rect x="10" y="5" width="200" height="28" rx="3" fill="#dcfce7" stroke="#22c55e"/>
+<text x="110" y="17" text-anchor="middle" font-size="6pt" font-weight="bold">Step 1: Better Prompting</text>
+<text x="110" y="27" text-anchor="middle" font-size="5pt">System prompt, few-shot, CoT | Cost: $0 | Time: hours</text>
+<text x="250" y="17" font-size="5.5pt" fill="#059669" font-weight="bold">Solves 70% of cases</text>
+<text x="250" y="27" font-size="5pt" fill="#666">Try 5+ iterations before moving on</text>
+
+<line x1="110" y1="33" x2="110" y2="42" stroke="#4F46E5" marker-end="url(#arrFT)"/>
+<text x="120" y="40" font-size="4.5pt" fill="#ef4444">Still not good enough?</text>
+
+<!-- Step 2 -->
+<rect x="10" y="42" width="200" height="28" rx="3" fill="#dcfce7" stroke="#22c55e"/>
+<text x="110" y="54" text-anchor="middle" font-size="6pt" font-weight="bold">Step 2: Add RAG</text>
+<text x="110" y="64" text-anchor="middle" font-size="5pt">Retrieve domain knowledge | Cost: $5-50/mo | Time: days</text>
+<text x="250" y="54" font-size="5.5pt" fill="#059669" font-weight="bold">Solves 20% more</text>
+<text x="250" y="64" font-size="5pt" fill="#666">Knowledge problem → RAG. Behavior problem → keep going.</text>
+
+<line x1="110" y1="70" x2="110" y2="79" stroke="#4F46E5" marker-end="url(#arrFT)"/>
+<text x="120" y="77" font-size="4.5pt" fill="#ef4444">Still not good enough?</text>
+
+<!-- Step 3 -->
+<rect x="10" y="79" width="200" height="28" rx="3" fill="#dcfce7" stroke="#22c55e"/>
+<text x="110" y="91" text-anchor="middle" font-size="6pt" font-weight="bold">Step 3: Prompt + RAG Combined</text>
+<text x="110" y="101" text-anchor="middle" font-size="5pt">Max out both approaches | Cost: $10-100/mo | Time: days</text>
+<text x="250" y="91" font-size="5.5pt" fill="#059669" font-weight="bold">Solves 5% more</text>
+<text x="250" y="101" font-size="5pt" fill="#666">Few-shot + RAG context + CoT — did you try ALL of this?</text>
+
+<line x1="110" y1="107" x2="110" y2="116" stroke="#4F46E5" marker-end="url(#arrFT)"/>
+<text x="120" y="114" font-size="4.5pt" fill="#ef4444">Still not good enough?</text>
+
+<!-- Step 4 -->
+<rect x="10" y="116" width="200" height="28" rx="3" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+<text x="110" y="128" text-anchor="middle" font-size="6pt" font-weight="bold">Step 4: Fine-Tuning</text>
+<text x="110" y="138" text-anchor="middle" font-size="5pt">Modify weights | Cost: $50-500+ | Time: weeks</text>
+<text x="250" y="128" font-size="5.5pt" fill="#f59e0b" font-weight="bold">The remaining 5%</text>
+<text x="250" y="138" font-size="5pt" fill="#666">ONLY if behavior gap + 100+ examples + cost justified</text>
+
+<line x1="110" y1="144" x2="110" y2="153" stroke="#4F46E5" marker-end="url(#arrFT)"/>
+
+<!-- Step 5 -->
+<rect x="10" y="153" width="200" height="28" rx="3" fill="#fee2e2" stroke="#ef4444"/>
+<text x="110" y="165" text-anchor="middle" font-size="6pt" font-weight="bold">Step 5: Train From Scratch</text>
+<text x="110" y="175" text-anchor="middle" font-size="5pt">Build a new model | Cost: $10K-1M+ | Time: months</text>
+<text x="250" y="165" font-size="5.5pt" fill="#ef4444" font-weight="bold">Almost never for solo devs</text>
+<text x="250" y="175" font-size="5pt" fill="#666">Only major companies with unique data at scale</text>
+
+<text x="220" y="195" font-size="6pt" fill="#4F46E5" text-anchor="middle" font-weight="bold">Key insight: 95% of problems are solved by Steps 1-3. Fine-tuning is the exception, not the rule.</text>
+</svg>
+<div class="diagram-caption">Always climb this ladder in order. Jumping to Step 4 without exhausting Steps 1-3 is the #1 practitioner mistake.</div>
+</div>
+
+<h2>What Fine-Tuning CAN vs CANNOT Fix</h2>
+<div class="two-col">
+<h3>✓ CAN Fix (Behavior)</h3>
+<ul>
+<li>Format consistency (always output your JSON)</li>
+<li>Tone/style (brand voice by default)</li>
+<li>Domain terminology usage</li>
+<li>Complex instruction following</li>
+<li>Latency (shorter prompts needed)</li>
+<li>Cost (no few-shot examples → fewer tokens)</li>
+</ul>
+<h3>✗ CANNOT Fix (Knowledge/Capability)</h3>
+<ul>
+<li>Knowledge gaps (use RAG instead)</li>
+<li>Factual accuracy (doesn't make models truthful)</li>
+<li>Reasoning ability (can't upgrade 7B → 70B)</li>
+<li>Real-time information (knowledge still frozen)</li>
+<li>Tasks the base model literally can't do</li>
+<li>Safety issues (may make them worse)</li>
+</ul>
+</div>
+<div class="tip"><b>Mental model:</b> Fine-tuning changes HOW the model responds. RAG changes WHAT it knows. Prompting changes what you ASK for. Pick the intervention that matches the gap.</div>
+
+<h2>The 5 Prerequisites for Fine-Tuning</h2>
+<table>
+<tr><th>#</th><th>Prerequisite</th><th>Check</th><th>If Not Met</th></tr>
+<tr><td>1</td><td>Prompting fails (5+ iterations tried)</td><td>Best prompt still < threshold</td><td>Keep iterating on prompts</td></tr>
+<tr><td>2</td><td>Pattern is learnable</td><td>You have 100+ correct examples</td><td>Collect more data first</td></tr>
+<tr><td>3</td><td>Gap is behavioral (not knowledge)</td><td>Model CAN do it but doesn't consistently</td><td>Use RAG for knowledge gaps</td></tr>
+<tr><td>4</td><td>Cost math works</td><td>Training cost < 3 months of improvement value</td><td>Keep using prompting</td></tr>
+<tr><td>5</td><td>You'll use it enough</td><td>1000+ queries will use the fine-tuned model</td><td>Cost not amortized</td></tr>
+</table>
+
+<h2>OpenAI vs Open-Source Path</h2>
+<table>
+<tr><th>Factor</th><th>OpenAI Fine-Tuning</th><th>Open-Source (HuggingFace)</th></tr>
+<tr><td>Cost per run</td><td>$3-25 (gpt-4o-mini)</td><td>$5-200 (cloud GPU)</td></tr>
+<tr><td>Time</td><td>15 min - 2 hr</td><td>2-48 hr</td></tr>
+<tr><td>Control</td><td>Low (black box)</td><td>Full (every hyperparameter)</td></tr>
+<tr><td>Privacy</td><td>Data sent to OpenAI</td><td>Data stays local</td></tr>
+<tr><td>Export weights</td><td>No (vendor lock-in)</td><td>Yes (your weights)</td></tr>
+<tr><td>Model choices</td><td>gpt-4o-mini, gpt-4o</td><td>Any open model (Llama, Mistral, etc.)</td></tr>
+<tr><td>Best for</td><td>Quick format/style fixes</td><td>Full control, privacy, research</td></tr>
+</table>
+<div class="tip"><b>Recommendation:</b> Start with OpenAI fine-tuning for quick validation (is fine-tuning the right approach?). Move to open-source for production (cost, control, privacy).</div>
+
+<h2>Cost & Resource Planning</h2>
+<table>
+<tr><th>Approach</th><th>Cost Per Run</th><th>Time</th><th>Hardware</th></tr>
+<tr><td>OpenAI gpt-4o-mini</td><td>$3-25</td><td>15 min - 2 hr</td><td>None (API)</td></tr>
+<tr><td>LoRA on 8B model</td><td>$5-20</td><td>2-8 hr</td><td>1× A100 or T4</td></tr>
+<tr><td>LoRA on 70B model</td><td>$50-200</td><td>6-24 hr</td><td>4× A100</td></tr>
+<tr><td>Full fine-tune 8B</td><td>$50-100</td><td>8-24 hr</td><td>4× A100</td></tr>
+<tr><td>Full fine-tune 70B</td><td>$500-2000</td><td>24-72 hr</td><td>8× A100</td></tr>
+</table>
+
+<h2>Minimum Dataset Sizes</h2>
+<table>
+<tr><th>Task Type</th><th>Min Examples</th><th>Ideal</th><th>Notes</th></tr>
+<tr><td>Format learning</td><td>50</td><td>100-200</td><td>Model learns output structure fast</td></tr>
+<tr><td>Style adaptation</td><td>100</td><td>300-500</td><td>Needs variety to generalize tone</td></tr>
+<tr><td>Domain specialization</td><td>500</td><td>1000-2000</td><td>Domain vocabulary + reasoning patterns</td></tr>
+<tr><td>Complex reasoning</td><td>1000</td><td>3000-5000</td><td>Needs many examples of reasoning chains</td></tr>
+</table>
+<div class="tip"><b>Quality > Quantity:</b> 100 perfect, diverse examples > 1000 noisy, repetitive ones. Each example should demonstrate exactly the behavior you want.</div>
+
+<h2>Failure Modes → Fixes</h2>
+<table>
+<tr><th>Problem</th><th>Symptom</th><th>Fix</th></tr>
+<tr><td>Overfitting</td><td>Perfect on training data, bad on new inputs</td><td>More diverse data, fewer epochs, add regularization</td></tr>
+<tr><td>Catastrophic forgetting</td><td>Fine-tuned model loses general abilities</td><td>Use LoRA (preserves base), mix in general data</td></tr>
+<tr><td>Wrong diagnosis</td><td>Fine-tuning doesn't help the actual issue</td><td>Revisit: is it behavior, knowledge, or capability?</td></tr>
+<tr><td>Data quality issues</td><td>Model learns wrong patterns confidently</td><td>Audit training data, remove contradictions/noise</td></tr>
+<tr><td>No improvement</td><td>Metrics flat after training</td><td>Dataset may not contain the signal (too small/uniform)</td></tr>
+<tr><td>Cost overrun</td><td>Training takes longer than expected</td><td>Start with small experiments, estimate before scaling</td></tr>
+</table>
+
+<h2>Evaluation — Did It Actually Help?</h2>
+<table>
+<tr><th>Metric</th><th>Compare Against</th><th>Threshold to Justify</th></tr>
+<tr><td>Task accuracy</td><td>Best prompt engineering result</td><td>> 5% improvement</td></tr>
+<tr><td>Format compliance</td><td>Best prompt result</td><td>> 95% (ideally 99%+)</td></tr>
+<tr><td>General capability</td><td>Base model on benchmarks</td><td>No regression > 2%</td></tr>
+<tr><td>Latency</td><td>Base model with full prompt</td><td>Should be faster (shorter prompt)</td></tr>
+<tr><td>Cost per query</td><td>Base model with full prompt</td><td>Should be cheaper (fewer input tokens)</td></tr>
+<tr><td>Human preference</td><td>Side-by-side blind comparison</td><td>> 60% prefer fine-tuned output</td></tr>
+</table>
+
+<h2>Decision Checkpoint</h2>
+<div class="tip">
+<b>Before proceeding to the rest of Module 3, confirm:</b><br>
+☐ I've tried 5+ prompt engineering iterations seriously<br>
+☐ I can articulate WHAT the model does wrong (format? style? domain? reasoning?)<br>
+☐ The gap is BEHAVIORAL (how it responds) not KNOWLEDGE (what it knows)<br>
+☐ I have 100+ examples of correct input→output<br>
+☐ The cost math works (training cost < 3 months of quality value)<br>
+☐ I've defined success criteria with measurable thresholds<br>
+☐ I accept this is an experiment (may need 2-3 iterations)<br><br>
+<b>If YES to all → proceed to Full Fine-Tuning (how SFT actually works)</b><br>
+<b>If NO to any → go back. Better prompting or RAG will likely solve it cheaper.</b>
+</div>
+
+</body>
+</html>

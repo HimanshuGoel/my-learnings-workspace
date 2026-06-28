@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>RAG Pipeline Architecture — Practitioner's Playbook</title>
+<style>
+  @page { margin: 0.5cm; size: A4; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+  h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+  h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+  h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+  ul { margin: 0 0 2px 12px; padding: 0; }
+  li { margin-bottom: 0.5px; }
+  .tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+  .prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+  .two-col { column-count: 2; column-gap: 10px; }
+  code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+  table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+  th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+  th { background: #f3f4f6; font-weight: bold; }
+  .diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+  .diagram svg { max-width: 100%; }
+  .diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+  .section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+  @media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+<h1>Module 2, Topic 6 — RAG Pipeline Architecture</h1>
+<p class="section-intro">A RAG pipeline chains together query processing, retrieval, re-ranking, prompt assembly, and generation into one end-to-end system. Like any software architecture, the goal is composability — each stage independently testable, replaceable, and observable. This is where the previous topics (chunking, embeddings, vector stores, retrieval) come together into a shippable system.</p>
+<p><b>Problem:</b> You have individual components (chunker, embedder, vector store, retriever, LLM) but no coherent system. Without intentional architecture, you get untestable, unmonitorable spaghetti. You need composable stages with clear boundaries.</p>
+
+<h2>End-to-End Pipeline Architecture</h2>
+<div class="diagram">
+<svg width="450" height="125" viewBox="0 0 450 125">
+<defs><marker id="arr7" markerWidth="5" markerHeight="4" refX="5" refY="2" orient="auto"><path d="M0,0 L5,2 L0,4 Z" fill="#4F46E5"/></marker></defs>
+<rect x="5" y="15" width="75" height="45" rx="3" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="42" y="30" text-anchor="middle" font-size="5.5pt" font-weight="bold">1. QUERY</text>
+<text x="42" y="39" text-anchor="middle" font-size="5pt">PROCESSING</text>
+<text x="42" y="49" text-anchor="middle" font-size="4.5pt" fill="#3b82f6">• Classify intent</text>
+<text x="42" y="56" text-anchor="middle" font-size="4.5pt" fill="#3b82f6">• Expand query (×3)</text>
+<line x1="80" y1="37" x2="93" y2="37" stroke="#4F46E5" marker-end="url(#arr7)"/>
+<rect x="93" y="15" width="75" height="45" rx="3" fill="#dcfce7" stroke="#22c55e"/>
+<text x="130" y="30" text-anchor="middle" font-size="5.5pt" font-weight="bold">2. RETRIEVAL</text>
+<text x="130" y="41" text-anchor="middle" font-size="4.5pt" fill="#059669">• Hybrid (BM25+vec)</text>
+<text x="130" y="49" text-anchor="middle" font-size="4.5pt" fill="#059669">• Metadata filter</text>
+<text x="130" y="56" text-anchor="middle" font-size="4.5pt" fill="#059669">• Top-20 candidates</text>
+<line x1="168" y1="37" x2="181" y2="37" stroke="#4F46E5" marker-end="url(#arr7)"/>
+<rect x="181" y="15" width="75" height="45" rx="3" fill="#fef3c7" stroke="#f59e0b"/>
+<text x="218" y="30" text-anchor="middle" font-size="5.5pt" font-weight="bold">3. RERANKING</text>
+<text x="218" y="41" text-anchor="middle" font-size="4.5pt" fill="#92400e">• Cross-encoder</text>
+<text x="218" y="49" text-anchor="middle" font-size="4.5pt" fill="#92400e">• Score threshold</text>
+<text x="218" y="56" text-anchor="middle" font-size="4.5pt" fill="#92400e">• Top-3 final</text>
+<line x1="256" y1="37" x2="269" y2="37" stroke="#4F46E5" marker-end="url(#arr7)"/>
+<rect x="269" y="15" width="75" height="45" rx="3" fill="#ede9fe" stroke="#4F46E5"/>
+<text x="306" y="30" text-anchor="middle" font-size="5.5pt" font-weight="bold">4. AUGMENT</text>
+<text x="306" y="41" text-anchor="middle" font-size="4.5pt" fill="#4F46E5">• System prompt</text>
+<text x="306" y="49" text-anchor="middle" font-size="4.5pt" fill="#4F46E5">• Context inject</text>
+<text x="306" y="56" text-anchor="middle" font-size="4.5pt" fill="#4F46E5">• Few-shot format</text>
+<line x1="344" y1="37" x2="357" y2="37" stroke="#4F46E5" marker-end="url(#arr7)"/>
+<rect x="357" y="15" width="85" height="45" rx="3" fill="#fce7f3" stroke="#ec4899"/>
+<text x="399" y="30" text-anchor="middle" font-size="5.5pt" font-weight="bold">5. GENERATE</text>
+<text x="399" y="41" text-anchor="middle" font-size="4.5pt" fill="#be185d">• LLM call (stream)</text>
+<text x="399" y="49" text-anchor="middle" font-size="4.5pt" fill="#be185d">• Validation</text>
+<text x="399" y="56" text-anchor="middle" font-size="4.5pt" fill="#be185d">• Citation check</text>
+<!-- Latency bar -->
+<rect x="5" y="70" width="75" height="10" rx="2" fill="#bfdbfe"/>
+<text x="42" y="78" text-anchor="middle" font-size="4.5pt">200-500ms</text>
+<rect x="93" y="70" width="75" height="10" rx="2" fill="#bbf7d0"/>
+<text x="130" y="78" text-anchor="middle" font-size="4.5pt">50-200ms</text>
+<rect x="181" y="70" width="75" height="10" rx="2" fill="#fef08a"/>
+<text x="218" y="78" text-anchor="middle" font-size="4.5pt">50-200ms</text>
+<rect x="269" y="70" width="75" height="10" rx="2" fill="#e9d5ff"/>
+<text x="306" y="78" text-anchor="middle" font-size="4.5pt">&lt;10ms</text>
+<rect x="357" y="70" width="85" height="10" rx="2" fill="#fbcfe8"/>
+<text x="399" y="78" text-anchor="middle" font-size="4.5pt">500-3000ms</text>
+<text x="225" y="95" font-size="6pt" fill="#4F46E5" text-anchor="middle" font-weight="bold">Total: 800ms – 4s (streaming hides stage 5 latency)</text>
+<rect x="5" y="100" width="437" height="18" rx="2" fill="#f3f4f6" stroke="#ced4da"/>
+<text x="225" y="112" text-anchor="middle" font-size="5.5pt">📊 OBSERVABILITY: Each stage logs inputs, outputs, latency, errors → full trace per request</text>
+</svg>
+<div class="diagram-caption">5-stage pipeline. Each stage independently testable, measurable, and replaceable. Streaming hides generation latency.</div>
+</div>
+
+<h2>Architecture Pattern Selection</h2>
+<table>
+<tr><th>Pattern</th><th>When</th><th>Complexity</th><th>Latency</th></tr>
+<tr><td>Simple sequential (retrieve → generate)</td><td>Toy examples, single-domain QA</td><td>Low</td><td>1-3s</td></tr>
+<tr><td><b>Retrieve → Rerank → Generate ✓</b></td><td><b>Production QA (recommended default)</b></td><td><b>Medium</b></td><td><b>1.5-4s</b></td></tr>
+<tr><td>Multi-index routing</td><td>Multiple document types/domains</td><td>Medium</td><td>2-4s</td></tr>
+<tr><td>Iterative refinement</td><td>Complex questions, research</td><td>High</td><td>5-15s</td></tr>
+<tr><td>Map-reduce</td><td>Long-form synthesis, reports</td><td>High</td><td>10-30s</td></tr>
+<tr><td>Conversational (with memory)</td><td>Chat interfaces</td><td>Medium</td><td>2-4s</td></tr>
+</table>
+<div class="tip"><b>Start with Retrieve → Rerank → Generate.</b> It covers 80% of production use cases. Add conversation memory for chat. Add routing for multi-domain. Add agentic only for complex analysis.</div>
+
+<h2>Implementation — Stage by Stage</h2>
+
+<h3>Stage 1: Query Processing</h3>
+<div class="prompt">class ProcessedQuery(BaseModel):
+    original: str
+    intent: Literal["factual", "howto", "comparison", "troubleshoot"]
+    expanded_queries: list[str]  # 3 variants for multi-query retrieval
+    target_collection: str
+    metadata_filters: dict
+
+def process_query(query: str, llm) -> ProcessedQuery:
+    intent = classify_intent(query, llm)       # "What is..." → factual
+    expanded = expand_query(query, llm, n=3)    # Generate 3 rephrased variants
+    collection = route_to_collection(intent)    # factual → api_docs
+    filters = extract_filters(query)            # "v2.1" → {"version": "2.1.0"}
+    return ProcessedQuery(...)</div>
+
+<h3>Stage 2: Retrieval (Hybrid + Multi-Query)</h3>
+<div class="prompt">class RetrievalStage:
+    def retrieve(self, processed_query):
+        all_docs = []
+        for variant in processed_query.expanded_queries:
+            docs = self.hybrid_retriever.invoke(variant)  # BM25 + vector
+            all_docs.extend(docs)
+        
+        # Deduplicate by content hash
+        unique = deduplicate(all_docs)
+        return unique[:20]  # Cap at 20 for reranker</div>
+
+<h3>Stage 3: Reranking</h3>
+<div class="prompt">class RerankingStage:
+    def rerank(self, query: str, docs: list) -> list:
+        pairs = [(query, doc.page_content) for doc in docs]
+        scores = self.cross_encoder.predict(pairs)
+        scored = sorted(zip(scores, docs), reverse=True)
+        # Filter by min score AND take top_n
+        return [doc for score, doc in scored if score >= 0.3][:3]</div>
+
+<h3>Stage 4: Augmentation (Prompt Assembly)</h3>
+<div class="prompt">SYSTEM = """You are a technical documentation assistant.
+Rules: 1) Answer ONLY from context 2) If not found, say so 3) Cite [Source: filename]"""
+
+def build_prompt(query, docs):
+    context = "\n\n".join([
+        f"[{i}] (Source: {d.metadata['source']})\n{d.page_content}"
+        for i, d in enumerate(docs, 1)
+    ])
+    return [("system", SYSTEM), ("human", f"Context:\n{context}\n\nQuestion: {query}")]</div>
+
+<h3>Stage 5: Generation (Streaming)</h3>
+<div class="prompt">class GenerationStage:
+    def __init__(self):
+        self.llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.0)
+    
+    async def generate_stream(self, messages):
+        async for chunk in self.llm.astream(messages):
+            yield chunk.content  # Token-by-token to client</div>
+
+<h3>Full Orchestration</h3>
+<div class="prompt">class RAGPipeline:
+    def run(self, user_query: str) -> RAGResponse:
+        processed = self.query_processor.process(user_query)  # Stage 1
+        candidates = self.retrieval.retrieve(processed)        # Stage 2
+        top_docs = self.reranking.rerank(processed.original, candidates)  # Stage 3
+        messages = self.augmentation.build_prompt(processed.original, top_docs)  # Stage 4
+        return self.generation.generate(messages)              # Stage 5</div>
+
+<h2>Conversational RAG (Adding Memory)</h2>
+<div class="prompt">from langchain.memory import ConversationBufferWindowMemory
+
+memory = ConversationBufferWindowMemory(
+    memory_key="chat_history", return_messages=True, k=5  # last 5 turns
+)
+# Memory is injected between system prompt and user message
+# Enables follow-up questions: "What about its auth?" → knows "it" = previous topic</div>
+
+<h2>Configuration Reference</h2>
+<table>
+<tr><th>Component</th><th>Config</th><th>Why</th></tr>
+<tr><td>Query expansion</td><td>3 variants via gpt-4o-mini</td><td>Covers rephrasing gaps, costs ~$0.0001</td></tr>
+<tr><td>Retrieval K</td><td>15-20 initial</td><td>Over-retrieve for reranker to filter</td></tr>
+<tr><td>Hybrid weights</td><td>0.3 BM25 / 0.7 vector</td><td>Semantic dominates, keywords catch exact</td></tr>
+<tr><td>Reranker</td><td>ms-marco-MiniLM-L-6-v2</td><td>Free, local, best speed/quality</td></tr>
+<tr><td>Final top_n</td><td>3 (factual) / 5 (howto)</td><td>More context for complex queries</td></tr>
+<tr><td>LLM</td><td>gpt-4o-mini (default)</td><td>Good quality, lowest cost (~$0.0005/query)</td></tr>
+<tr><td>Temperature</td><td>0.0 (factual) / 0.3 (synthesis)</td><td>Determinism for facts</td></tr>
+<tr><td>Streaming</td><td>Always for user-facing</td><td>Perceived latency: 3s → &lt;500ms to first token</td></tr>
+<tr><td>Memory</td><td>Last 5 turns</td><td>Context without bloating token count</td></tr>
+</table>
+
+<h2>Cost Per Query</h2>
+<table>
+<tr><th>Component</th><th>Cost</th><th>Notes</th></tr>
+<tr><td>Query expansion (gpt-4o-mini)</td><td>~$0.0001</td><td>~200 in + 300 out tokens</td></tr>
+<tr><td>Embedding (text-embedding-3-small)</td><td>~$0.000001</td><td>Single query</td></tr>
+<tr><td>Reranking (local cross-encoder)</td><td>$0</td><td>Runs locally</td></tr>
+<tr><td>Generation (gpt-4o-mini)</td><td>~$0.0005</td><td>~1000 in + 300 out tokens</td></tr>
+<tr><td><b>Total per query</b></td><td><b>~$0.0006</b></td><td>10K queries/day = ~$6/day</td></tr>
+</table>
+
+<h2>Failure Modes → Fixes</h2>
+<table>
+<tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr>
+<tr><td>Works in notebook, breaks in prod</td><td>Stateful components (in-memory BM25)</td><td>Externalize state, use proper vector DB</td></tr>
+<tr><td>Hallucinated despite good retrieval</td><td>Context truncated (too many tokens)</td><td>Check actual token count of full prompt</td></tr>
+<tr><td>Conversation loses context</td><td>Memory not connected or window too small</td><td>Verify memory_key, increase k</td></tr>
+<tr><td>Latency > 5s</td><td>Reranker + LLM stacking without streaming</td><td>Enable streaming, profile each stage</td></tr>
+<tr><td>Inconsistent quality</td><td>Same pipeline for all intents</td><td>Add intent-based routing</td></tr>
+<tr><td>Empty results occasionally</td><td>Metadata filter too strict, no fallback</td><td>Retry without filter if count = 0</td></tr>
+<tr><td>Sources cited don't match answer</td><td>LLM fabricating citations</td><td>Validate citations post-gen against actual sources</td></tr>
+</table>
+
+<h2>Observability Checklist</h2>
+<table>
+<tr><th>Track</th><th>Alert When</th></tr>
+<tr><td>Latency per stage (p50, p95)</td><td>Any stage > 2× its baseline</td></tr>
+<tr><td>Empty retrieval results</td><td>> 5% of queries return 0 docs</td></tr>
+<tr><td>Token count per request</td><td>Approaching context window limit</td></tr>
+<tr><td>Error rate</td><td>> 1% of requests fail</td></tr>
+<tr><td>Cost per query (daily aggregate)</td><td>> budget threshold</td></tr>
+<tr><td>Reranker score distribution</td><td>Sudden shift (indicates drift)</td></tr>
+</table>
+
+<h2>Ready to Ship?</h2>
+<div class="tip">
+☐ All 5 stages implemented and independently testable<br>
+☐ Pipeline traceable end-to-end (every stage logs I/O + latency)<br>
+☐ Fallbacks: empty retrieval → retry without filter, reranker fail → skip, LLM timeout → apologize<br>
+☐ Streaming enabled for user-facing responses<br>
+☐ Conversation memory working across turns (if chat UI)<br>
+☐ Cost per query estimated and within budget<br>
+☐ Latency &lt; 2s to first streamed token (p95)<br>
+☐ Error handling: graceful degradation, not hard failures<br>
+☐ Integration tests: known query → expected behavior verified<br>
+☐ Monitoring dashboard operational (latency, errors, cost)<br><br>
+<b>Next → RAG Evaluation (how to measure if your pipeline is actually working)</b>
+</div>
+
+</body>
+</html>

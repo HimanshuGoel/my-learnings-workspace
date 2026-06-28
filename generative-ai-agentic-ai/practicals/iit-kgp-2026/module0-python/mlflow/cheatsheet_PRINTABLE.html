@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MLflow — Printable Learning Notes</title>
+<style>
+  @page { margin: 0.5cm; size: A4; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+  h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+  h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+  h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+  ul { margin: 0 0 2px 12px; padding: 0; }
+  li { margin-bottom: 0.5px; }
+  .tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+  .prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+  .two-col { column-count: 2; column-gap: 10px; }
+  code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+  table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+  th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+  th { background: #f3f4f6; font-weight: bold; }
+  .diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+  .diagram svg { max-width: 100%; }
+  .diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+  .section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+  @media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+<h1>MLflow — Complete Learning Notes</h1>
+<p><b>Summary:</b> MLflow is GitHub + Jenkins + SonarQube for ML — tracks experiments, versions models, and deploys them. The experiment lab notebook that's automated, searchable, and connected to production.</p>
+
+<h2>Why MLflow Exists</h2>
+<ul>
+<li><b>Problem</b> — after training 50 models with different params, you can't remember which one worked, what data it used, or where the weights are. Results are lost in Jupyter output and scattered files.</li>
+<li><b>Solution</b> — automatic tracking of every experiment (params + metrics + model + artifacts), version control for models, and a UI to compare everything visually.</li>
+<li><b>Mental Model</b> — <b>GitHub + Jenkins + SonarQube for ML</b>. Tracking = commit history. Registry = releases (v1 staging, v2 production). Projects = Dockerfiles. Serving = CI/CD deploy.</li>
+<li><b>AI Connection</b> — how you prove your capstone works (reproducible experiments), compare fine-tuning runs, and manage model versions.</li>
+</ul>
+
+<h2>Where MLflow Fits</h2>
+<div class="diagram">
+<svg width="380" height="90" viewBox="0 0 380 90">
+<defs><marker id="arrML" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto"><path d="M0,0 L6,2 L0,4 Z" fill="#4F46E5"/></marker></defs>
+<rect x="5" y="30" width="70" height="30" rx="3" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="40" y="43" text-anchor="middle" font-size="5.5pt" font-weight="bold">Train</text>
+<text x="40" y="53" text-anchor="middle" font-size="5pt" fill="#666">sklearn/PyTorch/HF</text>
+<line x1="75" y1="45" x2="95" y2="45" stroke="#4F46E5" stroke-width="1" marker-end="url(#arrML)"/>
+<rect x="95" y="15" width="120" height="60" rx="4" fill="#ede9fe" stroke="#4F46E5" stroke-width="1.5"/>
+<text x="155" y="28" text-anchor="middle" font-size="7pt" font-weight="bold" fill="#4F46E5">MLflow</text>
+<text x="155" y="40" text-anchor="middle" font-size="5pt" fill="#4F46E5">Track params + metrics</text>
+<text x="155" y="50" text-anchor="middle" font-size="5pt" fill="#4F46E5">Version models</text>
+<text x="155" y="60" text-anchor="middle" font-size="5pt" fill="#4F46E5">Compare & deploy</text>
+<text x="155" y="72" text-anchor="middle" font-size="5pt" fill="#666">(you are here)</text>
+<line x1="215" y1="35" x2="240" y2="28" stroke="#4F46E5" stroke-width="1" marker-end="url(#arrML)"/>
+<line x1="215" y1="50" x2="240" y2="50" stroke="#4F46E5" stroke-width="1" marker-end="url(#arrML)"/>
+<line x1="215" y1="60" x2="240" y2="68" stroke="#4F46E5" stroke-width="1" marker-end="url(#arrML)"/>
+<rect x="240" y="15" width="90" height="20" rx="2" fill="#f3f4f6" stroke="#ddd"/><text x="285" y="28" text-anchor="middle" font-size="5pt">UI (compare visually)</text>
+<rect x="240" y="40" width="90" height="20" rx="2" fill="#f3f4f6" stroke="#ddd"/><text x="285" y="53" text-anchor="middle" font-size="5pt">Registry (version/stage)</text>
+<rect x="240" y="65" width="90" height="20" rx="2" fill="#f3f4f6" stroke="#ddd"/><text x="285" y="78" text-anchor="middle" font-size="5pt">Serve (load & predict)</text>
+</svg>
+<div class="diagram-caption">MLflow observes and records your training — it doesn't do the training itself</div>
+</div>
+
+<h2>1. Tracking — Log Everything</h2>
+<div class="prompt">import mlflow
+
+mlflow.set_experiment("my-experiment")
+
+with mlflow.start_run(run_name="rf_baseline"):
+    mlflow.log_param("n_estimators", 100)
+    mlflow.log_param("max_depth", 5)
+
+    model.fit(X_train, y_train)
+
+    mlflow.log_metric("f1", 0.87)
+    mlflow.log_metric("accuracy", 0.92)
+    mlflow.log_metric("loss", loss, step=epoch)  # per-step
+
+    mlflow.sklearn.log_model(model, "model")
+    mlflow.log_artifact("confusion_matrix.png")</div>
+
+<h2>2. Auto-Logging (Zero Code)</h2>
+<div class="prompt">mlflow.sklearn.autolog()      # captures everything automatically
+model.fit(X_train, y_train)   # params + metrics + model logged!</div>
+
+<div class="tip"><b>Always start with autolog.</b> It captures params, metrics, and model for sklearn, PyTorch, and HuggingFace with zero manual calls. Add manual logging only for custom metrics.</div>
+
+<h2>3. Model Registry</h2>
+<table>
+<tr><th>Stage</th><th>Meaning</th><th>When</th></tr>
+<tr><td>None</td><td>Just logged, not registered</td><td>Experimental runs</td></tr>
+<tr><td>Staging</td><td>Candidate for production</td><td>Passed evaluation</td></tr>
+<tr><td>Production</td><td>Currently serving</td><td>Best model, deployed</td></tr>
+<tr><td>Archived</td><td>Old version, kept for reference</td><td>Superseded</td></tr>
+</table>
+
+<div class="prompt"># Register
+mlflow.sklearn.log_model(model, "model", registered_model_name="churn-predictor")
+
+# Load from registry
+model = mlflow.sklearn.load_model("models:/churn-predictor/Production")</div>
+
+<h2>4. AI/ML Connection</h2>
+<table>
+<tr><th>Use Case</th><th>MLflow Role</th><th>Example</th></tr>
+<tr><td>Model comparison</td><td>Track + compare runs</td><td>Which hyperparams gave best F1?</td></tr>
+<tr><td>Fine-tuning (Module 3)</td><td>Log LoRA configs + metrics</td><td>Compare r=4 vs r=8 vs r=16</td></tr>
+<tr><td>RAG evaluation (Module 2)</td><td>Log retrieval metrics</td><td>precision@k for different chunk sizes</td></tr>
+<tr><td>Capstone (Module 5)</td><td>Full experiment documentation</td><td>Present to evaluators</td></tr>
+<tr><td>Deployment</td><td>Registry → load → serve</td><td>Load production model in FastAPI</td></tr>
+</table>
+
+<h2>5. Common Mistakes</h2>
+<table>
+<tr><th>#</th><th>Mistake</th><th>Fix</th></tr>
+<tr><td>1</td><td>All runs in "Default" experiment</td><td>Always set_experiment("name") first</td></tr>
+<tr><td>2</td><td>Open runs never closed</td><td>Use <code>with mlflow.start_run():</code> context manager</td></tr>
+<tr><td>3</td><td>Not using autolog</td><td>One line gives you everything for free</td></tr>
+<tr><td>4</td><td>Not versioning data alongside model</td><td>Log data hash/version as a param or tag</td></tr>
+<tr><td>5</td><td>UI in wrong directory</td><td>Run <code>mlflow ui</code> from where ./mlruns exists</td></tr>
+</table>
+
+<h2>Quick Reference</h2>
+<div class="two-col">
+<h3>Tracking</h3>
+<div class="prompt">mlflow.set_experiment("name")
+with mlflow.start_run():
+    mlflow.log_param("key", val)
+    mlflow.log_metric("key", val, step=n)
+    mlflow.log_artifact("file.png")
+    mlflow.sklearn.log_model(model, "model")</div>
+
+<h3>Auto-log</h3>
+<div class="prompt">mlflow.sklearn.autolog()
+mlflow.pytorch.autolog()
+mlflow.transformers.autolog()</div>
+
+<h3>Load Model</h3>
+<div class="prompt">mlflow.sklearn.load_model("runs:/ID/model")
+mlflow.sklearn.load_model("models:/name/Production")</div>
+
+<h3>Search</h3>
+<div class="prompt">runs = mlflow.search_runs(
+    experiment_names=["exp"],
+    filter_string="metrics.f1 > 0.85",
+    order_by=["metrics.f1 DESC"])</div>
+
+<h3>UI</h3>
+<div class="prompt">mlflow ui --port 5000
+# http://localhost:5000</div>
+</div>
+
+<h2>Memory Map</h2>
+<div class="prompt">Tracking (Record)
+  ├── set_experiment("name")
+  ├── start_run(run_name="...")
+  ├── log_param/log_params — hyperparameters
+  ├── log_metric (+ step for curves) — results
+  ├── log_artifact — files (plots, reports)
+  └── log_model — model weights + metadata
+        │
+        ▼
+Comparison (Analyze)
+  ├── mlflow ui — visual comparison dashboard
+  ├── search_runs — programmatic filtering + sorting
+  └── Find best model by metrics
+        │
+        ▼
+Registry (Manage)
+  ├── Register model (give it a name)
+  ├── Version: v1, v2, v3...
+  ├── Stage: None → Staging → Production → Archived
+  └── Load by name + stage for serving
+        │
+        ▼
+Deploy (Serve)
+  ├── load_model("models:/name/Production")
+  └── Use in FastAPI endpoint</div>
+
+<h2>Top Takeaways</h2>
+<table>
+<tr><th>#</th><th>Insight</th></tr>
+<tr><td>1</td><td>MLflow tracks what you'd otherwise forget — which params, which data, which result</td></tr>
+<tr><td>2</td><td>autolog() captures everything with zero manual code for supported frameworks</td></tr>
+<tr><td>3</td><td>The UI (mlflow ui) lets you visually compare all experiments in one table</td></tr>
+<tr><td>4</td><td>Model Registry adds version control (v1, v2) and staging (Staging → Production)</td></tr>
+<tr><td>5</td><td>search_runs() returns a DataFrame — perfect for programmatic best-model selection</td></tr>
+<tr><td>6</td><td>Load models by name + stage: "models:/my-model/Production" (decoupled from run IDs)</td></tr>
+<tr><td>7</td><td>Log metrics per step for training curves (loss, accuracy over epochs)</td></tr>
+<tr><td>8</td><td>Your capstone evaluators will want reproducible experiment documentation — MLflow provides it</td></tr>
+</table>
+
+<h2>Ready to Move On?</h2>
+<div class="tip">
+<b>Self-Test Checklist:</b><br>
+☐ I can track an experiment with params, metrics, and model logging<br>
+☐ I can use autolog for sklearn/PyTorch<br>
+☐ I can view and compare runs in the MLflow UI<br>
+☐ I understand the model registry (versions + stages)<br>
+☐ I can load a model from the registry for inference<br><br>
+<b>All 12 libraries complete! You have the full foundation for the IIT KGP program.</b>
+</div>
+
+</body>
+</html>

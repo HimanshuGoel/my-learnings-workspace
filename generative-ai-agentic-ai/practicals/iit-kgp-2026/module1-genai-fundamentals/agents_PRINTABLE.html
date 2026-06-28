@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Agents — Printable Notes</title>
+<style>
+  @page { margin: 0.5cm; size: A4; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+  h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+  h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+  h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+  ul { margin: 0 0 2px 12px; padding: 0; }
+  li { margin-bottom: 0.5px; }
+  .tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+  .prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+  .two-col { column-count: 2; column-gap: 10px; }
+  code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+  table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+  th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+  th { background: #f3f4f6; font-weight: bold; }
+  .diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+  .diagram svg { max-width: 100%; }
+  .diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+  .section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+  @media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+<h1>Topic 11 — Agents</h1>
+<p><b>Summary:</b> An AI agent is an LLM in a reasoning loop with access to tools — it autonomously decides which actions to take (search, execute code, query DBs) to accomplish multi-step goals.</p>
+
+<h2>Why It Exists</h2>
+<ul>
+<li><b>Problem</b> — standard LLMs can only generate text. They can't check real-time info, execute actions, verify their answers, or break complex tasks into executable steps.</li>
+<li><b>Solution</b> — give the LLM access to <b>tools</b> (functions it can call) and a <b>reasoning loop</b> (think → act → observe → repeat). The model decides WHICH tool and WHAT arguments.</li>
+<li><b>Mental Model</b> — <b>A junior developer with access to Stack Overflow, a terminal, and docs.</b> They think about what to do, search for info, try an approach, check if it worked, iterate until done.</li>
+<li><b>Or:</b> Like a Kubernetes controller (reconciliation loop). Observe current state → decide action needed → execute → observe new state → loop until desired state achieved.</li>
+</ul>
+
+<h2>How It Works</h2>
+<p class="section-intro">The ReAct pattern: Think → Act (tool call) → Observe (result) → Repeat until goal is achieved.</p>
+
+<div class="diagram">
+<svg width="420" height="110" viewBox="0 0 420 110">
+<defs><marker id="arr" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto"><path d="M0,0 L6,2 L0,4 Z" fill="#4F46E5"/></marker></defs>
+<!-- User goal -->
+<rect x="5" y="8" width="65" height="28" rx="3" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="37" y="20" text-anchor="middle" font-size="5.5pt" font-weight="bold">User Goal</text>
+<text x="37" y="30" text-anchor="middle" font-size="5pt" fill="#666">"Do X for me"</text>
+<line x1="70" y1="22" x2="90" y2="22" stroke="#4F46E5" stroke-width="1" marker-end="url(#arr)"/>
+<!-- Think -->
+<rect x="90" y="8" width="62" height="28" rx="3" fill="#ede9fe" stroke="#4F46E5"/>
+<text x="121" y="18" text-anchor="middle" font-size="5.5pt" font-weight="bold" fill="#4F46E5">THINK</text>
+<text x="121" y="29" text-anchor="middle" font-size="5pt" fill="#666">reason about task</text>
+<line x1="152" y1="22" x2="172" y2="22" stroke="#4F46E5" stroke-width="1" marker-end="url(#arr)"/>
+<!-- Act -->
+<rect x="172" y="8" width="62" height="28" rx="3" fill="#fef3c7" stroke="#f59e0b"/>
+<text x="203" y="18" text-anchor="middle" font-size="5.5pt" font-weight="bold">ACT</text>
+<text x="203" y="29" text-anchor="middle" font-size="5pt" fill="#666">call tool(args)</text>
+<line x1="234" y1="22" x2="254" y2="22" stroke="#4F46E5" stroke-width="1" marker-end="url(#arr)"/>
+<!-- Observe -->
+<rect x="254" y="8" width="62" height="28" rx="3" fill="#f3f4f6" stroke="#ddd"/>
+<text x="285" y="18" text-anchor="middle" font-size="5.5pt" font-weight="bold">OBSERVE</text>
+<text x="285" y="29" text-anchor="middle" font-size="5pt" fill="#666">read tool result</text>
+<!-- Loop arrow -->
+<path d="M316,22 C340,22 340,55 285,55 L140,55 C110,55 110,36 110,36" fill="none" stroke="#4F46E5" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#arr)"/>
+<text x="225" y="63" text-anchor="middle" font-size="5pt" fill="#4F46E5">loop until done</text>
+<!-- Final -->
+<line x1="285" y1="36" x2="285" y2="70" stroke="#059669" stroke-width="1" marker-end="url(#arr)"/>
+<rect x="254" y="72" width="62" height="28" rx="3" fill="#dcfce7" stroke="#059669"/>
+<text x="285" y="83" text-anchor="middle" font-size="5.5pt" font-weight="bold" fill="#166534">RESPOND</text>
+<text x="285" y="94" text-anchor="middle" font-size="5pt" fill="#666">final answer</text>
+<!-- Tools box -->
+<rect x="355" y="5" width="60" height="65" rx="3" fill="#f3f4f6" stroke="#ddd"/>
+<text x="385" y="16" text-anchor="middle" font-size="5pt" font-weight="bold">Tools</text>
+<text x="385" y="27" text-anchor="middle" font-size="4.5pt">🔍 search_web()</text>
+<text x="385" y="37" text-anchor="middle" font-size="4.5pt">🗄️ query_db()</text>
+<text x="385" y="47" text-anchor="middle" font-size="4.5pt">💻 run_code()</text>
+<text x="385" y="57" text-anchor="middle" font-size="4.5pt">📧 send_email()</text>
+<text x="385" y="67" text-anchor="middle" font-size="4.5pt">📊 calculate()</text>
+<line x1="234" y1="22" x2="355" y2="35" stroke="#f59e0b" stroke-width="0.8" stroke-dasharray="2,2"/>
+<text x="210" y="105" text-anchor="middle" font-size="5.5pt" fill="#495057">Agent = LLM + Tools + Loop. The LLM decides what to do; tools execute it; loop continues until goal is met.</text>
+</svg>
+<div class="diagram-caption">ReAct agent loop: Think → Act (call tool) → Observe (result) → loop until goal achieved, then respond</div>
+</div>
+
+<h3>Core Components</h3>
+<table>
+<tr><th>Component</th><th>What It Does</th><th>Analogy</th></tr>
+<tr><td>LLM (brain)</td><td>Reasons, decides next action</td><td>The developer's thinking</td></tr>
+<tr><td>Tools</td><td>Functions the agent can call</td><td>IDE, terminal, browser</td></tr>
+<tr><td>Prompt</td><td>Defines available tools and behavior rules</td><td>Job description + tool docs</td></tr>
+<tr><td>Memory</td><td>Tracks conversation and past actions</td><td>Notes/scratchpad</td></tr>
+<tr><td>Orchestrator</td><td>Manages the think-act-observe loop</td><td>Task runner / CI pipeline</td></tr>
+</table>
+
+<h3>Agent Types</h3>
+<table>
+<tr><th>Type</th><th>How It Decides</th><th>Best For</th></tr>
+<tr><td>ReAct</td><td>Think → Act → Observe → Repeat</td><td>General purpose, most common</td></tr>
+<tr><td>Plan-and-Execute</td><td>Plan all steps first, then execute</td><td>Complex multi-step tasks</td></tr>
+<tr><td>Tool-calling</td><td>Model directly outputs structured tool calls</td><td>Simple tool use (OpenAI function calling)</td></tr>
+<tr><td>Multi-agent</td><td>Multiple specialized agents collaborate</td><td>Complex workflows (researcher + coder + reviewer)</td></tr>
+</table>
+
+<div class="diagram">
+<svg width="400" height="95" viewBox="0 0 400 95">
+<defs><marker id="arr5" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto"><path d="M0,0 L6,2 L0,4 Z" fill="#4F46E5"/></marker></defs>
+<!-- Simple LLM -->
+<text x="95" y="10" text-anchor="middle" font-size="5.5pt" font-weight="bold" fill="#999">Standard LLM (single turn)</text>
+<rect x="10" y="14" width="50" height="22" rx="3" fill="#f3f4f6" stroke="#ddd"/>
+<text x="35" y="28" text-anchor="middle" font-size="5pt">Question</text>
+<line x1="60" y1="25" x2="78" y2="25" stroke="#999" stroke-width="1" marker-end="url(#arr5)"/>
+<rect x="78" y="14" width="50" height="22" rx="3" fill="#f3f4f6" stroke="#ddd"/>
+<text x="103" y="28" text-anchor="middle" font-size="5pt">LLM</text>
+<line x1="128" y1="25" x2="146" y2="25" stroke="#999" stroke-width="1" marker-end="url(#arr5)"/>
+<rect x="146" y="14" width="50" height="22" rx="3" fill="#f3f4f6" stroke="#ddd"/>
+<text x="171" y="28" text-anchor="middle" font-size="5pt">Answer</text>
+<!-- Agent -->
+<text x="95" y="52" text-anchor="middle" font-size="5.5pt" font-weight="bold" fill="#4F46E5">Agent (multi-step with tools)</text>
+<rect x="10" y="56" width="45" height="22" rx="3" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="32" y="70" text-anchor="middle" font-size="5pt">Goal</text>
+<line x1="55" y1="67" x2="68" y2="67" stroke="#4F46E5" stroke-width="1" marker-end="url(#arr5)"/>
+<rect x="68" y="56" width="45" height="22" rx="3" fill="#ede9fe" stroke="#4F46E5"/>
+<text x="90" y="70" text-anchor="middle" font-size="5pt">Think</text>
+<line x1="113" y1="67" x2="126" y2="67" stroke="#4F46E5" stroke-width="1" marker-end="url(#arr5)"/>
+<rect x="126" y="56" width="45" height="22" rx="3" fill="#fef3c7" stroke="#f59e0b"/>
+<text x="148" y="70" text-anchor="middle" font-size="5pt">Tool 1</text>
+<line x1="171" y1="67" x2="184" y2="67" stroke="#4F46E5" stroke-width="1" marker-end="url(#arr5)"/>
+<rect x="184" y="56" width="45" height="22" rx="3" fill="#ede9fe" stroke="#4F46E5"/>
+<text x="206" y="70" text-anchor="middle" font-size="5pt">Think</text>
+<line x1="229" y1="67" x2="242" y2="67" stroke="#4F46E5" stroke-width="1" marker-end="url(#arr5)"/>
+<rect x="242" y="56" width="45" height="22" rx="3" fill="#fef3c7" stroke="#f59e0b"/>
+<text x="264" y="70" text-anchor="middle" font-size="5pt">Tool 2</text>
+<line x1="287" y1="67" x2="300" y2="67" stroke="#4F46E5" stroke-width="1" marker-end="url(#arr5)"/>
+<rect x="300" y="56" width="45" height="22" rx="3" fill="#ede9fe" stroke="#4F46E5"/>
+<text x="322" y="70" text-anchor="middle" font-size="5pt">Think</text>
+<line x1="345" y1="67" x2="358" y2="67" stroke="#059669" stroke-width="1" marker-end="url(#arr5)"/>
+<rect x="358" y="56" width="38" height="22" rx="3" fill="#dcfce7" stroke="#059669"/>
+<text x="377" y="70" text-anchor="middle" font-size="5pt" fill="#166534">Done</text>
+<text x="200" y="92" text-anchor="middle" font-size="5.5pt" fill="#495057">Standard LLM: one pass. Agent: multiple reasoning + tool steps until goal is achieved.</text>
+</svg>
+<div class="diagram-caption">Standard LLM = single turn Q&A. Agent = multi-step reasoning with tool calls until task is complete.</div>
+</div>
+
+<h3>Tool Definition Pattern</h3>
+<div class="prompt">@tool
+def search_web(query: str) -> str:
+    """Search the internet for current information."""  ← LLM reads this description
+    return search_api.query(query)
+
+@tool
+def query_database(sql: str) -> str:
+    """Run a SQL query against the customer database."""
+    return db.execute(sql)
+
+# LLM sees: tool name + description + parameter schema → decides which to call and with what args</div>
+<div class="tip"><b>Key insight:</b> The tool description IS the documentation for the LLM. Write them like you'd write JSDoc for a junior dev. Clear, concise, with examples of when to use it. 3-7 well-defined tools is optimal — too many confuses the model.</div>
+
+<h2>IIT KGP Module Mapping</h2>
+<table>
+<tr><th>Module</th><th>How Agents Apply</th></tr>
+<tr><td>Module 2</td><td>RAG can be a tool an agent uses (alongside search, calculate, etc.)</td></tr>
+<tr><td>Module 4</td><td>THE entire module — build agents with LangChain/LangGraph, tool definitions</td></tr>
+<tr><td>Module 5</td><td>Capstone may include an agentic component; deploy agent endpoints</td></tr>
+</table>
+
+<h2>Common Misconceptions</h2>
+<table>
+<tr><th>Wrong</th><th>Correct</th></tr>
+<tr><td>"Agents are autonomous AI"</td><td>They're LLMs in a loop with tools. Still need guardrails, limits, and human oversight.</td></tr>
+<tr><td>"Agents always succeed"</td><td>They can get stuck in loops, call wrong tools, or hallucinate tool arguments.</td></tr>
+<tr><td>"More tools = better agent"</td><td>Too many tools confuse the model. 3-7 well-defined tools is optimal.</td></tr>
+<tr><td>"Agents replace human judgment"</td><td>They handle routine multi-step tasks. Complex decisions still need humans.</td></tr>
+<tr><td>"Agents need fine-tuning"</td><td>Most agents work with prompted base models + good tool definitions. No fine-tuning needed.</td></tr>
+</table>
+
+<h2>Connection Map</h2>
+<div class="prompt">Prompting (agent prompt defines available tools and behavior)
+        ↓
+RAG (retrieval as one tool the agent can use)
+        ↓
+Agents (THIS TOPIC — LLM + tools + reasoning loop)
+        ↓
+    ├── Evaluation (did the agent complete the task? How many steps?)
+    └── Deployment (serve agent endpoints via FastAPI, handle timeouts/retries)</div>
+
+<h2>Key Terminology</h2>
+<table>
+<tr><th>Term</th><th>Meaning</th></tr>
+<tr><td>Agent</td><td>LLM-powered system that reasons and acts in a loop to achieve goals</td></tr>
+<tr><td>Tool</td><td>Function the agent can call (search, calculate, query DB, send email)</td></tr>
+<tr><td>ReAct</td><td>Reasoning + Acting pattern: Think → Act → Observe → Repeat</td></tr>
+<tr><td>Orchestrator</td><td>Framework managing the agent loop (LangChain AgentExecutor, LangGraph)</td></tr>
+<tr><td>Function calling</td><td>LLM outputting structured tool calls (OpenAI/Anthropic native support)</td></tr>
+<tr><td>Multi-agent</td><td>Multiple specialized agents collaborating on complex workflows</td></tr>
+<tr><td>Guardrails</td><td>Safety limits on agent actions (max steps, allowed tools, human approval)</td></tr>
+<tr><td>Scratchpad</td><td>Agent's memory of past reasoning steps and tool results in current task</td></tr>
+</table>
+
+<h2>Top Takeaways</h2>
+<table>
+<tr><th>#</th><th>Insight</th></tr>
+<tr><td>1</td><td>Agent = LLM + Tools + Loop. The "intelligence" is the LLM deciding what to do next.</td></tr>
+<tr><td>2</td><td>ReAct pattern (Think → Act → Observe → Repeat) is the most common agent architecture.</td></tr>
+<tr><td>3</td><td>Tools are just functions with good descriptions. LLM reads the description to decide when to call.</td></tr>
+<tr><td>4</td><td>3-7 well-defined tools is optimal. Too many = decision paralysis for the model.</td></tr>
+<tr><td>5</td><td>Agents can fail: infinite loops, wrong tool calls, hallucinated arguments. Always add guardrails.</td></tr>
+<tr><td>6</td><td>Standard LLM = single pass. Agent = multiple reasoning steps. More powerful but less predictable.</td></tr>
+<tr><td>7</td><td>RAG, calculators, code execution — these are all just tools an agent can use.</td></tr>
+</table>
+
+<h2>Ready to Move On?</h2>
+<div class="tip">
+☐ I understand the agent loop: Think → Act (tool call) → Observe → Repeat<br>
+☐ I know what tools are (functions with descriptions) and how LLMs decide which to call<br>
+☐ I can explain the difference between standard prompting and agentic behavior<br>
+☐ I understand that agents can fail (loops, wrong tools) and need guardrails<br><br>
+<b>Next → Evaluation (how to measure if your LLM/RAG/agent is working correctly)</b>
+</div>
+
+</body>
+</html>

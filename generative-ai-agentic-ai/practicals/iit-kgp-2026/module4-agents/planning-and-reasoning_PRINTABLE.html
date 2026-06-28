@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Module 4, Topic 7 — Planning & Reasoning</title>
+<style>
+@page { margin: 0.5cm; size: A4; }
+body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+ul { margin: 0 0 2px 12px; padding: 0; }
+li { margin-bottom: 0.5px; }
+.tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+.prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+.two-col { column-count: 2; column-gap: 10px; }
+code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+th { background: #f3f4f6; font-weight: bold; }
+.diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+.diagram svg { max-width: 100%; }
+.diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+.section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+@media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+<h1>Module 4, Topic 7 — Planning & Reasoning</h1>
+
+<p class="section-intro">Planning lets agents decompose complex tasks into steps, execute them in order, and adapt when things go wrong. It adds 1-2 LLM calls overhead — only worth it for 3+ step tasks. Simple queries should bypass planning entirely via a complexity router. The core architecture is Plan → Execute → Replan, with a self-reflection variant for quality-sensitive outputs.</p>
+
+<p><b>Problem Statement:</b> Without planning, agents attempt everything in a single shot — works for simple queries but fails for multi-step problems requiring intermediate results, dependency ordering, or iterative refinement. Planning provides structure to multi-step reasoning but adds cost — the key is knowing when to plan vs when to skip.</p>
+
+<h2>Plan-and-Execute Architecture</h2>
+
+<div class="diagram">
+<svg width="650" height="160" viewBox="0 0 650 160">
+  <defs>
+    <marker id="arG1" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5" fill="#4F46E5"/></marker>
+  </defs>
+  <!-- User Query -->
+  <rect x="5" y="55" width="65" height="30" rx="4" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="37" y="73" text-anchor="middle" font-size="6.5" font-weight="bold">User Query</text>
+  <line x1="72" y1="70" x2="95" y2="70" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arG1)"/>
+  <!-- Complexity Router -->
+  <polygon points="130,70 145,55 160,70 145,85" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="145" y="73" text-anchor="middle" font-size="5">complex?</text>
+  <!-- Simple path -->
+  <line x1="145" y1="87" x2="145" y2="115" stroke="#22c55e" stroke-width="1.2" marker-end="url(#arG1)"/>
+  <text x="148" y="103" font-size="5" fill="#22c55e">simple</text>
+  <rect x="115" y="118" width="60" height="22" rx="3" fill="#dcfce7" stroke="#22c55e"/><text x="145" y="132" text-anchor="middle" font-size="5.5">Direct answer</text>
+  <!-- Complex path -->
+  <line x1="162" y1="70" x2="195" y2="70" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arG1)"/>
+  <text x="178" y="63" font-size="5" fill="#4F46E5">complex</text>
+  <!-- Planner -->
+  <rect x="200" y="45" width="90" height="50" rx="5" fill="#e0e7ff" stroke="#6366f1" stroke-width="2"/>
+  <text x="245" y="63" text-anchor="middle" font-size="7" font-weight="bold">PLANNER</text>
+  <text x="245" y="75" text-anchor="middle" font-size="5.5">Decompose into</text>
+  <text x="245" y="85" text-anchor="middle" font-size="5.5">2-5 ordered steps</text>
+  <line x1="292" y1="70" x2="320" y2="70" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arG1)"/>
+  <!-- Executor -->
+  <rect x="325" y="45" width="90" height="50" rx="5" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+  <text x="370" y="63" text-anchor="middle" font-size="7" font-weight="bold">EXECUTOR</text>
+  <text x="370" y="75" text-anchor="middle" font-size="5.5">Run current step</text>
+  <text x="370" y="85" text-anchor="middle" font-size="5.5">with tools</text>
+  <line x1="417" y1="70" x2="445" y2="70" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arG1)"/>
+  <!-- Decision -->
+  <polygon points="475,70 490,50 505,70 490,90" fill="#fce7f3" stroke="#ec4899" stroke-width="1.5"/>
+  <text x="490" y="73" text-anchor="middle" font-size="5">done?</text>
+  <!-- Loop back -->
+  <line x1="490" y1="50" x2="490" y2="30" stroke="#4F46E5" stroke-width="1.2"/>
+  <line x1="490" y1="30" x2="370" y2="30" stroke="#4F46E5" stroke-width="1.2" marker-end="url(#arG1)"/>
+  <text x="430" y="25" text-anchor="middle" font-size="5" fill="#4F46E5">next step</text>
+  <!-- Replanner -->
+  <line x1="507" y1="70" x2="535" y2="70" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arG1)"/>
+  <rect x="540" y="48" width="85" height="45" rx="5" fill="#f3e8ff" stroke="#a855f7" stroke-width="2"/>
+  <text x="582" y="64" text-anchor="middle" font-size="7" font-weight="bold">REPLANNER</text>
+  <text x="582" y="76" text-anchor="middle" font-size="5.5">Synthesize results</text>
+  <text x="582" y="87" text-anchor="middle" font-size="5.5">or adapt plan</text>
+  <!-- End -->
+  <line x1="627" y1="70" x2="640" y2="70" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arG1)"/>
+  <text x="648" y="74" font-size="6" font-weight="bold" fill="#dc2626">END</text>
+  <!-- Labels -->
+  <text x="370" y="115" text-anchor="middle" font-size="6" fill="#666">Planning adds 1-2 LLM calls overhead. Break-even: saves cost when it prevents wasted tool calls from wrong approaches.</text>
+  <text x="370" y="128" text-anchor="middle" font-size="6" fill="#666">Complexity router: skip planning for ~70-80% of queries that are answerable in 1 step.</text>
+  <text x="370" y="148" text-anchor="middle" font-size="6" fill="#999">5-step plan total: ~8-15 LLM calls (planner + N executors + synthesizer) = 4-15s, $0.05-0.20</text>
+</svg>
+<div class="diagram-caption">Plan-and-Execute with complexity router — simple queries bypass planning entirely</div>
+</div>
+
+<h2>Self-Reflection Loop</h2>
+
+<div class="diagram">
+<svg width="450" height="130" viewBox="0 0 450 130">
+  <defs>
+    <marker id="arG2" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5" fill="#4F46E5"/></marker>
+  </defs>
+  <rect x="30" y="35" width="85" height="40" rx="5" fill="#dcfce7" stroke="#22c55e" stroke-width="1.5"/>
+  <text x="72" y="52" text-anchor="middle" font-size="7" font-weight="bold">Generate</text>
+  <text x="72" y="64" text-anchor="middle" font-size="5.5">Produce draft</text>
+  <line x1="117" y1="55" x2="145" y2="55" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arG2)"/>
+  <rect x="150" y="35" width="85" height="40" rx="5" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5"/>
+  <text x="192" y="52" text-anchor="middle" font-size="7" font-weight="bold">Evaluate</text>
+  <text x="192" y="64" text-anchor="middle" font-size="5.5">Score 0.0-1.0</text>
+  <line x1="237" y1="55" x2="265" y2="55" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arG2)"/>
+  <polygon points="295,55 310,40 325,55 310,70" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="310" y="58" text-anchor="middle" font-size="5">≥0.8?</text>
+  <!-- Pass -->
+  <line x1="327" y1="55" x2="360" y2="55" stroke="#22c55e" stroke-width="1.5" marker-end="url(#arG2)"/>
+  <text x="343" y="48" font-size="5" fill="#22c55e">yes</text>
+  <rect x="365" y="42" width="55" height="25" rx="3" fill="#dcfce7" stroke="#22c55e" stroke-width="1.5"/><text x="392" y="58" text-anchor="middle" font-size="6" font-weight="bold">DONE</text>
+  <!-- Fail - loop -->
+  <line x1="310" y1="72" x2="310" y2="100" stroke="#dc2626" stroke-width="1.2"/>
+  <text x="320" y="88" font-size="5" fill="#dc2626">no (refine)</text>
+  <rect x="155" y="90" width="85" height="25" rx="3" fill="#f3e8ff" stroke="#a855f7"/><text x="197" y="106" text-anchor="middle" font-size="5.5">Refine with feedback</text>
+  <line x1="308" y1="102" x2="242" y2="102" stroke="#4F46E5" stroke-width="1" marker-end="url(#arG2)"/>
+  <path d="M155,102 L72,102 L72,77" fill="none" stroke="#4F46E5" stroke-width="1" stroke-dasharray="3" marker-end="url(#arG2)"/>
+  <!-- Label -->
+  <text x="225" y="125" text-anchor="middle" font-size="6" fill="#666">Hard cap: max 3 loops. Score threshold: 0.8. Use for: code gen, technical writing, high-value outputs.</text>
+</svg>
+<div class="diagram-caption">Self-reflection: Generate → Evaluate → Refine loop until quality threshold or max iterations</div>
+</div>
+
+<h2>Pattern Comparison</h2>
+
+<table>
+<tr><th>Pattern</th><th>How It Works</th><th>When to Use</th><th>Latency</th><th>Cost</th></tr>
+<tr><td>Direct execution</td><td>LLM answers in one shot</td><td>Simple factual, single-tool tasks</td><td>1 call</td><td>$</td></tr>
+<tr><td>Sequential plan</td><td>Plan → Execute step by step</td><td>Ordered 3-7 step tasks</td><td>N+2 calls</td><td>$$</td></tr>
+<tr><td>DAG plan</td><td>Parallel branches for independent tasks</td><td>Sub-tasks with no dependencies</td><td>Medium</td><td>$$</td></tr>
+<tr><td>Iterative refinement</td><td>Generate → Critique → Improve loop</td><td>Quality-sensitive outputs</td><td>2-5 loops</td><td>$$$</td></tr>
+<tr><td>Tree search</td><td>Explore multiple solution paths</td><td>Ambiguous problems</td><td>Very high</td><td>$$$$</td></tr>
+</table>
+
+<h2>When Planning Helps vs Hurts</h2>
+
+<table>
+<tr><th>Planning HELPS when:</th><th>Planning HURTS when:</th></tr>
+<tr><td>Task has 3+ dependent steps</td><td>Task is single-step (simple Q&A)</td></tr>
+<tr><td>Intermediate results feed later steps</td><td>Latency budget is tight (&lt;2s)</td></tr>
+<tr><td>Task might need adaptation mid-execution</td><td>Simple retrieval + generation suffices</td></tr>
+<tr><td>Wrong approach wastes many tool calls</td><td>Adding 1-2 LLM calls of overhead is unacceptable</td></tr>
+<tr><td>Multiple tools must be used in correct order</td><td>70-80% of queries are simple</td></tr>
+</table>
+
+<h2>Implementation Code</h2>
+
+<h3>Plan-and-Execute Agent</h3>
+<div class="prompt">from langgraph.graph import StateGraph, END
+from langchain_openai import ChatOpenAI
+from pydantic import BaseModel, Field
+
+class Plan(BaseModel):
+    steps: list[str] = Field(description="2-5 concrete steps")
+
+class PlanExecuteState(TypedDict):
+    messages: Annotated[list, add]
+    plan: list[str]
+    current_step: int
+    step_results: list[str]
+    final_answer: Optional[str]
+    iteration: int
+
+llm = ChatOpenAI(model="gpt-4o-mini")
+
+def planner_node(state: PlanExecuteState) -> dict:
+    planner = llm.with_structured_output(Plan)
+    response = planner.invoke([
+        SystemMessage(content="Break task into 2-5 concrete, actionable steps."),
+        HumanMessage(content=f"Plan: {state['messages'][0].content}")])
+    return {"plan": response.steps, "current_step": 0, "step_results": []}
+
+def executor_node(state: PlanExecuteState) -> dict:
+    step = state["plan"][state["current_step"]]
+    previous = "\n".join(f"Step {i+1}: {r}" for i, r in enumerate(state["step_results"]))
+    response = llm.invoke([
+        SystemMessage(content=f"Execute this step. Previous:\n{previous}"),
+        HumanMessage(content=f"Execute: {step}")])
+    return {"step_results": [response.content],
+            "current_step": state["current_step"] + 1,
+            "iteration": state.get("iteration", 0) + 1}
+
+def should_continue(state: PlanExecuteState) -> str:
+    if state.get("iteration", 0) >= 10: return "end"
+    if state["current_step"] >= len(state["plan"]): return "synthesize"
+    return "execute"
+
+graph = StateGraph(PlanExecuteState)
+graph.add_node("planner", planner_node)
+graph.add_node("executor", executor_node)
+graph.add_node("synthesize", synthesize_node)
+graph.set_entry_point("planner")
+graph.add_edge("planner", "executor")
+graph.add_conditional_edges("executor", should_continue,
+    {"execute": "executor", "synthesize": "synthesize", "end": END})
+graph.add_edge("synthesize", END)</div>
+
+<h3>Complexity Router (Skip Planning for Simple)</h3>
+<div class="prompt">def complexity_router(state: dict) -> str:
+    """Route simple queries directly, complex ones through planner."""
+    query = state["messages"][0].content
+    response = llm.invoke([
+        SystemMessage(content="Reply SIMPLE or COMPLEX. SIMPLE = answerable in 1 step."),
+        HumanMessage(content=query)])
+    return "direct" if "SIMPLE" in response.content else "planner"
+
+# In graph: entry → router → direct/planner
+graph.add_conditional_edges("router", complexity_router,
+    {"direct": "direct_answer", "planner": "planner"})</div>
+
+<h2>Failure Modes → Fixes</h2>
+
+<table>
+<tr><th>Failure Mode</th><th>Symptom</th><th>Prevention</th></tr>
+<tr><td>Over-planning</td><td>15-step plan for a 2-step task</td><td>Prompt: "2-5 steps maximum"</td></tr>
+<tr><td>Plan drift</td><td>Steps become irrelevant mid-execution</td><td>Replanner checks alignment with original goal</td></tr>
+<tr><td>Infinite refinement</td><td>Quality score never reaches threshold</td><td>Hard cap: max 3 loops</td></tr>
+<tr><td>Step failure</td><td>One step fails, breaks chain</td><td>Executor returns error, replanner adapts</td></tr>
+<tr><td>Circular reasoning</td><td>Agent plans to plan to plan</td><td>Detect "plan" in steps, force execution</td></tr>
+<tr><td>Router misclassification</td><td>Complex query sent to direct</td><td>Recoverable: fails → retry with planning</td></tr>
+</table>
+
+<h2>Cost & Latency Reference</h2>
+
+<table>
+<tr><th>Configuration</th><th>LLM Calls</th><th>Latency</th><th>Cost</th><th>When</th></tr>
+<tr><td>Direct (no planning)</td><td>1</td><td>1-2s</td><td>$0.005</td><td>Simple Q&A (70-80% of queries)</td></tr>
+<tr><td>Plan (3 steps)</td><td>5 (plan + 3 exec + synth)</td><td>5-8s</td><td>$0.03-0.05</td><td>Moderate multi-step</td></tr>
+<tr><td>Plan (5 steps)</td><td>8-10</td><td>8-15s</td><td>$0.05-0.15</td><td>Complex research</td></tr>
+<tr><td>Reflection (3 loops)</td><td>6-9</td><td>10-25s</td><td>$0.10-0.30</td><td>Quality-critical output</td></tr>
+<tr><td>Router overhead</td><td>+1</td><td>+0.5-1s</td><td>+$0.002</td><td>Every query (amortized savings)</td></tr>
+</table>
+
+<div class="tip">
+<b>Architecture Decision:</b> Use Plan-and-Execute only for tasks with 3+ dependent steps. Route simple queries directly. Planning adds 1-2 LLM calls overhead — pure waste for "What's the weather?" but essential for "Research X, compare Y, write report." A cheap complexity router saves planning overhead on 70-80% of queries. Break-even: planning saves cost when it prevents wasted tool calls from wrong approaches.<br/>
+<b>Next →</b> Topic 8: Agent Memory (maintaining context across turns and sessions)
+</div>
+
+</body>
+</html>

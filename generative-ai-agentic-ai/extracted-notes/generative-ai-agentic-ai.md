@@ -386,3 +386,5 @@ Available APIs, scripts, services.
 Safety and architectural constraints.
 
 >The winners in the AI era won't be the people who use AI the most—they'll be the people who use AI to amplify their own thinking rather than replace it.
+
+- harness engineering - using llm and building practicality (memory, observablity, tools agent loop guard rails, security, context management) around it like around engine we build car like body, gearbox, car cabing, etc.

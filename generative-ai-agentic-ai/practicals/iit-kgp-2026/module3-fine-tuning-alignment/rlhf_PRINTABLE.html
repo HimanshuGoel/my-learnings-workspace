@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>RLHF — Decision Guide</title>
+<style>
+  @page { margin: 0.5cm; size: A4; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+  h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+  h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+  h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+  ul { margin: 0 0 2px 12px; padding: 0; }
+  li { margin-bottom: 0.5px; }
+  .tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+  .prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+  .two-col { column-count: 2; column-gap: 10px; }
+  code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+  table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+  th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+  th { background: #f3f4f6; font-weight: bold; }
+  .diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+  .diagram svg { max-width: 100%; }
+  .diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+  .section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+  @media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+<h1>Module 3, Topic 6 — RLHF</h1>
+<p class="section-intro">RLHF (Reinforcement Learning from Human Feedback) is how models go from "competent text predictor" to "helpful assistant." It encodes human preferences into a reward signal, then optimizes the model to maximize that reward while staying close to SFT behavior. This is what made ChatGPT feel helpful rather than just capable. You need to understand it conceptually, but most practitioners will use DPO (simpler, cheaper) instead of implementing RLHF directly.</p>
+<p><b>Problem:</b> SFT teaches imitation (copy this output), but doesn't teach WHY one response is better than another. RLHF teaches the model to optimize for human preference — helpfulness, safety, quality — going beyond mere imitation to genuine alignment.</p>
+
+<h2>3-Stage Pipeline Architecture</h2>
+<div class="diagram">
+<svg width="470" height="140" viewBox="0 0 470 140">
+<defs><marker id="arrRH" markerWidth="5" markerHeight="4" refX="5" refY="2" orient="auto"><path d="M0,0 L5,2 L0,4 Z" fill="#4F46E5"/></marker></defs>
+<!-- Stage 1: SFT -->
+<rect x="5" y="10" width="130" height="60" rx="4" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/>
+<text x="70" y="25" text-anchor="middle" font-size="6pt" font-weight="bold" fill="#1e40af">Stage 1: SFT</text>
+<text x="70" y="37" text-anchor="middle" font-size="5pt">Base model + (prompt, ideal) pairs</text>
+<text x="70" y="47" text-anchor="middle" font-size="5pt">→ Model learns task format</text>
+<text x="70" y="60" text-anchor="middle" font-size="4.5pt" fill="#3b82f6">Output: SFT model (starting point)</text>
+<line x1="135" y1="40" x2="155" y2="40" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arrRH)"/>
+<!-- Stage 2: Reward Model -->
+<rect x="155" y="10" width="145" height="60" rx="4" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
+<text x="227" y="25" text-anchor="middle" font-size="6pt" font-weight="bold" fill="#92400e">Stage 2: Reward Model</text>
+<text x="227" y="37" text-anchor="middle" font-size="5pt">Humans rank response pairs</text>
+<text x="227" y="47" text-anchor="middle" font-size="5pt">→ Train model to predict "how good?"</text>
+<text x="227" y="60" text-anchor="middle" font-size="4.5pt" fill="#d97706">Output: Reward function (scorer)</text>
+<line x1="300" y1="40" x2="320" y2="40" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arrRH)"/>
+<!-- Stage 3: PPO -->
+<rect x="320" y="10" width="140" height="60" rx="4" fill="#dcfce7" stroke="#22c55e" stroke-width="1.5"/>
+<text x="390" y="25" text-anchor="middle" font-size="6pt" font-weight="bold" fill="#059669">Stage 3: PPO (RL)</text>
+<text x="390" y="37" text-anchor="middle" font-size="5pt">SFT model generates responses</text>
+<text x="390" y="47" text-anchor="middle" font-size="5pt">Reward model scores them</text>
+<text x="390" y="60" text-anchor="middle" font-size="4.5pt" fill="#059669">Output: Aligned model</text>
+<!-- PPO Loop detail -->
+<rect x="320" y="80" width="140" height="45" rx="3" fill="#f0fdf4" stroke="#86efac"/>
+<text x="390" y="93" text-anchor="middle" font-size="5pt">Generate → Score → Update weights</text>
+<text x="390" y="103" text-anchor="middle" font-size="5pt" fill="#ef4444">+ KL penalty (don't drift from SFT)</text>
+<text x="390" y="115" text-anchor="middle" font-size="5pt" fill="#666">Repeat × 1000-10000 steps</text>
+<path d="M 390 70 L 390 80" stroke="#22c55e" marker-end="url(#arrRH)"/>
+<!-- Analogy -->
+<rect x="5" y="80" width="290" height="45" rx="3" fill="#f8fafc" stroke="#cbd5e1"/>
+<text x="150" y="93" text-anchor="middle" font-size="5.5pt" font-weight="bold">Software Analogy</text>
+<text x="150" y="104" text-anchor="middle" font-size="5pt">SFT = giving agent a manual (copy format)</text>
+<text x="150" y="114" text-anchor="middle" font-size="5pt">Reward Model = hiring quality reviewer (rates 1-10)</text>
+<text x="150" y="124" text-anchor="middle" font-size="5pt">PPO = agent practices with continuous reviewer feedback</text>
+</svg>
+<div class="diagram-caption">RLHF 3-stage pipeline: SFT teaches format → Reward model encodes preferences → PPO optimizes for preference scores.</div>
+</div>
+
+<h2>Why RLHF > SFT Alone</h2>
+<table>
+<tr><th>Aspect</th><th>SFT Only</th><th>SFT + RLHF</th></tr>
+<tr><td>Learns from</td><td>Correct examples only</td><td>Preferences (this &gt; that)</td></tr>
+<tr><td>Quality ceiling</td><td>Average of your examples</td><td>Can exceed your examples</td></tr>
+<tr><td>Safety</td><td>Can produce unsafe text</td><td>Trained to avoid unsafe outputs</td></tr>
+<tr><td>Helpfulness</td><td>Follows instructions</td><td>Actively maximizes helpfulness</td></tr>
+<tr><td>Failure mode</td><td>Copies style, may miss intent</td><td>Optimizes for satisfaction</td></tr>
+</table>
+
+<h2>The KL Penalty — Critical Constraint</h2>
+<div class="prompt"># PPO optimization without KL penalty:
+#   Model finds "reward hacks" — outputs that score high but aren't actually good
+#   Example: repeating "I'm happy to help!" gets high reward score → model spams it
+
+# KL penalty constrains HOW MUCH the model can change from SFT:
+Loss = -reward + β × KL(policy || reference_model)
+
+# β = 0.1-0.3: Higher = more conservative (less change from SFT)
+# If model drifts too far → KL penalty dominates → pulls it back
+# Result: model improves within bounds of reasonable behavior</div>
+
+<h2>Reward Hacking — The Main Failure Mode</h2>
+<table>
+<tr><th>Hack Type</th><th>What Happens</th><th>Why It Scores High</th><th>Prevention</th></tr>
+<tr><td>Length gaming</td><td>Generates very long responses</td><td>Reward model biased toward length</td><td>Length-normalize rewards</td></tr>
+<tr><td>Repetition</td><td>Repeats high-scoring phrases</td><td>Exploits reward model weakness</td><td>Increase KL penalty</td></tr>
+<tr><td>Sycophancy</td><td>Always agrees with user</td><td>Agreement scored as "helpful"</td><td>Train reward model on disagreement examples</td></tr>
+<tr><td>Format gaming</td><td>Uses bullet points/bold excessively</td><td>Structured text scores higher</td><td>Diverse reward training data</td></tr>
+</table>
+
+<h2>Implementation — Reward Model Training</h2>
+<div class="prompt">from trl import RewardTrainer, RewardConfig
+from transformers import AutoModelForSequenceClassification
+
+reward_model = AutoModelForSequenceClassification.from_pretrained(
+    "meta-llama/Llama-3-8B-Instruct", num_labels=1  # scalar reward output
+)
+# Dataset: {"prompt": "...", "chosen": "better response", "rejected": "worse response"}
+reward_config = RewardConfig(output_dir="./reward-model", num_train_epochs=1,
+    per_device_train_batch_size=4, learning_rate=1e-5)
+reward_trainer = RewardTrainer(model=reward_model, args=reward_config,
+    train_dataset=preference_dataset["train"], eval_dataset=preference_dataset["val"])
+reward_trainer.train()</div>
+
+<h2>Implementation — PPO Training</h2>
+<div class="prompt">from trl import PPOTrainer, PPOConfig, AutoModelForCausalLMWithValueHead
+
+model = AutoModelForCausalLMWithValueHead.from_pretrained(sft_model_path)
+ppo_config = PPOConfig(learning_rate=1e-5, batch_size=16, mini_batch_size=4,
+    ppo_epochs=4, init_kl_coef=0.2, target_kl=6.0)
+ppo_trainer = PPOTrainer(model=model, config=ppo_config, tokenizer=tokenizer, dataset=prompts)
+
+for batch in ppo_trainer.dataloader:
+    responses = ppo_trainer.generate(batch["input_ids"])
+    rewards = reward_model(batch["input_ids"], responses)
+    stats = ppo_trainer.step(batch["input_ids"], responses, rewards)
+    # Monitor: reward ↑, KL stays bounded</div>
+
+<h2>Method Comparison — When to Use What</h2>
+<table>
+<tr><th>Method</th><th>When</th><th>Complexity</th><th>Data Needed</th><th>Cost</th></tr>
+<tr><td>SFT only</td><td>Format/style tasks</td><td>Low</td><td>100-1000 examples</td><td>$5-50</td></tr>
+<tr><td><b>RLHF</b></td><td>General helpfulness, safety at scale</td><td>Very High</td><td>10K+ comparisons</td><td>$5K-20K+</td></tr>
+<tr><td><b>DPO</b></td><td>Same goals as RLHF, simpler</td><td>Medium</td><td>1K+ pairs</td><td>$30-100</td></tr>
+<tr><td>RLAIF</td><td>Can't get human feedback</td><td>High</td><td>Auto-generated</td><td>$500-2000</td></tr>
+<tr><td>Constitutional AI</td><td>Safety without human labelers</td><td>High</td><td>Rules + AI eval</td><td>$500-2000</td></tr>
+</table>
+
+<h2>Configuration & Hyperparameters</h2>
+<table>
+<tr><th>Parameter</th><th>Typical Value</th><th>Effect</th></tr>
+<tr><td>KL coefficient</td><td>0.1-0.3</td><td>Higher = less change from SFT (conservative)</td></tr>
+<tr><td>Target KL</td><td>3-10</td><td>Adaptive KL penalty target</td></tr>
+<tr><td>PPO epochs</td><td>2-4</td><td>Updates per batch</td></tr>
+<tr><td>Reward model size</td><td>Same or smaller than policy</td><td>Larger = better signal</td></tr>
+<tr><td>Training steps</td><td>1000-10000</td><td>More = more aligned BUT reward hacking risk</td></tr>
+<tr><td>Generation temp</td><td>0.7-1.0</td><td>Diverse responses during training</td></tr>
+</table>
+
+<h2>Failure Modes → Fixes</h2>
+<table>
+<tr><th>Problem</th><th>Symptom</th><th>Fix</th></tr>
+<tr><td>Reward hacking</td><td>Exploits scoring (repeats phrases)</td><td>Increase KL penalty, improve reward model</td></tr>
+<tr><td>Mode collapse</td><td>Same response regardless of prompt</td><td>Reduce LR, increase KL penalty</td></tr>
+<tr><td>Reward model inaccurate</td><td>Optimizes for wrong thing</td><td>More/better preference data</td></tr>
+<tr><td>Training instability</td><td>Reward oscillates, no convergence</td><td>Reduce LR, smaller PPO epochs</td></tr>
+<tr><td>Catastrophic forgetting</td><td>Model loses capabilities</td><td>Higher KL penalty, mix in SFT data</td></tr>
+<tr><td>Too expensive</td><td>Can't afford 3 models + PPO</td><td>Use DPO instead (next topic!)</td></tr>
+</table>
+
+<h2>Cost Reference</h2>
+<table>
+<tr><th>Component</th><th>Resource</th><th>Cost</th></tr>
+<tr><td>SFT model training</td><td>1× A100 (4-8 hrs)</td><td>$15-30</td></tr>
+<tr><td>Reward model training</td><td>1× A100 (2-4 hrs)</td><td>$7-15</td></tr>
+<tr><td>PPO training</td><td>2× A100 (12-48 hrs)</td><td>$85-340</td></tr>
+<tr><td>Human annotations (10K pairs)</td><td>Contractors / Scale AI</td><td>$5,000-20,000</td></tr>
+<tr><td><b>Total realistic project</b></td><td>—</td><td><b>$5,000-20,000+</b></td></tr>
+</table>
+<div class="tip"><b>Key insight:</b> RLHF costs are justified only for production models serving millions of users (OpenAI, Anthropic, Google). For solo devs and most teams, DPO achieves 90%+ of the same results at 50-200× less cost.</div>
+
+<h2>Decision Checkpoint</h2>
+<div class="tip">
+☐ I understand the 3-stage pipeline (SFT → Reward Model → PPO)<br>
+☐ I understand WHY RLHF exists (preferences &gt; imitation for alignment)<br>
+☐ I understand the KL penalty (prevents drift from SFT, avoids reward hacking)<br>
+☐ I understand reward hacking is the main failure mode<br>
+☐ I recognize RLHF is overkill for my current needs (solo dev, learning)<br>
+☐ I'm ready to learn DPO as the practical alternative<br><br>
+<b>Next → DPO (same alignment goals, 10× simpler, 50-200× cheaper)</b>
+</div>
+
+</body>
+</html>

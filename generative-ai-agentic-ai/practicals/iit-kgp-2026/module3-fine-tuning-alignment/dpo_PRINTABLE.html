@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>DPO — Decision Guide</title>
+<style>
+  @page { margin: 0.5cm; size: A4; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+  h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+  h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+  h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+  ul { margin: 0 0 2px 12px; padding: 0; }
+  li { margin-bottom: 0.5px; }
+  .tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+  .prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+  .two-col { column-count: 2; column-gap: 10px; }
+  code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+  table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+  th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+  th { background: #f3f4f6; font-weight: bold; }
+  .diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+  .diagram svg { max-width: 100%; }
+  .diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+  .section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+  @media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+<h1>Module 3, Topic 7 — DPO (Direct Preference Optimization)</h1>
+<p class="section-intro">DPO achieves the same alignment goals as RLHF but reformulates the problem as supervised learning on preference pairs — no reward model, no RL loop, no training instability. Same results, 10× simpler, 50-200× cheaper. This is what you'll actually implement when you need alignment. The key insight: the RLHF reward function can be expressed implicitly through the model's own probabilities, eliminating the need for a separate reward model entirely.</p>
+<p><b>Problem:</b> RLHF is complex (3 models, RL instability, $5K-20K). DPO reformulates alignment as a supervised loss: directly train the model to prefer good responses over bad ones. Same learning outcome, dramatically simpler pipeline.</p>
+
+<h2>DPO vs RLHF Architecture Comparison</h2>
+<div class="diagram">
+<svg width="470" height="150" viewBox="0 0 470 150">
+<defs><marker id="arrDPO" markerWidth="5" markerHeight="4" refX="5" refY="2" orient="auto"><path d="M0,0 L5,2 L0,4 Z" fill="#4F46E5"/></marker></defs>
+<!-- RLHF side -->
+<rect x="5" y="5" width="220" height="140" rx="4" fill="#fef2f2" stroke="#ef4444" stroke-dasharray="3"/>
+<text x="115" y="18" text-anchor="middle" font-size="6pt" font-weight="bold" fill="#ef4444">RLHF (Complex)</text>
+<rect x="15" y="25" width="60" height="22" rx="2" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="45" y="39" text-anchor="middle" font-size="5pt">SFT Model</text>
+<line x1="75" y1="36" x2="85" y2="36" stroke="#4F46E5" marker-end="url(#arrDPO)"/>
+<rect x="85" y="25" width="65" height="22" rx="2" fill="#fef3c7" stroke="#f59e0b"/>
+<text x="117" y="39" text-anchor="middle" font-size="5pt">Reward Model</text>
+<line x1="150" y1="36" x2="160" y2="36" stroke="#4F46E5" marker-end="url(#arrDPO)"/>
+<rect x="160" y="25" width="55" height="22" rx="2" fill="#dcfce7" stroke="#22c55e"/>
+<text x="187" y="39" text-anchor="middle" font-size="5pt">PPO Loop</text>
+<!-- RLHF details -->
+<text x="115" y="60" text-anchor="middle" font-size="5pt" fill="#666">• 3 stages, 3 models in memory</text>
+<text x="115" y="70" text-anchor="middle" font-size="5pt" fill="#666">• RL training instability</text>
+<text x="115" y="80" text-anchor="middle" font-size="5pt" fill="#666">• 10K+ preference pairs needed</text>
+<text x="115" y="90" text-anchor="middle" font-size="5pt" fill="#666">• Many hyperparams (KL, PPO epochs...)</text>
+<text x="115" y="100" text-anchor="middle" font-size="5pt" fill="#ef4444" font-weight="bold">Cost: $5,000 - $20,000+</text>
+<text x="115" y="112" text-anchor="middle" font-size="5pt" fill="#ef4444">❌ Not practical for solo devs</text>
+<!-- Eliminated arrow -->
+<line x1="230" y1="75" x2="245" y2="75" stroke="#4F46E5" stroke-width="2" marker-end="url(#arrDPO)"/>
+<text x="237" y="70" text-anchor="middle" font-size="5pt" fill="#4F46E5" font-weight="bold">vs</text>
+<!-- DPO side -->
+<rect x="245" y="5" width="220" height="140" rx="4" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.5"/>
+<text x="355" y="18" text-anchor="middle" font-size="6pt" font-weight="bold" fill="#059669">DPO (Simple)</text>
+<rect x="265" y="25" width="60" height="22" rx="2" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="295" y="39" text-anchor="middle" font-size="5pt">SFT Model</text>
+<line x1="325" y1="36" x2="340" y2="36" stroke="#22c55e" stroke-width="1.5" marker-end="url(#arrDPO)"/>
+<rect x="340" y="25" width="115" height="22" rx="2" fill="#dcfce7" stroke="#22c55e" stroke-width="1.5"/>
+<text x="397" y="36" text-anchor="middle" font-size="5pt" font-weight="bold">DPO Loss (supervised)</text>
+<!-- DPO details -->
+<text x="355" y="60" text-anchor="middle" font-size="5pt" fill="#666">• 2 stages only (SFT → DPO)</text>
+<text x="355" y="70" text-anchor="middle" font-size="5pt" fill="#666">• Stable supervised training</text>
+<text x="355" y="80" text-anchor="middle" font-size="5pt" fill="#666">• 500+ preference pairs enough</text>
+<text x="355" y="90" text-anchor="middle" font-size="5pt" fill="#666">• Few hyperparams (β, LR)</text>
+<text x="355" y="100" text-anchor="middle" font-size="5pt" fill="#059669" font-weight="bold">Cost: $30 - $100 total</text>
+<text x="355" y="112" text-anchor="middle" font-size="5pt" fill="#059669">✓ Practical for everyone</text>
+<!-- Eliminated components -->
+<text x="355" y="128" text-anchor="middle" font-size="5pt" fill="#059669">Eliminated: reward model, PPO, RL instability</text>
+<text x="115" y="135" text-anchor="middle" font-size="5pt" fill="#ef4444" font-style="italic">50-200× more expensive for similar results</text>
+</svg>
+<div class="diagram-caption">DPO eliminates the reward model and RL loop entirely. Same alignment quality, dramatically simpler and cheaper.</div>
+</div>
+
+<h2>The DPO Loss — Intuition</h2>
+<div class="prompt"># For each training example (prompt, chosen, rejected):
+# DPO pushes model to:
+#   INCREASE probability of generating the chosen response
+#   DECREASE probability of generating the rejected response
+#   CONSTRAINED by: don't change too much from reference (β parameter)
+
+Loss = -log(σ(β × (log_prob_chosen - log_prob_rejected)))
+
+# β controls deviation from reference model (same role as KL in RLHF)
+# With LoRA: base model IS the reference (frozen) → natural constraint!
+</div>
+
+<h2>DPO vs RLHF — Detailed Comparison</h2>
+<table>
+<tr><th>Aspect</th><th>RLHF</th><th>DPO</th></tr>
+<tr><td>Components needed</td><td>SFT + Reward model + PPO trainer</td><td>SFT model only</td></tr>
+<tr><td>Training stages</td><td>3 (SFT → RM → PPO)</td><td>2 (SFT → DPO)</td></tr>
+<tr><td>Stability</td><td>Unstable (RL dynamics)</td><td>Stable (supervised learning)</td></tr>
+<tr><td>Memory</td><td>2-3 models simultaneously</td><td>2 models (policy + reference)</td></tr>
+<tr><td>Hyperparameter sensitivity</td><td>Very sensitive (KL, PPO epochs...)</td><td>Few params (β, LR)</td></tr>
+<tr><td>Data needed</td><td>10K+ preference pairs + prompts</td><td>500-5000 preference pairs</td></tr>
+<tr><td>Quality</td><td>Gold standard (proven at scale)</td><td>Comparable (sometimes better)</td></tr>
+<tr><td>Cost</td><td>$5K-20K+</td><td>$30-100</td></tr>
+<tr><td>Practical for solo dev?</td><td>No</td><td><b>Yes</b></td></tr>
+</table>
+
+<h2>Implementation — DPO with TRL</h2>
+<div class="prompt">from trl import DPOTrainer, DPOConfig
+from peft import LoraConfig
+
+model = AutoModelForCausalLM.from_pretrained("./sft-model", torch_dtype=torch.bfloat16)
+ref_model = AutoModelForCausalLM.from_pretrained("./sft-model", torch_dtype=torch.bfloat16)
+
+peft_config = LoraConfig(r=16, lora_alpha=32, lora_dropout=0.05, target_modules="all-linear")
+
+dpo_config = DPOConfig(
+    output_dir="./dpo-output",
+    num_train_epochs=1,              # DPO converges fast (1-2 epochs)
+    per_device_train_batch_size=2,
+    gradient_accumulation_steps=8,
+    learning_rate=5e-7,              # VERY low LR (critical for DPO!)
+    beta=0.1,                        # KL constraint strength
+    max_length=1024, max_prompt_length=512, bf16=True,
+)
+
+trainer = DPOTrainer(model=model, ref_model=ref_model, args=dpo_config,
+    train_dataset=dataset["train"], eval_dataset=dataset["val"],
+    tokenizer=tokenizer, peft_config=peft_config)
+trainer.train()</div>
+
+<h2>Memory-Efficient DPO (LoRA = Reference)</h2>
+<div class="prompt"># With LoRA, base model IS the reference (frozen weights)
+# No need to load a separate ref_model → saves 50% memory!
+dpo_config = DPOConfig(..., ref_model=None)  # Implicit reference via LoRA base
+
+# Why this works: LoRA keeps base frozen, only adapter changes
+# The frozen base naturally provides the KL constraint
+# This is the RECOMMENDED approach for most practitioners</div>
+
+<h2>Preference Data Format & Generation</h2>
+<div class="prompt"># Required format: {"prompt": "...", "chosen": "better", "rejected": "worse"}
+# Generating pairs with GPT-4o as judge:
+def generate_preference_pair(prompt, sft_model):
+    resp_a = sft_model.generate(prompt, temperature=0.7)
+    resp_b = sft_model.generate(prompt, temperature=0.9)
+    judgment = gpt4o_judge(prompt, resp_a, resp_b)  # "A" or "B"
+    if judgment == "A":
+        return {"prompt": prompt, "chosen": resp_a, "rejected": resp_b}
+    return {"prompt": prompt, "chosen": resp_b, "rejected": resp_a}
+
+# Existing datasets: UltraFeedback (64K), HH-RLHF (170K), Orca DPO (12K)</div>
+
+<h2>β (Beta) Parameter — The Key Knob</h2>
+<table>
+<tr><th>β Value</th><th>Behavior</th><th>When to Use</th></tr>
+<tr><td>0.05</td><td>Aggressive — model changes a lot</td><td>Strong alignment signal, diverse data</td></tr>
+<tr><td><b>0.1</b></td><td><b>Standard default — good balance</b></td><td><b>Start here for most cases</b></td></tr>
+<tr><td>0.2</td><td>Conservative — small changes</td><td>Want subtle improvement only</td></tr>
+<tr><td>0.5</td><td>Very conservative — barely changes</td><td>Worried about regression</td></tr>
+</table>
+<div class="tip"><b>β tuning:</b> If model degrades general capabilities → increase β (more conservative). If alignment is too weak/no visible change → decrease β (allow more change).</div>
+
+<h2>Configuration & Hyperparameters</h2>
+<table>
+<tr><th>Parameter</th><th>Default</th><th>Range</th><th>Effect</th></tr>
+<tr><td>Beta (β)</td><td>0.1</td><td>0.05-0.5</td><td>Constraint strength (lower = more change)</td></tr>
+<tr><td>Learning rate</td><td>5e-7</td><td>1e-7 – 5e-6</td><td>Much lower than SFT! DPO is very sensitive</td></tr>
+<tr><td>Epochs</td><td>1</td><td>1-3</td><td>Converges fast. More = overfitting risk</td></tr>
+<tr><td>Max length</td><td>1024</td><td>512-2048</td><td>Must fit chosen + rejected + prompt</td></tr>
+<tr><td>Batch size</td><td>2-4</td><td>2-8</td><td>Small + grad accumulation</td></tr>
+<tr><td>LoRA rank</td><td>16</td><td>8-64</td><td>Same as SFT LoRA guidance</td></tr>
+<tr><td>Loss type</td><td>sigmoid</td><td>sigmoid/hinge/ipo</td><td>Sigmoid is standard DPO</td></tr>
+</table>
+
+<h2>Dataset Requirements</h2>
+<table>
+<tr><th>Aspect</th><th>Minimum</th><th>Recommended</th><th>Notes</th></tr>
+<tr><td>Preference pairs</td><td>500</td><td>2000-5000</td><td>More diversity = better generalization</td></tr>
+<tr><td>Judgment quality</td><td>Consistent</td><td>Expert or GPT-4o judged</td><td>Noisy labels = noisy alignment</td></tr>
+<tr><td>Prompt diversity</td><td>Cover use cases</td><td>80%+ unique prompts</td><td>Prevents overfitting to prompt styles</td></tr>
+<tr><td>Chosen/rejected gap</td><td>Clear difference</td><td>Obviously better response</td><td>Subtle diffs are hard to learn</td></tr>
+</table>
+
+<h2>Failure Modes → Fixes</h2>
+<table>
+<tr><th>Problem</th><th>Symptom</th><th>Fix</th></tr>
+<tr><td>LR too high</td><td>Loss spikes, catastrophic degradation</td><td>Reduce by 5-10× (DPO needs very low LR)</td></tr>
+<tr><td>β too low</td><td>Model forgets general capabilities</td><td>Increase β (more conservative)</td></tr>
+<tr><td>β too high</td><td>No alignment improvement visible</td><td>Decrease β (allow more change)</td></tr>
+<tr><td>Noisy preference labels</td><td>Inconsistent preferences learned</td><td>Clean data, stronger judge (GPT-4o)</td></tr>
+<tr><td>Chosen/rejected too similar</td><td>Can't distinguish preference signal</td><td>Use examples with clear quality gaps</td></tr>
+<tr><td>Overfitting (>1 epoch)</td><td>Perfect on train, bad on new prompts</td><td>Stop at 1 epoch, more diverse data</td></tr>
+<tr><td>Length bias</td><td>Learns to prefer longer/shorter</td><td>Ensure similar lengths in pairs</td></tr>
+</table>
+
+<h2>Cost Reference</h2>
+<table>
+<tr><th>Component</th><th>Resource</th><th>Cost</th><th>Time</th></tr>
+<tr><td>DPO with LoRA on 8B</td><td>1× A100 40GB</td><td>$7-20</td><td>2-6 hrs</td></tr>
+<tr><td>DPO with LoRA on 70B</td><td>1× A100 80GB (QLoRA)</td><td>$20-60</td><td>6-18 hrs</td></tr>
+<tr><td>Preference data (GPT-4o, 2K pairs)</td><td>API calls</td><td>$20-50</td><td>2-4 hrs</td></tr>
+<tr><td><b>Total DPO project</b></td><td>—</td><td><b>$30-100</b></td><td><b>1-2 days</b></td></tr>
+</table>
+<div class="tip"><b>Compare to RLHF:</b> $5K-20K+ → DPO is 50-200× cheaper for similar alignment results. This is what you should implement.</div>
+
+<h2>Decision Checkpoint</h2>
+<div class="tip">
+☐ I have 500+ preference pairs (or can generate them with GPT-4o)<br>
+☐ My pairs have clear quality differences (not subtle)<br>
+☐ I understand β controls how much the model can change<br>
+☐ DPO learning rate is VERY low (5e-7 range, not 2e-4!)<br>
+☐ Using LoRA + DPO for memory efficiency (base = reference)<br>
+☐ Starting with 1 epoch (DPO converges fast)<br>
+☐ I have evaluation plan before training<br><br>
+<b>Next → Evaluating Fine-Tuned Models (did the investment actually pay off?)</b>
+</div>
+
+</body>
+</html>

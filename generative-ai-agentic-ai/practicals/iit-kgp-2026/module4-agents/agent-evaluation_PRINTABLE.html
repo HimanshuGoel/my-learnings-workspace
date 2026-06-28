@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Module 4, Topic 9 — Agent Evaluation</title>
+<style>
+@page { margin: 0.5cm; size: A4; }
+body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+ul { margin: 0 0 2px 12px; padding: 0; }
+li { margin-bottom: 0.5px; }
+.tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+.prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+.two-col { column-count: 2; column-gap: 10px; }
+code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+th { background: #f3f4f6; font-weight: bold; }
+.diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+.diagram svg { max-width: 100%; }
+.diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+.section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+@media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+<h1>Module 4, Topic 9 — Agent Evaluation</h1>
+
+<p class="section-intro">Agents are non-deterministic — can't test like functions. Must evaluate TRAJECTORIES (sequence of decisions and actions) not just final output. Key metrics: task completion, tool accuracy, step efficiency, reasoning quality. Run tests multiple times to detect flaky behavior. LLM-as-judge handles subjective quality that rules can't capture.</p>
+
+<p><b>Problem Statement:</b> A function test says "given input X, output should be Y." Agent tests are harder: the agent might take different paths each run but still reach the right answer. We need to evaluate not just WHAT it produces but HOW it gets there — detecting loops, wrong tool choices, and inefficiency alongside incorrect answers.</p>
+
+<h2>Evaluation Architecture</h2>
+
+<div class="diagram">
+<svg width="680" height="165" viewBox="0 0 680 165">
+  <defs>
+    <marker id="arJ" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5" fill="#4F46E5"/></marker>
+  </defs>
+  <!-- Test Case -->
+  <rect x="5" y="25" width="110" height="80" rx="4" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="60" y="40" text-anchor="middle" font-size="7" font-weight="bold">TEST CASE</text>
+  <text x="15" y="54" font-size="5.5">• query: "What is 15% of 200?"</text>
+  <text x="15" y="65" font-size="5.5">• expected_output: ["30"]</text>
+  <text x="15" y="76" font-size="5.5">• expected_tools: ["calculate"]</text>
+  <text x="15" y="87" font-size="5.5">• max_steps: 3</text>
+  <text x="15" y="98" font-size="5.5">• forbidden_tools: ["search"]</text>
+  <line x1="118" y1="65" x2="145" y2="65" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arJ)"/>
+  <!-- Agent Under Test -->
+  <rect x="150" y="30" width="110" height="70" rx="4" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="205" y="46" text-anchor="middle" font-size="7" font-weight="bold">AGENT</text>
+  <text x="205" y="58" text-anchor="middle" font-size="5.5">Runs the query</text>
+  <text x="205" y="70" text-anchor="middle" font-size="5.5">Returns:</text>
+  <text x="205" y="81" text-anchor="middle" font-size="5.5">• trajectory (steps)</text>
+  <text x="205" y="92" text-anchor="middle" font-size="5.5">• final_output</text>
+  <line x1="263" y1="65" x2="290" y2="65" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arJ)"/>
+  <!-- Evaluators -->
+  <rect x="295" y="15" width="175" height="110" rx="4" fill="#f3e8ff" stroke="#a855f7" stroke-width="1.5"/>
+  <text x="382" y="30" text-anchor="middle" font-size="7" font-weight="bold">EVALUATORS</text>
+  <rect x="305" y="36" width="150" height="16" rx="2" fill="#dcfce7" stroke="#22c55e"/><text x="380" y="47" text-anchor="middle" font-size="5.5">Output correct? (contains expected)</text>
+  <rect x="305" y="55" width="150" height="16" rx="2" fill="#dbeafe" stroke="#3b82f6"/><text x="380" y="66" text-anchor="middle" font-size="5.5">Tools correct? (used expected tools)</text>
+  <rect x="305" y="74" width="150" height="16" rx="2" fill="#fef3c7" stroke="#f59e0b"/><text x="380" y="85" text-anchor="middle" font-size="5.5">Steps ≤ budget? (efficiency)</text>
+  <rect x="305" y="93" width="150" height="16" rx="2" fill="#fce7f3" stroke="#ec4899"/><text x="380" y="104" text-anchor="middle" font-size="5.5">LLM judge score? (reasoning quality)</text>
+  <line x1="473" y1="65" x2="500" y2="65" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arJ)"/>
+  <!-- Metrics -->
+  <rect x="505" y="25" width="165" height="80" rx="4" fill="#dcfce7" stroke="#22c55e" stroke-width="1.5"/>
+  <text x="587" y="40" text-anchor="middle" font-size="7" font-weight="bold">METRICS</text>
+  <text x="515" y="54" font-size="5.5">• pass_rate: 85% (5 runs × 50 cases)</text>
+  <text x="515" y="65" font-size="5.5">• flaky_rate: 10% (passes sometimes)</text>
+  <text x="515" y="76" font-size="5.5">• avg_steps: 2.3 (efficiency)</text>
+  <text x="515" y="87" font-size="5.5">• avg_cost: $0.02/query</text>
+  <text x="515" y="98" font-size="5.5">• judge_score: 0.82 avg</text>
+  <!-- Bottom note -->
+  <text x="340" y="140" text-anchor="middle" font-size="6" fill="#666">Key difference from function testing: run each test 3-5× to detect non-determinism. Flaky &gt; 0% and &lt; 100% = unreliable.</text>
+  <text x="340" y="153" text-anchor="middle" font-size="6" fill="#666">Trajectory evaluation catches: loops, wrong tools, unnecessary steps — even when final answer is correct.</text>
+</svg>
+<div class="diagram-caption">Agent evaluation pipeline: Test Case → Agent → Multiple Evaluators → Aggregated Metrics</div>
+</div>
+
+<h2>Trajectory vs Output-Only Evaluation</h2>
+
+<div class="diagram">
+<svg width="600" height="120" viewBox="0 0 600 120">
+  <!-- Output-only -->
+  <rect x="5" y="5" width="280" height="105" rx="4" fill="#fee2e2" stroke="#dc2626" stroke-width="1"/>
+  <text x="145" y="20" text-anchor="middle" font-size="7" font-weight="bold" fill="#dc2626">Output-Only Evaluation (Insufficient)</text>
+  <text x="15" y="35" font-size="6">Input: "What is 2+2?"</text>
+  <text x="15" y="47" font-size="6">Output: "4" ✓ Correct!</text>
+  <text x="15" y="62" font-size="6" fill="#dc2626">But MISSES:</text>
+  <text x="15" y="74" font-size="6">• Agent called search_web instead of calculate</text>
+  <text x="15" y="86" font-size="6">• Took 8 steps for a 1-step task</text>
+  <text x="15" y="98" font-size="6">• Cost $0.10 instead of $0.01</text>
+  <!-- Trajectory -->
+  <rect x="295" y="5" width="300" height="105" rx="4" fill="#dcfce7" stroke="#22c55e" stroke-width="1.5"/>
+  <text x="445" y="20" text-anchor="middle" font-size="7" font-weight="bold" fill="#22c55e">Trajectory Evaluation (Comprehensive)</text>
+  <text x="305" y="35" font-size="6">Input: "What is 2+2?"</text>
+  <text x="305" y="47" font-size="6">Step 1: [agent] tool_call: calculate("2+2") ✓</text>
+  <text x="305" y="59" font-size="6">Step 2: [tools] result: "4" ✓</text>
+  <text x="305" y="71" font-size="6">Step 3: [agent] response: "2+2 = 4" ✓</text>
+  <text x="305" y="86" font-size="6" fill="#22c55e">✓ Output correct | ✓ Right tool | ✓ 3 steps (efficient)</text>
+  <text x="305" y="98" font-size="6" fill="#22c55e">✓ No forbidden tools | ✓ Cost $0.01</text>
+</svg>
+<div class="diagram-caption">Trajectory eval catches inefficiency and wrong paths even when the final answer happens to be correct</div>
+</div>
+
+<h2>Evaluation Pattern Reference</h2>
+
+<table>
+<tr><th>Pattern</th><th>What It Checks</th><th>Complexity</th><th>When to Use</th><th>Cost</th></tr>
+<tr><td>Output-only eval</td><td>Final answer matches expected</td><td>Low</td><td>Simple Q&A, factual queries</td><td>Free</td></tr>
+<tr><td>Trajectory matching</td><td>Steps match reference path</td><td>Medium</td><td>Workflow agents with known-good paths</td><td>Free</td></tr>
+<tr><td>Step budget</td><td>Completed in ≤ N steps</td><td>Low</td><td>Cost-sensitive, efficiency testing</td><td>Free</td></tr>
+<tr><td>Tool accuracy</td><td>Correct tools with correct args</td><td>Medium</td><td>Tool-heavy agents, API orchestrators</td><td>Free</td></tr>
+<tr><td>LLM-as-judge</td><td>Quality score from another LLM</td><td>High</td><td>Complex reasoning, subjective output</td><td>~$0.025/judgment</td></tr>
+<tr><td>Regression suite</td><td>Same tests after every change</td><td>Medium</td><td>CI/CD, prompt changes, model swaps</td><td>Suite cost × frequency</td></tr>
+</table>
+
+<h2>Implementation Code</h2>
+
+<h3>Trajectory Capture</h3>
+<div class="prompt">@dataclass
+class AgentTrajectory:
+    query: str
+    steps: list[TrajectoryStep] = field(default_factory=list)
+    final_output: str = ""
+    tools_called: list[str] = field(default_factory=list)
+    total_time_ms: float = 0
+
+    @property
+    def step_count(self) -> int:
+        return len(self.steps)
+
+class TrajectoryCapture:
+    def __init__(self, agent):
+        self.agent = agent
+
+    def invoke_with_trace(self, query: str) -> AgentTrajectory:
+        trajectory = AgentTrajectory(query=query)
+        start = datetime.now()
+        for event in self.agent.stream({"messages": [HumanMessage(query)]}):
+            for node_name, output in event.items():
+                trajectory.steps.append(TrajectoryStep(node=node_name, ...))
+                # Track tool calls
+                for msg in output.get("messages", []):
+                    if hasattr(msg, "tool_calls") and msg.tool_calls:
+                        trajectory.tools_called.append(msg.tool_calls[0]["name"])
+        trajectory.total_time_ms = (datetime.now() - start).total_seconds() * 1000
+        return trajectory</div>
+
+<h3>Evaluation Harness</h3>
+<div class="prompt">@dataclass
+class TestCase:
+    query: str
+    expected_output_contains: list[str]
+    expected_tools: list[str] = None
+    forbidden_tools: list[str] = None
+    max_steps: int = 10
+
+def evaluate_trajectory(traj: AgentTrajectory, tc: TestCase) -> EvalScore:
+    # Output correctness
+    output_ok = all(exp.lower() in traj.final_output.lower()
+                    for exp in tc.expected_output_contains)
+    # Tool accuracy
+    tools_ok = (all(t in traj.tools_called for t in (tc.expected_tools or [])) and
+                not any(t in traj.tools_called for t in (tc.forbidden_tools or [])))
+    # Step budget
+    budget_ok = traj.step_count <= tc.max_steps
+    return EvalScore(output_ok, tools_ok, budget_ok)</div>
+
+<h3>Regression Suite (Run Multiple Times)</h3>
+<div class="prompt">class AgentTestSuite:
+    def run(self, test_cases: list[TestCase], runs_per_case: int = 5) -> dict:
+        summary = {"total": 0, "passed": 0, "failed": 0, "flaky": 0}
+        for tc in test_cases:
+            pass_count = sum(1 for _ in range(runs_per_case)
+                if evaluate_trajectory(capture.invoke_with_trace(tc.query), tc).all_pass)
+            summary["total"] += 1
+            if pass_count == runs_per_case: summary["passed"] += 1
+            elif pass_count == 0: summary["failed"] += 1
+            else: summary["flaky"] += 1  # Non-determinism detected!
+        return summary
+
+# Example: {"total": 50, "passed": 42, "failed": 3, "flaky": 5}</div>
+
+<h3>LLM-as-Judge</h3>
+<div class="prompt">class TrajectoryJudgment(BaseModel):
+    score: float = Field(ge=0.0, le=1.0)
+    reasoning: str
+    issues: list[str] = Field(default_factory=list)
+
+judge_llm = ChatOpenAI(model="gpt-4o").with_structured_output(TrajectoryJudgment)
+
+def llm_judge(trajectory: AgentTrajectory) -> TrajectoryJudgment:
+    steps_text = "\n".join(f"Step {i+1}: {s.action}" for i, s in enumerate(trajectory.steps))
+    return judge_llm.invoke([
+        SystemMessage(content="Rate 0.0-1.0. Consider: logical path, no wasted steps, correct."),
+        HumanMessage(content=f"Query: {trajectory.query}\nSteps:\n{steps_text}\nOutput: {trajectory.final_output}")])</div>
+
+<h2>Failure Modes → Fixes</h2>
+
+<table>
+<tr><th>Failure Mode</th><th>Symptom</th><th>Prevention</th></tr>
+<tr><td>Non-determinism masks bugs</td><td>Passes 3/5 times</td><td>Run 5-10×, flag flaky (&gt;0% and &lt;100%)</td></tr>
+<tr><td>Judge too strict</td><td>Penalizes valid alternative paths</td><td>Judge outcome, not specific path style</td></tr>
+<tr><td>Reference too rigid</td><td>Test fails for valid different approach</td><td>Allow multiple valid trajectories</td></tr>
+<tr><td>Test cost explosion</td><td>50 cases × 5 runs × $0.01 = $2.50/run</td><td>Use cheap model for eval, cache deterministic parts</td></tr>
+<tr><td>Stale expectations</td><td>Tests fail after valid agent improvement</td><td>Review tests when changing prompts/model</td></tr>
+<tr><td>False confidence</td><td>All tests pass but real users fail</td><td>Add tests from actual failure cases in production</td></tr>
+</table>
+
+<h2>Monitoring & Production Eval</h2>
+
+<table>
+<tr><th>Metric</th><th>What to Track</th><th>Alert Threshold</th></tr>
+<tr><td>Step count (p50, p95)</td><td>Efficiency regressions</td><td>p95 &gt; 2× baseline</td></tr>
+<tr><td>Step-limit hit rate</td><td>Agent struggling</td><td>&gt; 5% of queries</td></tr>
+<tr><td>Tool error rate</td><td>Tool reliability</td><td>&gt; 2% per tool</td></tr>
+<tr><td>Latency p95</td><td>Planning explosions</td><td>&gt; 30s</td></tr>
+<tr><td>User feedback</td><td>Real-world quality signal</td><td>&lt; 70% positive</td></tr>
+<tr><td>Fallback trigger rate</td><td>Agent reliability</td><td>&gt; 10%</td></tr>
+</table>
+
+<h2>Cost of Evaluation</h2>
+
+<table>
+<tr><th>Scope</th><th>Cases × Runs</th><th>Cost</th><th>Frequency</th></tr>
+<tr><td>Smoke test</td><td>5 × 1</td><td>~$0.05</td><td>Every deployment</td></tr>
+<tr><td>Regression suite</td><td>50 × 3</td><td>~$1.50</td><td>Weekly / major changes</td></tr>
+<tr><td>Full suite + judge</td><td>50 × 5 + judge</td><td>~$3.75</td><td>Before releases</td></tr>
+<tr><td>Production monitoring</td><td>Continuous sampling</td><td>~$5/day at scale</td><td>Always on</td></tr>
+</table>
+
+<div class="tip">
+<b>Architecture Decision:</b> Evaluate on trajectories (not just output) using deterministic checks (tools, budget) + LLM-as-judge (reasoning quality). Output-only misses efficiency problems. Tool-only misses creative solutions. LLM-as-judge handles subjective quality. The combination gives confidence across all dimensions. Trade-off: LLM-as-judge is expensive and non-deterministic — use sparingly (weekly), calibrate with human scores.<br/>
+<b>Next →</b> Topic 10: Production Agents (deploying, guardrails, graceful degradation)
+</div>
+
+</body>
+</html>

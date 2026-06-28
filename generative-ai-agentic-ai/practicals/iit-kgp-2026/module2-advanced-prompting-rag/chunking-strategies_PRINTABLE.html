@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Chunking Strategies — Practitioner's Playbook</title>
+<style>
+  @page { margin: 0.5cm; size: A4; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+  h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+  h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+  h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+  ul { margin: 0 0 2px 12px; padding: 0; }
+  li { margin-bottom: 0.5px; }
+  .tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+  .prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+  .two-col { column-count: 2; column-gap: 10px; }
+  code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+  table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+  th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+  th { background: #f3f4f6; font-weight: bold; }
+  .diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+  .diagram svg { max-width: 100%; }
+  .diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+  .section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+  @media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+<h1>Module 2, Topic 2 — Chunking Strategies</h1>
+<p class="section-intro">Chunking is how you split documents into pieces before embedding them. Each chunk becomes one vector in your store — and one potential retrieval result. Too large and retrieval is noisy; too small and context is incomplete. The chunking strategy directly determines what the LLM sees as "context," making it the foundation layer of RAG quality. Module 1 introduced chunking as a concept; here you're choosing the right strategy for your content type and tuning it for optimal retrieval.</p>
+<p><b>Problem:</b> Poor chunking → irrelevant retrieval → bad answers. Chunking is the foundation of RAG quality — get it wrong and everything downstream suffers regardless of embedding model or vector store.</p>
+
+<h2>Strategy Selection Decision Tree</h2>
+<div class="diagram">
+<svg width="420" height="150" viewBox="0 0 420 150">
+<defs><marker id="arr" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto"><path d="M0,0 L6,2 L0,4 Z" fill="#4F46E5"/></marker></defs>
+<!-- Start -->
+<rect x="140" y="2" width="140" height="20" rx="3" fill="#ede9fe" stroke="#4F46E5"/>
+<text x="210" y="15" text-anchor="middle" font-size="5.5pt" font-weight="bold">What type of content?</text>
+<!-- Branch: Structured -->
+<line x1="170" y1="22" x2="70" y2="38" stroke="#4F46E5" stroke-width="1" marker-end="url(#arr)"/>
+<text x="110" y="32" font-size="5pt" fill="#4F46E5">Structured (MD/HTML)</text>
+<rect x="10" y="38" width="120" height="22" rx="3" fill="#dcfce7" stroke="#059669"/>
+<text x="70" y="48" text-anchor="middle" font-size="5.5pt" font-weight="bold" fill="#059669">Document-Structure</text>
+<text x="70" y="57" text-anchor="middle" font-size="4.5pt">Split on headers, preserve hierarchy</text>
+<!-- Branch: Code -->
+<line x1="210" y1="22" x2="210" y2="38" stroke="#4F46E5" stroke-width="1" marker-end="url(#arr)"/>
+<text x="225" y="32" font-size="5pt" fill="#4F46E5">Source code</text>
+<rect x="150" y="38" width="120" height="22" rx="3" fill="#dcfce7" stroke="#059669"/>
+<text x="210" y="48" text-anchor="middle" font-size="5.5pt" font-weight="bold" fill="#059669">Code-Aware</text>
+<text x="210" y="57" text-anchor="middle" font-size="4.5pt">Split on function/class boundaries</text>
+<!-- Branch: Plain text -->
+<line x1="250" y1="22" x2="350" y2="38" stroke="#4F46E5" stroke-width="1" marker-end="url(#arr)"/>
+<text x="310" y="32" font-size="5pt" fill="#4F46E5">Plain text/PDF</text>
+<rect x="290" y="38" width="120" height="22" rx="3" fill="#fef3c7" stroke="#f59e0b"/>
+<text x="350" y="51" text-anchor="middle" font-size="5.5pt">Need topic coherence?</text>
+<!-- Plain-Yes -->
+<line x1="320" y1="60" x2="280" y2="76" stroke="#f59e0b" stroke-width="1" marker-end="url(#arr)"/>
+<text x="290" y="70" font-size="5pt" fill="#059669">Yes</text>
+<rect x="220" y="76" width="120" height="22" rx="3" fill="#dcfce7" stroke="#059669"/>
+<text x="280" y="86" text-anchor="middle" font-size="5.5pt" font-weight="bold" fill="#059669">Semantic Chunking</text>
+<text x="280" y="95" text-anchor="middle" font-size="4.5pt">Embed sentences, cluster by similarity</text>
+<!-- Plain-No -->
+<line x1="380" y1="60" x2="380" y2="76" stroke="#f59e0b" stroke-width="1" marker-end="url(#arr)"/>
+<text x="395" y="70" font-size="5pt" fill="#ef4444">No</text>
+<rect x="320" y="76" width="120" height="22" rx="3" fill="#dcfce7" stroke="#059669"/>
+<text x="380" y="86" text-anchor="middle" font-size="5.5pt" font-weight="bold" fill="#059669">Recursive Character</text>
+<text x="380" y="95" text-anchor="middle" font-size="4.5pt">512 tokens, 50 overlap — START HERE</text>
+<!-- Precision branch -->
+<rect x="50" y="110" width="320" height="22" rx="3" fill="#fffbe6" stroke="#f59e0b"/>
+<text x="210" y="121" text-anchor="middle" font-size="5.5pt" font-weight="bold" fill="#92400e">Need BOTH precise retrieval AND broad context?</text>
+<text x="210" y="130" text-anchor="middle" font-size="5pt">→ Use Parent-Child: small chunks (128 tokens) for search, return parent (512 tokens) for context</text>
+</svg>
+<div class="diagram-caption">Choose chunking strategy based on content type and quality requirements</div>
+</div>
+
+<h2>Strategy Comparison</h2>
+<table>
+<tr><th>Strategy</th><th>Chunk Size</th><th>Speed</th><th>Quality</th><th>Complexity</th><th>Best For</th></tr>
+<tr><td>Fixed-size</td><td>N tokens</td><td>⚡ Fastest</td><td>⭐⭐</td><td>Low</td><td>Quick prototype</td></tr>
+<tr><td>Recursive char</td><td>512 tokens</td><td>⚡ Fast</td><td>⭐⭐⭐</td><td>Low</td><td>General docs (80% of cases)</td></tr>
+<tr><td>Sentence-based</td><td>3-10 sentences</td><td>⚡ Fast</td><td>⭐⭐⭐</td><td>Low</td><td>Articles, prose</td></tr>
+<tr><td>Document-structure</td><td>Per-section</td><td>Fast</td><td>⭐⭐⭐⭐</td><td>Medium</td><td>Markdown, HTML, APIs</td></tr>
+<tr><td>Code-aware</td><td>Per-function</td><td>Fast</td><td>⭐⭐⭐⭐</td><td>Medium</td><td>Source code</td></tr>
+<tr><td>Semantic</td><td>Dynamic</td><td>🐌 Slow (20x)</td><td>⭐⭐⭐⭐⭐</td><td>High</td><td>Long docs with topic shifts</td></tr>
+<tr><td>Parent-child</td><td>Child:128, Parent:512</td><td>Fast</td><td>⭐⭐⭐⭐⭐</td><td>High</td><td>Precision + context needed</td></tr>
+</table>
+
+<h2>Before vs After: Impact of Chunk Size</h2>
+<div class="diagram">
+<svg width="420" height="100" viewBox="0 0 420 100">
+<!-- Too large -->
+<rect x="5" y="5" width="200" height="42" rx="3" fill="#fef2f2" stroke="#ef4444"/>
+<text x="105" y="16" text-anchor="middle" font-size="5.5pt" font-weight="bold" fill="#ef4444">❌ Chunk Too Large (2000 tokens)</text>
+<text x="105" y="26" text-anchor="middle" font-size="5pt">Contains: installation + configuration + troubleshooting</text>
+<text x="105" y="35" text-anchor="middle" font-size="5pt">Query: "How to install?" → Retrieved but answer buried in noise</text>
+<text x="105" y="44" text-anchor="middle" font-size="4.5pt" fill="#ef4444">Result: LLM confused by irrelevant context, may hallucinate</text>
+<!-- Too small -->
+<rect x="215" y="5" width="200" height="42" rx="3" fill="#fef2f2" stroke="#ef4444"/>
+<text x="315" y="16" text-anchor="middle" font-size="5.5pt" font-weight="bold" fill="#ef4444">❌ Chunk Too Small (64 tokens)</text>
+<text x="315" y="26" text-anchor="middle" font-size="5pt">Contains: "Run pip install mypackage. This installs"</text>
+<text x="315" y="35" text-anchor="middle" font-size="5pt">Query: "How to install?" → Matched but insufficient context</text>
+<text x="315" y="44" text-anchor="middle" font-size="4.5pt" fill="#ef4444">Result: LLM can't give complete answer from fragment</text>
+<!-- Just right -->
+<rect x="65" y="55" width="290" height="42" rx="3" fill="#dcfce7" stroke="#059669"/>
+<text x="210" y="66" text-anchor="middle" font-size="5.5pt" font-weight="bold" fill="#059669">✓ Chunk Right-Sized (512 tokens)</text>
+<text x="210" y="76" text-anchor="middle" font-size="5pt">Contains: complete installation section with prerequisites + steps + verification</text>
+<text x="210" y="85" text-anchor="middle" font-size="5pt">Query: "How to install?" → Precise match, complete answer in context</text>
+<text x="210" y="94" text-anchor="middle" font-size="4.5pt" fill="#059669">Result: LLM gives accurate, complete answer with source citation</text>
+</svg>
+<div class="diagram-caption">Chunk size directly impacts retrieval quality: too large = noise, too small = incomplete, 512 tokens = sweet spot</div>
+</div>
+
+<h2>Configuration Reference</h2>
+<table>
+<tr><th>Parameter</th><th>Default</th><th>Range</th><th>When to Adjust</th></tr>
+<tr><td>chunk_size</td><td>512 tokens</td><td>256–1024</td><td>↓ for precise retrieval, ↑ for more context</td></tr>
+<tr><td>chunk_overlap</td><td>50 tokens (10%)</td><td>25–100</td><td>↑ if losing boundary context</td></tr>
+<tr><td>min_chunk_size</td><td>50 tokens</td><td>20–100</td><td>Filter noise from tiny fragments</td></tr>
+<tr><td>separators</td><td>["\n\n", "\n", ". ", " "]</td><td>—</td><td>Add code-specific for source files</td></tr>
+<tr><td>length_function</td><td>tiktoken (tokens)</td><td>—</td><td>Use char count only for quick prototyping</td></tr>
+<tr><td>metadata</td><td>source, page, section</td><td>—</td><td>Always include for attribution + filtering</td></tr>
+</table>
+
+<h2>Failure Modes → Fixes</h2>
+<table>
+<tr><th>Symptom</th><th>Cause</th><th>Fix</th></tr>
+<tr><td>Retrieved chunks irrelevant</td><td>Chunks too large (multiple topics)</td><td>Reduce to 256-512 tokens</td></tr>
+<tr><td>Answers incomplete</td><td>Chunks too small</td><td>Increase size OR use parent-child</td></tr>
+<tr><td>Same info repeated in top-K</td><td>Excessive overlap</td><td>Reduce overlap to 5-10%</td></tr>
+<tr><td>Chunks start mid-sentence</td><td>Character splitting</td><td>Use RecursiveCharacterTextSplitter</td></tr>
+<tr><td>Code logic broken</td><td>Generic splitter on code</td><td>Language-specific splitter</td></tr>
+<tr><td>Headers/metadata lost</td><td>Not structure-aware</td><td>MarkdownHeaderTextSplitter</td></tr>
+<tr><td>Embedding quality poor</td><td>Chunks > 512 tokens</td><td>Most models optimized for ≤512 tokens</td></tr>
+<tr><td>Tables split incorrectly</td><td>Tables as regular text</td><td>Pre-process: extract tables as units</td></tr>
+</table>
+
+<h3>Parent-Child Architecture</h3>
+<div class="diagram">
+<svg width="400" height="95" viewBox="0 0 400 95">
+<defs><marker id="arr2" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto"><path d="M0,0 L6,2 L0,4 Z" fill="#4F46E5"/></marker></defs>
+<!-- Query -->
+<rect x="5" y="5" width="60" height="24" rx="3" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="35" y="20" text-anchor="middle" font-size="5.5pt" font-weight="bold">Query</text>
+<!-- Vector search -->
+<line x1="65" y1="17" x2="85" y2="17" stroke="#4F46E5" stroke-width="1" marker-end="url(#arr2)"/>
+<rect x="85" y="5" width="80" height="24" rx="3" fill="#ede9fe" stroke="#4F46E5"/>
+<text x="125" y="15" text-anchor="middle" font-size="5pt" font-weight="bold">Vector Search</text>
+<text x="125" y="24" text-anchor="middle" font-size="4.5pt">against CHILD chunks</text>
+<!-- Child chunks -->
+<line x1="165" y1="17" x2="185" y2="17" stroke="#4F46E5" stroke-width="1" marker-end="url(#arr2)"/>
+<rect x="185" y="2" width="30" height="12" rx="2" fill="#fef3c7" stroke="#f59e0b"/>
+<text x="200" y="10" text-anchor="middle" font-size="4pt">128t</text>
+<rect x="185" y="16" width="30" height="12" rx="2" fill="#fef3c7" stroke="#f59e0b"/>
+<text x="200" y="24" text-anchor="middle" font-size="4pt">128t</text>
+<!-- Lookup parent -->
+<line x1="215" y1="17" x2="240" y2="17" stroke="#f59e0b" stroke-width="1" marker-end="url(#arr2)"/>
+<text x="228" y="32" font-size="4pt" fill="#666">lookup parent</text>
+<!-- Parent chunk -->
+<rect x="240" y="5" width="80" height="24" rx="3" fill="#dcfce7" stroke="#059669"/>
+<text x="280" y="15" text-anchor="middle" font-size="5pt" font-weight="bold" fill="#059669">Parent Chunk</text>
+<text x="280" y="24" text-anchor="middle" font-size="4.5pt">512 tokens (full context)</text>
+<!-- To LLM -->
+<line x1="320" y1="17" x2="340" y2="17" stroke="#059669" stroke-width="1" marker-end="url(#arr2)"/>
+<rect x="340" y="5" width="55" height="24" rx="3" fill="#dcfce7" stroke="#059669"/>
+<text x="367" y="20" text-anchor="middle" font-size="5.5pt" font-weight="bold">→ LLM</text>
+<!-- Benefits -->
+<rect x="5" y="40" width="390" height="50" rx="3" fill="#f3f4f6" stroke="#ddd"/>
+<text x="200" y="51" text-anchor="middle" font-size="5.5pt" font-weight="bold">Why Parent-Child Works</text>
+<text x="110" y="63" text-anchor="middle" font-size="5pt" fill="#ef4444">Problem: Small chunks = precise search BUT insufficient context</text>
+<text x="110" y="73" text-anchor="middle" font-size="5pt" fill="#ef4444">Problem: Large chunks = good context BUT imprecise search</text>
+<text x="110" y="83" text-anchor="middle" font-size="5pt" fill="#059669">Solution: Search small (128t), return large (512t) → best of both</text>
+<text x="330" y="63" text-anchor="middle" font-size="5pt">Search precision: ⭐⭐⭐⭐⭐</text>
+<text x="330" y="73" text-anchor="middle" font-size="5pt">Context quality: ⭐⭐⭐⭐⭐</text>
+<text x="330" y="83" text-anchor="middle" font-size="5pt">Complexity: High (2x index)</text>
+</svg>
+<div class="diagram-caption">Parent-child: search against small precise chunks, return their larger parent for context — best of both worlds</div>
+</div>
+
+<h2>Production Considerations</h2>
+<table>
+<tr><th>Concern</th><th>Impact</th><th>Mitigation</th></tr>
+<tr><td>Ingestion speed</td><td>Recursive: 10k docs/min; Semantic: 500/min</td><td>Use recursive for bulk, semantic for high-value docs</td></tr>
+<tr><td>Storage overhead</td><td>10% overlap → ~10% more vectors</td><td>Marginal cost — keep overlap for quality</td></tr>
+<tr><td>Re-indexing cost</td><td>1M chunks ≈ $5-20 with OpenAI embeddings</td><td>Budget time + money when changing strategy</td></tr>
+<tr><td>Metadata enrichment</td><td>Add source, page, date at ingest time</td><td>Enables filtered retrieval without re-processing</td></tr>
+<tr><td>Quality monitoring</td><td>Track avg relevance score over time</td><td>Alert if retrieval quality drops >10%</td></tr>
+</table>
+
+<h2>Ready to Ship?</h2>
+<div class="tip">
+☐ Chunk size: 512 tokens (or justified deviation)<br>
+☐ Overlap: 10% of chunk_size<br>
+☐ Token-based length (tiktoken), not character count<br>
+☐ Metadata: source, page/section, ingest date<br>
+☐ Tiny chunks (<50 tokens) filtered out<br>
+☐ Content-specific splitter where applicable (MD, code)<br>
+☐ Retrieval precision@5 > 70% on 20+ test queries<br>
+☐ Boundary quality checked: logical start/end points<br>
+☐ Re-indexing plan documented<br><br>
+<b>Next → Embedding Selection (which model converts chunks into vectors)</b>
+</div>
+
+</body>
+</html>

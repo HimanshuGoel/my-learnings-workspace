@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Module 4, Topic 1 — VLM Fundamentals</title>
+<style>
+@page { margin: 0.5cm; size: A4; }
+body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+ul { margin: 0 0 2px 12px; padding: 0; }
+li { margin-bottom: 0.5px; }
+.tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+.prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+.two-col { column-count: 2; column-gap: 10px; }
+code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+th { background: #f3f4f6; font-weight: bold; }
+.diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+.diagram svg { max-width: 100%; }
+.diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+.section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+@media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+<h1>Module 4, Topic 1 — VLM Fundamentals</h1>
+
+<p class="section-intro">Vision-Language Models give LLMs the ability to SEE — processing images, screenshots, diagrams, and documents alongside text. They work by splitting images into patches, encoding with CLIP/ViT, projecting into the LLM's embedding space, then processing image tokens + text tokens together with the same attention mechanism. This unlocks document understanding, visual QA, UI interaction, chart analysis, and multimodal RAG.</p>
+
+<p><b>Problem Statement:</b> Standard LLMs are blind — they can only process text. Real-world documents contain tables, charts, diagrams, and mixed layouts. VLMs bridge this gap by converting visual information into token sequences the LLM can reason over, enabling a single model to handle both modalities.</p>
+
+<h2>VLM Architecture Pipeline</h2>
+
+<div class="diagram">
+<svg width="680" height="180" viewBox="0 0 680 180">
+  <defs>
+    <marker id="arrow1" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#4F46E5"/></marker>
+  </defs>
+  <!-- Image Input -->
+  <rect x="5" y="50" width="80" height="70" rx="4" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="45" y="70" text-anchor="middle" font-size="7" font-weight="bold">Image Input</text>
+  <text x="45" y="82" text-anchor="middle" font-size="6">(e.g. 672×672)</text>
+  <rect x="15" y="88" width="12" height="12" fill="#93c5fd"/><rect x="29" y="88" width="12" height="12" fill="#60a5fa"/>
+  <rect x="43" y="88" width="12" height="12" fill="#3b82f6"/><rect x="57" y="88" width="12" height="12" fill="#2563eb"/>
+  <rect x="15" y="102" width="12" height="12" fill="#60a5fa"/><rect x="29" y="102" width="12" height="12" fill="#93c5fd"/>
+  <rect x="43" y="102" width="12" height="12" fill="#2563eb"/><rect x="57" y="102" width="12" height="12" fill="#3b82f6"/>
+  <!-- Arrow -->
+  <line x1="90" y1="85" x2="115" y2="85" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arrow1)"/>
+  <!-- Patch Split -->
+  <rect x="120" y="50" width="85" height="70" rx="4" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="162" y="68" text-anchor="middle" font-size="7" font-weight="bold">Patch Split</text>
+  <text x="162" y="80" text-anchor="middle" font-size="6">14×14 px patches</text>
+  <text x="162" y="91" text-anchor="middle" font-size="6">→ 576 patches</text>
+  <text x="162" y="102" text-anchor="middle" font-size="6">(for 336×336)</text>
+  <text x="162" y="113" text-anchor="middle" font-size="6">+ position embed</text>
+  <!-- Arrow -->
+  <line x1="210" y1="85" x2="235" y2="85" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arrow1)"/>
+  <!-- Vision Encoder -->
+  <rect x="240" y="40" width="100" height="85" rx="4" fill="#dcfce7" stroke="#22c55e" stroke-width="1.5"/>
+  <text x="290" y="58" text-anchor="middle" font-size="7" font-weight="bold">Vision Encoder</text>
+  <text x="290" y="70" text-anchor="middle" font-size="6">CLIP ViT-L/14</text>
+  <text x="290" y="81" text-anchor="middle" font-size="6">or custom ViT</text>
+  <text x="290" y="95" text-anchor="middle" font-size="6">Output: 576 vectors</text>
+  <text x="290" y="106" text-anchor="middle" font-size="6">dim=1024</text>
+  <text x="290" y="117" text-anchor="middle" font-size="5.5" fill="#666">Pre-trained on 400M+ pairs</text>
+  <!-- Arrow -->
+  <line x1="345" y1="82" x2="370" y2="82" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arrow1)"/>
+  <!-- Projection -->
+  <rect x="375" y="55" width="80" height="55" rx="4" fill="#f3e8ff" stroke="#a855f7" stroke-width="1.5"/>
+  <text x="415" y="72" text-anchor="middle" font-size="7" font-weight="bold">Projection</text>
+  <text x="415" y="83" text-anchor="middle" font-size="6">Linear / MLP</text>
+  <text x="415" y="94" text-anchor="middle" font-size="6">1024 → 4096</text>
+  <text x="415" y="105" text-anchor="middle" font-size="6">(LLM dim)</text>
+  <!-- Arrow -->
+  <line x1="460" y1="82" x2="485" y2="82" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arrow1)"/>
+  <!-- LLM -->
+  <rect x="490" y="35" width="105" height="100" rx="4" fill="#fce7f3" stroke="#ec4899" stroke-width="1.5"/>
+  <text x="542" y="53" text-anchor="middle" font-size="7" font-weight="bold">LLM Backbone</text>
+  <text x="542" y="65" text-anchor="middle" font-size="6">[IMG][IMG]...[IMG]</text>
+  <text x="542" y="76" text-anchor="middle" font-size="6">+ [Text tokens]</text>
+  <text x="542" y="90" text-anchor="middle" font-size="6">Self-Attention over</text>
+  <text x="542" y="101" text-anchor="middle" font-size="6">ALL tokens jointly</text>
+  <text x="542" y="115" text-anchor="middle" font-size="6">→ Response</text>
+  <!-- Arrow to output -->
+  <line x1="600" y1="85" x2="625" y2="85" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arrow1)"/>
+  <rect x="630" y="65" width="45" height="35" rx="4" fill="#e0e7ff" stroke="#4F46E5" stroke-width="1.5"/>
+  <text x="652" y="82" text-anchor="middle" font-size="6.5" font-weight="bold">Output</text>
+  <text x="652" y="93" text-anchor="middle" font-size="5.5">Text</text>
+  <!-- Labels below -->
+  <text x="340" y="155" text-anchor="middle" font-size="6.5" fill="#666">Image tokens (576-9000) are concatenated with text tokens and processed through same transformer attention</text>
+  <text x="340" y="168" text-anchor="middle" font-size="6" fill="#999">Software analogy: Vision encoder is a microservice that "translates" images into LLM-compatible vectors</text>
+</svg>
+<div class="diagram-caption">VLM Architecture: Image → Patches → Vision Encoder → Projection → LLM joint attention</div>
+</div>
+
+<h2>Image Tiling for High Resolution</h2>
+
+<div class="diagram">
+<svg width="650" height="160" viewBox="0 0 650 160">
+  <defs>
+    <marker id="arrow2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#4F46E5"/></marker>
+  </defs>
+  <!-- Original Image -->
+  <rect x="10" y="20" width="90" height="90" rx="3" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="55" y="60" text-anchor="middle" font-size="7" font-weight="bold">Original</text>
+  <text x="55" y="72" text-anchor="middle" font-size="6">1344×1344</text>
+  <text x="55" y="84" text-anchor="middle" font-size="6">High-res doc</text>
+  <!-- Arrow -->
+  <line x1="105" y1="65" x2="130" y2="65" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arrow2)"/>
+  <!-- Tiled Grid -->
+  <rect x="135" y="10" width="30" height="30" fill="#fef3c7" stroke="#f59e0b"/><text x="150" y="29" text-anchor="middle" font-size="5">T1</text>
+  <rect x="167" y="10" width="30" height="30" fill="#fef3c7" stroke="#f59e0b"/><text x="182" y="29" text-anchor="middle" font-size="5">T2</text>
+  <rect x="199" y="10" width="30" height="30" fill="#fef3c7" stroke="#f59e0b"/><text x="214" y="29" text-anchor="middle" font-size="5">T3</text>
+  <rect x="231" y="10" width="30" height="30" fill="#fef3c7" stroke="#f59e0b"/><text x="246" y="29" text-anchor="middle" font-size="5">T4</text>
+  <rect x="135" y="42" width="30" height="30" fill="#fef3c7" stroke="#f59e0b"/><text x="150" y="61" text-anchor="middle" font-size="5">T5</text>
+  <rect x="167" y="42" width="30" height="30" fill="#fef3c7" stroke="#f59e0b"/><text x="182" y="61" text-anchor="middle" font-size="5">T6</text>
+  <rect x="199" y="42" width="30" height="30" fill="#fef3c7" stroke="#f59e0b"/><text x="214" y="61" text-anchor="middle" font-size="5">T7</text>
+  <rect x="231" y="42" width="30" height="30" fill="#fef3c7" stroke="#f59e0b"/><text x="246" y="61" text-anchor="middle" font-size="5">T8</text>
+  <rect x="135" y="74" width="30" height="30" fill="#fef3c7" stroke="#f59e0b"/><text x="150" y="93" text-anchor="middle" font-size="5">T9</text>
+  <rect x="167" y="74" width="30" height="30" fill="#fef3c7" stroke="#f59e0b"/><text x="182" y="93" text-anchor="middle" font-size="5">T10</text>
+  <rect x="199" y="74" width="30" height="30" fill="#fef3c7" stroke="#f59e0b"/><text x="214" y="93" text-anchor="middle" font-size="5">T11</text>
+  <rect x="231" y="74" width="30" height="30" fill="#fef3c7" stroke="#f59e0b"/><text x="246" y="93" text-anchor="middle" font-size="5">T12</text>
+  <rect x="135" y="106" width="30" height="30" fill="#fef3c7" stroke="#f59e0b"/><text x="150" y="125" text-anchor="middle" font-size="5">T13</text>
+  <rect x="167" y="106" width="30" height="30" fill="#fef3c7" stroke="#f59e0b"/><text x="182" y="125" text-anchor="middle" font-size="5">T14</text>
+  <rect x="199" y="106" width="30" height="30" fill="#fef3c7" stroke="#f59e0b"/><text x="214" y="125" text-anchor="middle" font-size="5">T15</text>
+  <rect x="231" y="106" width="30" height="30" fill="#fef3c7" stroke="#f59e0b"/><text x="246" y="125" text-anchor="middle" font-size="5">T16</text>
+  <text x="198" y="150" text-anchor="middle" font-size="6">4×4 grid of 336×336 tiles</text>
+  <!-- Plus sign -->
+  <text x="280" y="70" font-size="14" fill="#4F46E5">+</text>
+  <!-- Global view -->
+  <rect x="295" y="35" width="55" height="55" rx="3" fill="#dcfce7" stroke="#22c55e" stroke-width="1.5"/>
+  <text x="322" y="60" text-anchor="middle" font-size="6" font-weight="bold">Global</text>
+  <text x="322" y="72" text-anchor="middle" font-size="5.5">336×336</text>
+  <text x="322" y="82" text-anchor="middle" font-size="5.5">downscaled</text>
+  <!-- Arrow -->
+  <line x1="355" y1="62" x2="385" y2="62" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arrow2)"/>
+  <!-- Encode each -->
+  <rect x="390" y="30" width="100" height="80" rx="4" fill="#f3e8ff" stroke="#a855f7" stroke-width="1.5"/>
+  <text x="440" y="48" text-anchor="middle" font-size="6.5" font-weight="bold">Encode Each</text>
+  <text x="440" y="60" text-anchor="middle" font-size="6">T1: 576 tokens</text>
+  <text x="440" y="70" text-anchor="middle" font-size="6">T2: 576 tokens</text>
+  <text x="440" y="80" text-anchor="middle" font-size="6">...</text>
+  <text x="440" y="90" text-anchor="middle" font-size="6">Global: 576 tokens</text>
+  <text x="440" y="102" text-anchor="middle" font-size="5.5" fill="#dc2626">Total: ~9,792 tokens</text>
+  <!-- Arrow -->
+  <line x1="495" y1="70" x2="520" y2="70" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arrow2)"/>
+  <!-- Concat -->
+  <rect x="525" y="40" width="110" height="60" rx="4" fill="#fce7f3" stroke="#ec4899" stroke-width="1.5"/>
+  <text x="580" y="58" text-anchor="middle" font-size="6.5" font-weight="bold">Concatenate All</text>
+  <text x="580" y="70" text-anchor="middle" font-size="6">[Global + T1...T16]</text>
+  <text x="580" y="82" text-anchor="middle" font-size="6">→ Feed to LLM</text>
+  <text x="580" y="93" text-anchor="middle" font-size="5.5" fill="#666">Details + big picture</text>
+</svg>
+<div class="diagram-caption">Image Tiling: High-res images split into 336×336 tiles + global view for both detail and context</div>
+</div>
+
+<h2>Model Comparison</h2>
+
+<table>
+<tr><th>Model</th><th>Vision Encoder</th><th>LLM</th><th>Connection</th><th>Max Resolution</th><th>Open?</th><th>Best For</th></tr>
+<tr><td>GPT-4o</td><td>Internal ViT</td><td>GPT-4</td><td>Proprietary fusion</td><td>Multiple (tiled)</td><td>No (API)</td><td>Highest quality, general use</td></tr>
+<tr><td>Claude 3.5 Sonnet</td><td>Internal</td><td>Claude</td><td>Proprietary</td><td>1568×1568</td><td>No (API)</td><td>Long documents, reasoning</td></tr>
+<tr><td>LLaVA 1.6</td><td>CLIP ViT-L/14</td><td>Llama/Mistral</td><td>Linear projection</td><td>672×672 (tiled)</td><td>Yes</td><td>Local deployment, research</td></tr>
+<tr><td>Qwen-VL-2</td><td>Custom ViT</td><td>Qwen-2</td><td>Cross-attention</td><td>Dynamic</td><td>Yes</td><td>Multilingual visual tasks</td></tr>
+<tr><td>InternVL2</td><td>InternViT-6B</td><td>InternLM2</td><td>Dynamic + MLP</td><td>Dynamic</td><td>Yes</td><td>Approaching GPT-4o quality</td></tr>
+<tr><td>Phi-3-Vision</td><td>CLIP</td><td>Phi-3</td><td>Linear projection</td><td>1344×1344</td><td>Yes</td><td>Small model, edge deploy</td></tr>
+</table>
+
+<h2>Token Cost by Resolution</h2>
+
+<table>
+<tr><th>Resolution</th><th>Tiles</th><th>Approx Tokens</th><th>GPT-4o Cost (per image)</th><th>Use Case</th></tr>
+<tr><td>336×336 (low detail)</td><td>1</td><td>~85 fixed</td><td>~$0.00021</td><td>Quick screening, thumbnails</td></tr>
+<tr><td>672×672 (high)</td><td>4 + global</td><td>~2,880</td><td>~$0.0072</td><td>Standard analysis</td></tr>
+<tr><td>1344×1344 (high)</td><td>16 + global</td><td>~9,792</td><td>~$0.024</td><td>Detailed document/chart</td></tr>
+</table>
+
+<h2>Implementation Patterns</h2>
+
+<h3>GPT-4o Vision (OpenAI)</h3>
+<div class="prompt">from openai import OpenAI
+import base64
+
+client = OpenAI()
+
+def analyze_image(image_path: str, question: str) -> str:
+    with open(image_path, "rb") as f:
+        image_data = base64.b64encode(f.read()).decode("utf-8")
+    
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[{
+            "role": "user",
+            "content": [
+                {"type": "text", "text": question},
+                {"type": "image_url", "image_url": {
+                    "url": f"data:image/png;base64,{image_data}",
+                    "detail": "high",  # "low" = 85 tokens fixed, "high" = tiled
+                }},
+            ],
+        }],
+        max_tokens=1000,
+    )
+    return response.choices[0].message.content</div>
+
+<h3>LangChain Integration</h3>
+<div class="prompt">from langchain_openai import ChatOpenAI
+from langchain_core.messages import HumanMessage
+
+llm = ChatOpenAI(model="gpt-4o", max_tokens=1000)
+
+message = HumanMessage(content=[
+    {"type": "text", "text": "Describe the trends in this chart"},
+    {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{img_b64}"}},
+])
+response = llm.invoke([message])</div>
+
+<h3>Open-Source (LLaVA) — Local Deployment</h3>
+<div class="prompt">from transformers import LlavaForConditionalGeneration, AutoProcessor
+from PIL import Image
+
+model = LlavaForConditionalGeneration.from_pretrained(
+    "llava-hf/llava-v1.6-mistral-7b-hf", torch_dtype=torch.float16, device_map="auto")
+processor = AutoProcessor.from_pretrained("llava-hf/llava-v1.6-mistral-7b-hf")
+
+image = Image.open("chart.png")
+prompt = "USER: &lt;image&gt;\nDescribe the trends in this chart.\nASSISTANT:"
+inputs = processor(text=prompt, images=image, return_tensors="pt").to("cuda")
+output = model.generate(**inputs, max_new_tokens=500)
+result = processor.decode(output[0], skip_special_tokens=True)</div>
+
+<h2>Use Pattern Reference</h2>
+
+<table>
+<tr><th>Pattern</th><th>When</th><th>Example</th><th>Detail Setting</th></tr>
+<tr><td>Single image + question</td><td>Simple visual QA</td><td>"What's in this image?"</td><td>low/high</td></tr>
+<tr><td>Image + document text</td><td>Multimodal RAG</td><td>"Based on chart + text, what's the trend?"</td><td>high</td></tr>
+<tr><td>Multi-image comparison</td><td>Visual reasoning</td><td>"Compare these two screenshots"</td><td>high</td></tr>
+<tr><td>Image → structured data</td><td>Data extraction</td><td>"Extract the table from this PDF page"</td><td>high</td></tr>
+<tr><td>UI screenshot → action</td><td>Agent interaction</td><td>"Click the submit button"</td><td>high</td></tr>
+<tr><td>Document image → text</td><td>OCR alternative</td><td>"Read this scanned document"</td><td>high</td></tr>
+</table>
+
+<h2>Failure Modes → Fixes</h2>
+
+<table>
+<tr><th>Failure Mode</th><th>Symptom</th><th>Fix</th></tr>
+<tr><td>Hallucinated text</td><td>VLM "reads" text that isn't there</td><td>Cross-check with OCR (Tesseract), ask for confidence score</td></tr>
+<tr><td>Wrong spatial reasoning</td><td>Misidentifies left/right, above/below</td><td>Use higher detail setting, crop to relevant area</td></tr>
+<tr><td>Chart misinterpretation</td><td>Wrong values read from axes</td><td>Extract data programmatically for precision-critical tasks</td></tr>
+<tr><td>Token budget exceeded</td><td>Image + text > context window</td><td>Use "low" detail, resize images, fewer tiles</td></tr>
+<tr><td>Refused to process</td><td>Safety filter blocks legitimate image</td><td>Reframe prompt, crop out irrelevant content</td></tr>
+<tr><td>Slow response (5-10s)</td><td>High-res images with many tiles</td><td>Use "low" for screening, "high" only for deep analysis</td></tr>
+</table>
+
+<h2>Production Configuration</h2>
+
+<table>
+<tr><th>Concern</th><th>Strategy</th><th>Value</th></tr>
+<tr><td>Cost control</td><td>Use "low" detail for routing, "high" for analysis</td><td>$0.85 vs $2.50 per 1K images</td></tr>
+<tr><td>Latency</td><td>Low detail: 1-3s, High: 3-8s</td><td>Stream for user-facing</td></tr>
+<tr><td>Scaling</td><td>Local VLM (LLaVA) for high-volume</td><td>GPU throughput > API</td></tr>
+<tr><td>Caching</td><td>Cache results for repeated images</td><td>Same image = same tokens</td></tr>
+<tr><td>Multi-turn</td><td>Describe image once, refer to description</td><td>Save 576-9000 tokens/turn</td></tr>
+<tr><td>Fallback</td><td>GPT-4o primary, LLaVA local fallback</td><td>Quality vs cost trade-off</td></tr>
+</table>
+
+<div class="tip">
+<b>Architecture Decision:</b> Use GPT-4o for quality-critical visual tasks, LLaVA-1.6-7B as local fallback for simple extraction. If API costs exceed $100/month or latency needs < 1s, switch to local VLM. The "low" detail setting is dramatically cheaper (85 tokens vs 9000) — use it for screening/routing, then "high" only when detail matters.<br/>
+<b>Next →</b> Topic 2: Multimodal RAG (using VLMs to index and retrieve from document images)
+</div>
+
+</body>
+</html>

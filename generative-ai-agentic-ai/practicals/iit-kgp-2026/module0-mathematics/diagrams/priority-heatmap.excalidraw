@@ -1,0 +1,45 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "kiro",
+  "elements": [
+    {"id":"title","type":"text","x":100,"y":10,"width":500,"height":25,"text":"🔥 Priority Heatmap — How Critical Each Topic Is for AI","fontSize":17,"fontFamily":1,"textAlign":"center","strokeColor":"#1e1e1e","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":1,"roughness":0,"opacity":100,"angle":0,"seed":1,"version":1,"groupIds":[],"boundElements":null,"link":null,"locked":false},
+    {"id":"sub","type":"text","x":100,"y":35,"width":500,"height":14,"text":"Darker = more critical for your IIT KGP AI program. Focus here first.","fontSize":10,"fontFamily":1,"textAlign":"center","strokeColor":"#868e96","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":1,"roughness":0,"opacity":100,"angle":0,"seed":2,"version":1,"groupIds":[],"boundElements":null,"link":null,"locked":false},
+
+    {"id":"b1","type":"rectangle","x":50,"y":60,"width":160,"height":50,"strokeColor":"#c92a2a","backgroundColor":"#ff6b6b","fillStyle":"solid","strokeWidth":2,"roughness":0,"opacity":100,"angle":0,"seed":10,"version":1,"groupIds":[],"boundElements":null,"link":null,"locked":false,"roundness":{"type":3}},
+    {"id":"t1","type":"text","x":60,"y":70,"width":140,"height":30,"text":"📐 Vectors\nEmbeddings, similarity, attention","fontSize":11,"fontFamily":1,"textAlign":"center","strokeColor":"#fff","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":1,"roughness":0,"opacity":100,"angle":0,"seed":11,"version":1,"groupIds":[],"boundElements":null,"link":null,"locked":false},
+
+    {"id":"b2","type":"rectangle","x":220,"y":60,"width":160,"height":50,"strokeColor":"#c92a2a","backgroundColor":"#ff6b6b","fillStyle":"solid","strokeWidth":2,"roughness":0,"opacity":100,"angle":0,"seed":12,"version":1,"groupIds":[],"boundElements":null,"link":null,"locked":false,"roundness":{"type":3}},
+    {"id":"t2","type":"text","x":230,"y":70,"width":140,"height":30,"text":"📊 Matrices\nNeural net layers, transforms","fontSize":11,"fontFamily":1,"textAlign":"center","strokeColor":"#fff","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":1,"roughness":0,"opacity":100,"angle":0,"seed":13,"version":1,"groupIds":[],"boundElements":null,"link":null,"locked":false},
+
+    {"id":"b3","type":"rectangle","x":390,"y":60,"width":160,"height":50,"strokeColor":"#c92a2a","backgroundColor":"#ff6b6b","fillStyle":"solid","strokeWidth":2,"roughness":0,"opacity":100,"angle":0,"seed":14,"version":1,"groupIds":[],"boundElements":null,"link":null,"locked":false,"roundness":{"type":3}},
+    {"id":"t3","type":"text","x":400,"y":70,"width":140,"height":30,"text":"🎲 Probability\nLLM predictions, sampling","fontSize":11,"fontFamily":1,"textAlign":"center","strokeColor":"#fff","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":1,"roughness":0,"opacity":100,"angle":0,"seed":15,"version":1,"groupIds":[],"boundElements":null,"link":null,"locked":false},
+
+    {"id":"label-critical","type":"text","x":560,"y":78,"width":80,"height":14,"text":"🔴 CRITICAL","fontSize":10,"fontFamily":1,"textAlign":"left","strokeColor":"#c92a2a","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":1,"roughness":0,"opacity":100,"angle":0,"seed":16,"version":1,"groupIds":[],"boundElements":null,"link":null,"locked":false},
+
+    {"id":"b4","type":"rectangle","x":50,"y":125,"width":160,"height":50,"strokeColor":"#e8590c","backgroundColor":"#ffa94d","fillStyle":"solid","strokeWidth":2,"roughness":0,"opacity":100,"angle":0,"seed":20,"version":1,"groupIds":[],"boundElements":null,"link":null,"locked":false,"roundness":{"type":3}},
+    {"id":"t4","type":"text","x":60,"y":135,"width":140,"height":30,"text":"∂ Calculus\nGradients, backprop, optim","fontSize":11,"fontFamily":1,"textAlign":"center","strokeColor":"#fff","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":1,"roughness":0,"opacity":100,"angle":0,"seed":21,"version":1,"groupIds":[],"boundElements":null,"link":null,"locked":false},
+
+    {"id":"b5","type":"rectangle","x":220,"y":125,"width":160,"height":50,"strokeColor":"#e8590c","backgroundColor":"#ffa94d","fillStyle":"solid","strokeWidth":2,"roughness":0,"opacity":100,"angle":0,"seed":22,"version":1,"groupIds":[],"boundElements":null,"link":null,"locked":false,"roundness":{"type":3}},
+    {"id":"t5","type":"text","x":230,"y":135,"width":140,"height":30,"text":"f(x) Functions\nActivations, loss functions","fontSize":11,"fontFamily":1,"textAlign":"center","strokeColor":"#fff","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":1,"roughness":0,"opacity":100,"angle":0,"seed":23,"version":1,"groupIds":[],"boundElements":null,"link":null,"locked":false},
+
+    {"id":"label-high","type":"text","x":560,"y":143,"width":80,"height":14,"text":"🟠 HIGH","fontSize":10,"fontFamily":1,"textAlign":"left","strokeColor":"#e8590c","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":1,"roughness":0,"opacity":100,"angle":0,"seed":24,"version":1,"groupIds":[],"boundElements":null,"link":null,"locked":false},
+
+    {"id":"b6","type":"rectangle","x":50,"y":190,"width":160,"height":50,"strokeColor":"#f59f00","backgroundColor":"#ffd43b","fillStyle":"solid","strokeWidth":2,"roughness":0,"opacity":100,"angle":0,"seed":30,"version":1,"groupIds":[],"boundElements":null,"link":null,"locked":false,"roundness":{"type":3}},
+    {"id":"t6","type":"text","x":60,"y":200,"width":140,"height":30,"text":"📉 Statistics\nMetrics, evaluation, EDA","fontSize":11,"fontFamily":1,"textAlign":"center","strokeColor":"#495057","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":1,"roughness":0,"opacity":100,"angle":0,"seed":31,"version":1,"groupIds":[],"boundElements":null,"link":null,"locked":false},
+
+    {"id":"b7","type":"rectangle","x":220,"y":190,"width":160,"height":50,"strokeColor":"#f59f00","backgroundColor":"#ffd43b","fillStyle":"solid","strokeWidth":2,"roughness":0,"opacity":100,"angle":0,"seed":32,"version":1,"groupIds":[],"boundElements":null,"link":null,"locked":false,"roundness":{"type":3}},
+    {"id":"t7","type":"text","x":230,"y":200,"width":140,"height":30,"text":"{ } Sets\nVocab, feature spaces","fontSize":11,"fontFamily":1,"textAlign":"center","strokeColor":"#495057","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":1,"roughness":0,"opacity":100,"angle":0,"seed":33,"version":1,"groupIds":[],"boundElements":null,"link":null,"locked":false},
+
+    {"id":"label-med","type":"text","x":560,"y":208,"width":80,"height":14,"text":"🟡 MEDIUM","fontSize":10,"fontFamily":1,"textAlign":"left","strokeColor":"#f59f00","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":1,"roughness":0,"opacity":100,"angle":0,"seed":34,"version":1,"groupIds":[],"boundElements":null,"link":null,"locked":false},
+
+    {"id":"b8","type":"rectangle","x":50,"y":255,"width":160,"height":50,"strokeColor":"#868e96","backgroundColor":"#dee2e6","fillStyle":"solid","strokeWidth":1.5,"roughness":0,"opacity":100,"angle":0,"seed":40,"version":1,"groupIds":[],"boundElements":null,"link":null,"locked":false,"roundness":{"type":3}},
+    {"id":"t8","type":"text","x":60,"y":265,"width":140,"height":30,"text":"🔢 Combinatorics\nSearch spaces, vocab size","fontSize":11,"fontFamily":1,"textAlign":"center","strokeColor":"#495057","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":1,"roughness":0,"opacity":100,"angle":0,"seed":41,"version":1,"groupIds":[],"boundElements":null,"link":null,"locked":false},
+
+    {"id":"label-low","type":"text","x":560,"y":273,"width":80,"height":14,"text":"⚪ LOWER","fontSize":10,"fontFamily":1,"textAlign":"left","strokeColor":"#868e96","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":1,"roughness":0,"opacity":100,"angle":0,"seed":42,"version":1,"groupIds":[],"boundElements":null,"link":null,"locked":false},
+
+    {"id":"footer","type":"text","x":50,"y":320,"width":500,"height":28,"text":"Action: Master the 🔴 topics FIRST (Vectors, Matrices, Probability) — they appear in every AI concept.\nThen 🟠 (Calculus, Functions) for understanding training. 🟡 and ⚪ are supporting knowledge.","fontSize":10,"fontFamily":1,"textAlign":"left","strokeColor":"#495057","backgroundColor":"transparent","fillStyle":"solid","strokeWidth":1,"roughness":0,"opacity":100,"angle":0,"seed":50,"version":1,"groupIds":[],"boundElements":null,"link":null,"locked":false}
+  ],
+  "appState": {"gridSize": null, "viewBackgroundColor": "#ffffff"},
+  "files": {}
+}

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Module 4, Topic 8 — Agent Memory</title>
+<style>
+@page { margin: 0.5cm; size: A4; }
+body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+ul { margin: 0 0 2px 12px; padding: 0; }
+li { margin-bottom: 0.5px; }
+.tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+.prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+.two-col { column-count: 2; column-gap: 10px; }
+code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+th { background: #f3f4f6; font-weight: bold; }
+.diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+.diagram svg { max-width: 100%; }
+.diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+.section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+@media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+<h1>Module 4, Topic 8 — Agent Memory</h1>
+
+<p class="section-intro">Memory lets agents maintain context across turns and sessions. Three types: working (current task state in graph), short-term (conversation via checkpointing), long-term (cross-session via vector store). Context window is finite — memory management means deciding what to keep vs summarize vs retrieve on demand. Without memory, every invocation starts from zero.</p>
+
+<p><b>Problem Statement:</b> LLMs are stateless — each API call has no memory of previous interactions. Agents need continuity: remembering user preferences, past decisions, and accumulated knowledge. The challenge is fitting relevant memories into a finite context window while maintaining accuracy and avoiding stale information.</p>
+
+<h2>Memory Types Architecture</h2>
+
+<div class="diagram">
+<svg width="680" height="165" viewBox="0 0 680 165">
+  <defs>
+    <marker id="arH" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5" fill="#4F46E5"/></marker>
+  </defs>
+  <!-- Working Memory -->
+  <rect x="5" y="10" width="200" height="95" rx="5" fill="#dcfce7" stroke="#22c55e" stroke-width="1.5"/>
+  <text x="105" y="26" text-anchor="middle" font-size="7.5" font-weight="bold" fill="#22c55e">WORKING MEMORY</text>
+  <text x="105" y="38" text-anchor="middle" font-size="6">Current task state</text>
+  <rect x="15" y="44" width="180" height="50" rx="3" fill="#fff" stroke="#d1d5db"/>
+  <text x="20" y="56" font-size="5.5" font-family="Consolas">plan: ["step1", "step2"]</text>
+  <text x="20" y="67" font-size="5.5" font-family="Consolas">current_step: 1</text>
+  <text x="20" y="78" font-size="5.5" font-family="Consolas">intermediate_results: [...]</text>
+  <text x="20" y="89" font-size="5.5" font-family="Consolas">iteration: 3</text>
+  <text x="105" y="110" text-anchor="middle" font-size="5.5" fill="#22c55e">Lives in: Graph State (TypedDict)</text>
+  <text x="105" y="121" text-anchor="middle" font-size="5.5" fill="#666">Lifetime: Single invocation</text>
+
+  <!-- Short-Term Memory -->
+  <rect x="215" y="10" width="215" height="95" rx="5" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="322" y="26" text-anchor="middle" font-size="7.5" font-weight="bold" fill="#3b82f6">SHORT-TERM MEMORY</text>
+  <text x="322" y="38" text-anchor="middle" font-size="6">This session's conversation</text>
+  <rect x="225" y="44" width="195" height="50" rx="3" fill="#fff" stroke="#d1d5db"/>
+  <text x="230" y="56" font-size="5.5" font-family="Consolas">messages: [Human, AI, Human, AI...]</text>
+  <text x="230" y="67" font-size="5.5" font-family="Consolas">thread_id: "user-42-session-1"</text>
+  <text x="230" y="78" font-size="5.5" font-family="Consolas">// grows with conversation</text>
+  <text x="230" y="89" font-size="5.5" font-family="Consolas">// may need summarization</text>
+  <text x="322" y="110" text-anchor="middle" font-size="5.5" fill="#3b82f6">Lives in: Checkpoint (MemorySaver/Postgres)</text>
+  <text x="322" y="121" text-anchor="middle" font-size="5.5" fill="#666">Lifetime: Conversation session</text>
+
+  <!-- Long-Term Memory -->
+  <rect x="440" y="10" width="235" height="95" rx="5" fill="#f3e8ff" stroke="#a855f7" stroke-width="1.5"/>
+  <text x="557" y="26" text-anchor="middle" font-size="7.5" font-weight="bold" fill="#a855f7">LONG-TERM MEMORY</text>
+  <text x="557" y="38" text-anchor="middle" font-size="6">Cross-session knowledge</text>
+  <rect x="450" y="44" width="215" height="50" rx="3" fill="#fff" stroke="#d1d5db"/>
+  <text x="455" y="56" font-size="5.5" font-family="Consolas">Semantic: vector store (FAISS/Pinecone)</text>
+  <text x="455" y="67" font-size="5.5" font-family="Consolas">Episodic: past events with timestamps</text>
+  <text x="455" y="78" font-size="5.5" font-family="Consolas">Summary: compressed conversation history</text>
+  <text x="455" y="89" font-size="5.5" font-family="Consolas">remember("prefers dark mode")</text>
+  <text x="557" y="110" text-anchor="middle" font-size="5.5" fill="#a855f7">Lives in: Vector Store / Database</text>
+  <text x="557" y="121" text-anchor="middle" font-size="5.5" fill="#666">Lifetime: Forever (persisted)</text>
+
+  <!-- Context window budget -->
+  <rect x="5" y="130" width="670" height="30" rx="3" fill="#fef3c7" stroke="#f59e0b"/>
+  <text x="340" y="143" text-anchor="middle" font-size="6.5" font-weight="bold">Context Window Budget (128K tokens for GPT-4o)</text>
+  <text x="340" y="155" text-anchor="middle" font-size="6">System prompt (~500) + Retrieved memories (~1000) + Summary (~300) + Recent messages (~2000) + Tool defs (~800) = ~4800 tokens used</text>
+</svg>
+<div class="diagram-caption">Three memory layers: Working (graph state) → Short-term (checkpoint) → Long-term (vector store)</div>
+</div>
+
+<h2>Memory Flow Per Turn</h2>
+
+<div class="diagram">
+<svg width="600" height="120" viewBox="0 0 600 120">
+  <defs>
+    <marker id="arI" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5" fill="#4F46E5"/></marker>
+  </defs>
+  <!-- User Message -->
+  <rect x="5" y="35" width="70" height="30" rx="3" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5"/><text x="40" y="53" text-anchor="middle" font-size="6" font-weight="bold">User Msg</text>
+  <line x1="77" y1="50" x2="100" y2="50" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arI)"/>
+  <!-- Retrieve -->
+  <rect x="103" y="25" width="95" height="50" rx="4" fill="#f3e8ff" stroke="#a855f7" stroke-width="1.5"/>
+  <text x="150" y="40" text-anchor="middle" font-size="6" font-weight="bold">RETRIEVE</text>
+  <text x="150" y="52" text-anchor="middle" font-size="5.5">Semantic search</text>
+  <text x="150" y="62" text-anchor="middle" font-size="5.5">+ Load checkpoint</text>
+  <text x="150" y="72" text-anchor="middle" font-size="5">→ relevant memories</text>
+  <line x1="200" y1="50" x2="225" y2="50" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arI)"/>
+  <!-- Assemble context -->
+  <rect x="228" y="20" width="115" height="60" rx="4" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="285" y="35" text-anchor="middle" font-size="6" font-weight="bold">ASSEMBLE CONTEXT</text>
+  <text x="285" y="47" text-anchor="middle" font-size="5.5">system prompt</text>
+  <text x="285" y="57" text-anchor="middle" font-size="5.5">+ memories (top-k)</text>
+  <text x="285" y="67" text-anchor="middle" font-size="5.5">+ recent messages</text>
+  <text x="285" y="77" text-anchor="middle" font-size="5.5">+ current query</text>
+  <line x1="345" y1="50" x2="370" y2="50" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arI)"/>
+  <!-- LLM -->
+  <rect x="373" y="30" width="75" height="40" rx="4" fill="#dcfce7" stroke="#22c55e" stroke-width="1.5"/>
+  <text x="410" y="47" text-anchor="middle" font-size="6.5" font-weight="bold">AGENT LLM</text>
+  <text x="410" y="60" text-anchor="middle" font-size="5.5">Generate response</text>
+  <line x1="450" y1="50" x2="475" y2="50" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arI)"/>
+  <!-- Store -->
+  <rect x="478" y="25" width="85" height="50" rx="4" fill="#fce7f3" stroke="#ec4899" stroke-width="1.5"/>
+  <text x="520" y="40" text-anchor="middle" font-size="6" font-weight="bold">STORE</text>
+  <text x="520" y="52" text-anchor="middle" font-size="5.5">If noteworthy:</text>
+  <text x="520" y="62" text-anchor="middle" font-size="5.5">→ save to vector store</text>
+  <text x="520" y="72" text-anchor="middle" font-size="5">+ checkpoint state</text>
+  <!-- Labels -->
+  <text x="300" y="100" text-anchor="middle" font-size="6" fill="#666">Auto-retrieve on every turn (10-50ms) | Store selectively (only important facts) | Summarize when context grows</text>
+  <text x="300" y="112" text-anchor="middle" font-size="6" fill="#999">Token budget: keep retrieved memories under ~1000 tokens to leave room for conversation</text>
+</svg>
+<div class="diagram-caption">Per-turn flow: Retrieve relevant memories → Assemble context → LLM responds → Store if noteworthy</div>
+</div>
+
+<h2>Memory Pattern Comparison</h2>
+
+<table>
+<tr><th>Pattern</th><th>What It Stores</th><th>Context Cost</th><th>Persistence</th><th>Best For</th></tr>
+<tr><td>Buffer (all messages)</td><td>Every message verbatim</td><td>High (grows unbounded)</td><td>Session</td><td>Short conversations (&lt;20 turns)</td></tr>
+<tr><td>Window (last N)</td><td>Last N messages only</td><td>Fixed</td><td>Session</td><td>Chat UIs with predictable length</td></tr>
+<tr><td>Summary</td><td>Compressed history</td><td>Low (fixed ~300 tokens)</td><td>Persistent</td><td>Long conversations, cost-sensitive</td></tr>
+<tr><td>Semantic (vector)</td><td>Facts retrieved on demand</td><td>Variable (top-k)</td><td>Persistent</td><td>Cross-session knowledge</td></tr>
+<tr><td><b>Hybrid</b></td><td>Summary + semantic + recent</td><td>Medium</td><td>Persistent</td><td><b>Production assistants</b></td></tr>
+</table>
+
+<h2>Implementation Code</h2>
+
+<h3>Checkpointing (Short-Term Memory)</h3>
+<div class="prompt">from langgraph.checkpoint.memory import MemorySaver
+
+agent = graph.compile(checkpointer=MemorySaver())
+config = {"configurable": {"thread_id": "user-42-session-1"}}
+
+# Same thread_id = same conversation
+agent.invoke({"messages": [HumanMessage("I'm working on Python")]}, config)
+agent.invoke({"messages": [HumanMessage("What language am I using?")]}, config)
+# → "Python" (remembers from checkpoint)</div>
+
+<h3>Conversation Summarization</h3>
+<div class="prompt">def summarize_conversation(messages: list, max_messages: int = 10) -> list:
+    """Summarize older messages when conversation exceeds max length."""
+    if len(messages) <= max_messages:
+        return messages
+    old_messages = messages[1:-max_messages]
+    recent_messages = messages[-max_messages:]
+    summary = llm.invoke([
+        SystemMessage(content="Summarize this conversation in 2-3 sentences."),
+        HumanMessage(content="\n".join(f"{m.type}: {m.content}" for m in old_messages))
+    ]).content
+    return [messages[0],  # System message
+            SystemMessage(content=f"[Summary: {summary}]"),
+            *recent_messages]</div>
+
+<h3>Semantic Memory (Remember/Recall Tools)</h3>
+<div class="prompt">from langchain_openai import OpenAIEmbeddings
+from langchain_community.vectorstores import FAISS
+from langchain_core.tools import tool
+
+memory_store = FAISS.from_texts(["init"], OpenAIEmbeddings(model="text-embedding-3-small"))
+
+@tool
+def remember(fact: str, category: str = "general") -> str:
+    """Store an important fact. Use when user shares preferences or context.
+    Categories: 'preference', 'project', 'personal', 'general'."""
+    doc = Document(page_content=fact,
+        metadata={"category": category, "timestamp": datetime.now().isoformat()})
+    memory_store.add_documents([doc])
+    return f"Stored: '{fact}'"
+
+@tool
+def recall(query: str, k: int = 3) -> str:
+    """Retrieve relevant memories. Use when you need context about the user."""
+    results = memory_store.similarity_search(query, k=k)
+    if not results: return "No relevant memories found."
+    return "Memories:\n" + "\n".join(
+        f"- [{r.metadata.get('category')}] {r.page_content}" for r in results)</div>
+
+<h3>Token Budget Enforcement</h3>
+<div class="prompt">def enforce_memory_budget(memories: str, budget_tokens: int = 1000) -> str:
+    """Truncate retrieved memories to fit token budget."""
+    max_chars = budget_tokens * 4  # ~1 token ≈ 4 chars
+    if len(memories) <= max_chars:
+        return memories
+    return memories[:max_chars] + "\n[...older memories omitted]"</div>
+
+<h2>Memory Layer Reference</h2>
+
+<table>
+<tr><th>Layer</th><th>Mechanism</th><th>Lifetime</th><th>Size Limit</th><th>Latency</th></tr>
+<tr><td>Working</td><td>LangGraph state (TypedDict)</td><td>Single invocation</td><td>Keep lean</td><td>0ms (in-memory)</td></tr>
+<tr><td>Short-term</td><td>Checkpointing (thread_id)</td><td>Session</td><td>Grows with messages</td><td>5-50ms (memory) / 20-200ms (Postgres)</td></tr>
+<tr><td>Long-term</td><td>Vector store (FAISS/Pinecone)</td><td>Forever</td><td>Storage-limited</td><td>10-50ms (local) / 50-200ms (cloud)</td></tr>
+<tr><td>Compressed</td><td>Summary messages</td><td>Session+</td><td>Fixed (~300 tokens)</td><td>500-1500ms (LLM call)</td></tr>
+</table>
+
+<h2>Failure Modes → Fixes</h2>
+
+<table>
+<tr><th>Failure Mode</th><th>Symptom</th><th>Prevention</th></tr>
+<tr><td>Context overflow</td><td>Messages exceed model window</td><td>Summarize old messages, enforce window</td></tr>
+<tr><td>Stale memories</td><td>Outdated facts retrieved</td><td>Timestamps, prefer recent, allow "forget"</td></tr>
+<tr><td>Memory hallucination</td><td>Agent "remembers" things never stored</td><td>Only retrieve from actual store, never fabricate</td></tr>
+<tr><td>Irrelevant retrieval</td><td>Wrong memories injected</td><td>Tune similarity threshold, filter by category</td></tr>
+<tr><td>Checkpoint bloat</td><td>DB grows unbounded</td><td>TTL on old threads (30 days), archive</td></tr>
+<tr><td>Summarization loss</td><td>Important details lost in compression</td><td>Keep key facts in long-term vector store</td></tr>
+</table>
+
+<h2>Storage Planning</h2>
+
+<table>
+<tr><th>Scale</th><th>Checkpoint Data</th><th>Vector Store</th><th>Recommended Infrastructure</th></tr>
+<tr><td>10 users × 10 sessions</td><td>~200KB</td><td>~150 facts</td><td>MemorySaver + local FAISS</td></tr>
+<tr><td>100 users × 50 sessions</td><td>~10MB</td><td>~5K facts</td><td>SQLite + local FAISS</td></tr>
+<tr><td>1000 users × 50 sessions</td><td>~2GB</td><td>~50K facts</td><td>PostgresSaver + Pinecone</td></tr>
+</table>
+
+<div class="tip">
+<b>Architecture Decision:</b> Hybrid memory — LangGraph checkpointing for short-term + vector store for long-term + summarization for compression. No single mechanism handles all needs. Checkpointing handles multi-turn flow. Vectors handle cross-session recall. Summarization prevents context overflow. For short sessions (&lt;10 turns): checkpointing alone suffices. For knowledge-heavy bots: prioritize semantic memory. Cost-sensitive: skip summarization, just window last N messages.<br/>
+<b>Next →</b> Topic 9: Agent Evaluation (testing non-deterministic agents via trajectory analysis)
+</div>
+
+</body>
+</html>

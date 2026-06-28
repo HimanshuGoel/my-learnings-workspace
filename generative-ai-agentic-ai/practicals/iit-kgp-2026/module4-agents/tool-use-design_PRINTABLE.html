@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Module 4, Topic 5 — Tool Use Design</title>
+<style>
+@page { margin: 0.5cm; size: A4; }
+body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+ul { margin: 0 0 2px 12px; padding: 0; }
+li { margin-bottom: 0.5px; }
+.tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+.prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+.two-col { column-count: 2; column-gap: 10px; }
+code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+th { background: #f3f4f6; font-weight: bold; }
+.diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+.diagram svg { max-width: 100%; }
+.diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+.section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+@media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+<h1>Module 4, Topic 5 — Tool Use Design</h1>
+
+<p class="section-intro">Tools turn LLMs from text generators into action-takers. The LLM sees tool definitions (name, description, params), decides which to call, runtime validates args, executes, and returns results. Well-designed tool descriptions are THE key to reliable tool selection — the docstring IS your prompt to the LLM about when and how to use each tool. Poor descriptions lead to hallucinated parameters, wrong tool selection, and silent failures.</p>
+
+<p><b>Problem Statement:</b> An LLM without tools can only generate text. With tools, it can search databases, call APIs, execute code, and modify systems. But the interface between LLM and tools must be designed carefully — the LLM only sees the schema and description, so those must be precise enough for correct usage without human intervention.</p>
+
+<h2>Tool Execution Flow</h2>
+
+<div class="diagram">
+<svg width="680" height="150" viewBox="0 0 680 150">
+  <defs>
+    <marker id="arE" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto"><path d="M0,0 L7,2.5 L0,5" fill="#4F46E5"/></marker>
+  </defs>
+  <!-- Step 1: LLM sees definitions -->
+  <rect x="5" y="30" width="95" height="55" rx="4" fill="#f3e8ff" stroke="#a855f7" stroke-width="1.5"/>
+  <text x="52" y="46" text-anchor="middle" font-size="6.5" font-weight="bold">LLM</text>
+  <text x="52" y="58" text-anchor="middle" font-size="5.5">Sees: tool defs</text>
+  <text x="52" y="68" text-anchor="middle" font-size="5.5">(name, desc, schema)</text>
+  <text x="52" y="78" text-anchor="middle" font-size="5.5">Decides: which + args</text>
+  <line x1="103" y1="57" x2="128" y2="57" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arE)"/>
+  <!-- Step 2: Structured output -->
+  <rect x="133" y="30" width="90" height="55" rx="4" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="178" y="46" text-anchor="middle" font-size="6.5" font-weight="bold">Tool Call</text>
+  <text x="178" y="58" text-anchor="middle" font-size="5.5">{"name": "search",</text>
+  <text x="178" y="68" text-anchor="middle" font-size="5.5"> "args": {"q": "..."}}</text>
+  <text x="178" y="78" text-anchor="middle" font-size="5.5">Structured JSON</text>
+  <line x1="226" y1="57" x2="251" y2="57" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arE)"/>
+  <!-- Step 3: Validate -->
+  <rect x="256" y="30" width="80" height="55" rx="4" fill="#e0e7ff" stroke="#6366f1" stroke-width="1.5"/>
+  <text x="296" y="46" text-anchor="middle" font-size="6.5" font-weight="bold">Validate</text>
+  <text x="296" y="58" text-anchor="middle" font-size="5.5">Pydantic schema</text>
+  <text x="296" y="68" text-anchor="middle" font-size="5.5">Type checking</text>
+  <text x="296" y="78" text-anchor="middle" font-size="5.5">Required fields</text>
+  <line x1="339" y1="57" x2="364" y2="57" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arE)"/>
+  <!-- Step 4: Execute -->
+  <rect x="369" y="30" width="80" height="55" rx="4" fill="#dcfce7" stroke="#22c55e" stroke-width="1.5"/>
+  <text x="409" y="46" text-anchor="middle" font-size="6.5" font-weight="bold">Execute</text>
+  <text x="409" y="58" text-anchor="middle" font-size="5.5">Run function</text>
+  <text x="409" y="68" text-anchor="middle" font-size="5.5">Call API/DB</text>
+  <text x="409" y="78" text-anchor="middle" font-size="5.5">Try/except</text>
+  <line x1="452" y1="57" x2="477" y2="57" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arE)"/>
+  <!-- Step 5: Result -->
+  <rect x="482" y="30" width="80" height="55" rx="4" fill="#fce7f3" stroke="#ec4899" stroke-width="1.5"/>
+  <text x="522" y="46" text-anchor="middle" font-size="6.5" font-weight="bold">Result</text>
+  <text x="522" y="58" text-anchor="middle" font-size="5.5">ToolMessage</text>
+  <text x="522" y="68" text-anchor="middle" font-size="5.5">(content: str)</text>
+  <text x="522" y="78" text-anchor="middle" font-size="5.5">or error string</text>
+  <line x1="565" y1="57" x2="590" y2="57" stroke="#4F46E5" stroke-width="1.5" marker-end="url(#arE)"/>
+  <!-- Step 6: Back to LLM -->
+  <rect x="595" y="30" width="80" height="55" rx="4" fill="#f3e8ff" stroke="#a855f7" stroke-width="1.5"/>
+  <text x="635" y="46" text-anchor="middle" font-size="6.5" font-weight="bold">LLM</text>
+  <text x="635" y="58" text-anchor="middle" font-size="5.5">Incorporates result</text>
+  <text x="635" y="68" text-anchor="middle" font-size="5.5">Decides next:</text>
+  <text x="635" y="78" text-anchor="middle" font-size="5.5">tool or respond</text>
+  <!-- Labels -->
+  <text x="340" y="105" text-anchor="middle" font-size="6" fill="#666">Key insight: LLM NEVER executes tools directly — runtime does. LLM only outputs the intent (name + args).</text>
+  <text x="340" y="118" text-anchor="middle" font-size="6" fill="#666">Error handling: ALWAYS return error string (not raise exception) — lets agent recover gracefully.</text>
+  <text x="340" y="131" text-anchor="middle" font-size="6" fill="#dc2626">Critical rule: Tool descriptions are your PROMPT to the LLM — invest 80% of tool design time here.</text>
+</svg>
+<div class="diagram-caption">Tool execution lifecycle: LLM decides → Runtime validates → Execute → Result back to LLM</div>
+</div>
+
+<h2>Tool Contract Anatomy</h2>
+
+<div class="diagram">
+<svg width="500" height="155" viewBox="0 0 500 155">
+  <rect x="10" y="5" width="480" height="145" rx="5" fill="#f9fafb" stroke="#4F46E5" stroke-width="1.5"/>
+  <text x="250" y="22" text-anchor="middle" font-size="8" font-weight="bold" fill="#4F46E5">The Tool Contract (What the LLM Sees)</text>
+  <line x1="10" y1="28" x2="490" y2="28" stroke="#4F46E5" stroke-width="0.5"/>
+  <!-- Name -->
+  <rect x="20" y="35" width="80" height="22" rx="3" fill="#dcfce7" stroke="#22c55e"/><text x="60" y="49" text-anchor="middle" font-size="6" font-weight="bold">name</text>
+  <text x="110" y="49" font-size="6">"search_company_docs" — verb_noun format, specific not generic</text>
+  <!-- Description -->
+  <rect x="20" y="62" width="80" height="35" rx="3" fill="#fef3c7" stroke="#f59e0b"/><text x="60" y="77" text-anchor="middle" font-size="6" font-weight="bold">description</text><text x="60" y="88" text-anchor="middle" font-size="5">(docstring)</text>
+  <text x="110" y="72" font-size="6">WHEN to use: "Use when user asks about company policies..."</text>
+  <text x="110" y="82" font-size="6">WHAT it returns: "Returns relevant text passages with sources"</text>
+  <text x="110" y="92" font-size="6">When NOT to use: "Do NOT use for general knowledge questions"</text>
+  <!-- Parameters -->
+  <rect x="20" y="102" width="80" height="38" rx="3" fill="#e0e7ff" stroke="#6366f1"/><text x="60" y="117" text-anchor="middle" font-size="6" font-weight="bold">parameters</text><text x="60" y="128" text-anchor="middle" font-size="5">(schema)</text>
+  <text x="110" y="110" font-size="6">query: str — Field(description="The search query")</text>
+  <text x="110" y="120" font-size="6">collection: str — Field(description="'docs', 'code', or 'issues'")</text>
+  <text x="110" y="130" font-size="6">max_results: int = 5 — Field(ge=1, le=20, description="Number of results")</text>
+  <text x="110" y="140" font-size="6" fill="#dc2626">Pydantic validation catches bad args BEFORE execution</text>
+</svg>
+<div class="diagram-caption">Tool contract: name + docstring + Pydantic schema = everything the LLM uses to decide tool usage</div>
+</div>
+
+<h2>Tool Pattern Reference</h2>
+
+<table>
+<tr><th>Pattern</th><th>When</th><th>Example</th><th>Key Feature</th></tr>
+<tr><td>Simple tool</td><td>Stateless computation</td><td>Calculator, unit conversion</td><td>No side effects</td></tr>
+<tr><td>Tool with confirmation</td><td>Destructive/expensive actions</td><td>Delete file, send email</td><td>confirmed=true required</td></tr>
+<tr><td>Tool with retries</td><td>Unreliable external APIs</td><td>Web search, DB queries</td><td>Retry logic built-in</td></tr>
+<tr><td>Authenticated tool</td><td>Access-controlled resources</td><td>Internal APIs, databases</td><td>Auth token injection</td></tr>
+<tr><td>Multi-step tool</td><td>Complex operations</td><td>"Create and configure VM"</td><td>Internal sub-steps</td></tr>
+<tr><td>Tool with schema validation</td><td>Strict input requirements</td><td>API calls with specific formats</td><td>Pydantic enforcement</td></tr>
+</table>
+
+<h2>Implementation Code</h2>
+
+<h3>Well-Designed Tool (with Pydantic Schema)</h3>
+<div class="prompt">from langchain_core.tools import tool
+from pydantic import BaseModel, Field
+
+class SearchInput(BaseModel):
+    query: str = Field(description="The search query")
+    collection: str = Field(description="Which collection: 'docs', 'code', 'issues'")
+    max_results: int = Field(default=5, ge=1, le=20, description="Number of results (1-20)")
+
+@tool(args_schema=SearchInput)
+def search_docs(query: str, collection: str, max_results: int = 5) -> str:
+    """Search documentation, code examples, or GitHub issues.
+    
+    Use 'docs' for API documentation and guides.
+    Use 'code' for code examples and implementations.
+    Use 'issues' for bug reports and feature requests.
+    
+    Do NOT use for: general knowledge questions, current events."""
+    results = vector_store.similarity_search(query, k=max_results, 
+                                              filter={"collection": collection})
+    return "\n---\n".join([f"[{r.metadata['source']}] {r.page_content}" for r in results])</div>
+
+<h3>Error Wrapping (Critical Pattern)</h3>
+<div class="prompt">@tool
+def query_database(sql: str) -> str:
+    """Execute a read-only SQL query against the analytics database.
+    Only SELECT queries are allowed. Returns results as formatted table."""
+    try:
+        if not sql.strip().upper().startswith("SELECT"):
+            return "ERROR: Only SELECT queries allowed. Rewrite as SELECT."
+        result = db.execute(sql)
+        if not result:
+            return "Query returned no results. Broaden search criteria."
+        return format_as_table(result)
+    except SyntaxError as e:
+        return f"SQL syntax error: {e}. Fix the query and try again."
+    except TimeoutError:
+        return "Query timed out (>30s). Add LIMIT or narrow WHERE clause."
+    except Exception as e:
+        return f"Database error: {type(e).__name__}: {e}. Try different approach."
+# KEY: Never raise — always return error STRING so agent can recover</div>
+
+<h3>Confirmation Pattern (Destructive Actions)</h3>
+<div class="prompt">class DeleteAction(BaseModel):
+    target: str = Field(description="What to delete")
+    confirmed: bool = Field(default=False, description="Must be true to execute")
+
+@tool(args_schema=DeleteAction)
+def delete_resource(target: str, confirmed: bool = False) -> str:
+    """Delete a resource. REQUIRES confirmed=true to actually execute.
+    First call with confirmed=false to see preview."""
+    if not confirmed:
+        return f"PREVIEW: Would delete '{target}'. Call again with confirmed=true."
+    perform_delete(target)
+    return f"Successfully deleted '{target}'."</div>
+
+<h3>Binding Tools to LLM + LangGraph</h3>
+<div class="prompt">from langchain_openai import ChatOpenAI
+from langgraph.prebuilt import ToolNode
+
+llm = ChatOpenAI(model="gpt-4o-mini")
+tools = [search_docs, query_database, delete_resource]
+llm_with_tools = llm.bind_tools(tools)
+
+# In LangGraph:
+tool_node = ToolNode(tools)  # Auto-executes tool calls from LLM
+graph.add_node("tools", tool_node)
+graph.add_conditional_edges("agent", should_continue, {"tools": "tools", END: END})
+graph.add_edge("tools", "agent")  # Result goes back to LLM</div>
+
+<h2>Description Best Practices</h2>
+
+<table>
+<tr><th>Aspect</th><th>BAD</th><th>GOOD</th></tr>
+<tr><td>Name</td><td><code>search</code></td><td><code>search_company_docs</code></td></tr>
+<tr><td>Description</td><td>"Search for information"</td><td>"Search internal docs for policies, procedures. Use when user asks about HR, security..."</td></tr>
+<tr><td>When to use</td><td>(absent)</td><td>"Use this when... Do NOT use for..."</td></tr>
+<tr><td>Parameters</td><td><code>q: str</code></td><td><code>query: str = Field(description="The search query")</code></td></tr>
+<tr><td>Return info</td><td>(absent)</td><td>"Returns relevant text passages with source citations"</td></tr>
+<tr><td>Constraints</td><td>(absent)</td><td><code>max_results: int = Field(ge=1, le=20)</code></td></tr>
+</table>
+
+<h2>Failure Modes → Fixes</h2>
+
+<table>
+<tr><th>Failure Mode</th><th>Symptom</th><th>Fix</th></tr>
+<tr><td>Tool hallucination</td><td>LLM calls tool that doesn't exist</td><td>Bind only available tools, validate tool name</td></tr>
+<tr><td>Wrong tool selected</td><td>LLM picks search when it should calculate</td><td>Better descriptions, add "use this when..."</td></tr>
+<tr><td>Invalid arguments</td><td>Wrong types or missing required fields</td><td>Pydantic schema validation, helpful error messages</td></tr>
+<tr><td>Tool timeout</td><td>External API hangs</td><td>Timeout wrapper, return error message (not exception)</td></tr>
+<tr><td>Infinite tool loop</td><td>Same tool called repeatedly with same args</td><td>Track call history in state, detect repetition</td></tr>
+<tr><td>Sensitive data exposure</td><td>Tool returns PII or secrets</td><td>Filter tool output before returning to LLM</td></tr>
+</table>
+
+<h2>Production Configuration</h2>
+
+<table>
+<tr><th>Concern</th><th>Strategy</th><th>Implementation</th></tr>
+<tr><td>Tool count</td><td>Only bind relevant tools (not 50)</td><td>More tools = more tokens per request</td></tr>
+<tr><td>Latency</td><td>Parallelize independent tool calls</td><td>100ms-5s per call, stacks sequentially</td></tr>
+<tr><td>Security</td><td>Never execute arbitrary code from LLM</td><td>Sandbox + Pydantic + rate limit</td></tr>
+<tr><td>Cost</td><td>Each tool call = 1 LLM round-trip</td><td>Schema sent every time (token overhead)</td></tr>
+<tr><td>Audit</td><td>Log all tool executions</td><td>tool_name, args, result, timestamp</td></tr>
+<tr><td>Rate limiting</td><td>Especially for destructive tools</td><td>Max N calls per conversation</td></tr>
+</table>
+
+<div class="tip">
+<b>Architecture Decision:</b> Design tools with explicit error messages (never raise exceptions to the LLM). When a tool raises unhandled exceptions, the agent can't recover. When it returns a helpful error STRING, the agent understands what went wrong and tries a different approach. This is the single most important tool design decision. Trade-off: more boilerplate per tool (try/except + formatted errors). Worth it for agent reliability.<br/>
+<b>Next →</b> Topic 6: Multi-Agent Systems (coordinating multiple specialized agents)
+</div>
+
+</body>
+</html>

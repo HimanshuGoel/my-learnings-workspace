@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Matplotlib — Printable Learning Notes</title>
+<style>
+  @page { margin: 0.5cm; size: A4; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+  h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+  h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+  h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+  ul { margin: 0 0 2px 12px; padding: 0; }
+  li { margin-bottom: 0.5px; }
+  .tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+  .prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+  .two-col { column-count: 2; column-gap: 10px; }
+  code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+  table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+  th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+  th { background: #f3f4f6; font-weight: bold; }
+  .diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+  .diagram svg { max-width: 100%; }
+  .diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+  .diagram-row { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 8px; margin: 4px 0; break-inside: avoid; }
+  .diagram-row .diagram { flex: 1; min-width: 120px; max-width: 250px; }
+  .section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+  @media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+
+<h1>Matplotlib — Complete Learning Notes</h1>
+<p><b>Summary:</b> Matplotlib turns numbers into charts — it's Python's foundational visualization library. Every plot you see in ML papers, Kaggle notebooks, and presentations is Matplotlib (or something built on top of it).</p>
+
+<h2>Why Matplotlib Exists</h2>
+<ul>
+<li><b>Problem</b> — raw numbers (arrays, tables) are hard to interpret. A 1000-row dataset tells you nothing by staring at it. You need visual patterns.</li>
+<li><b>Solution</b> — Matplotlib renders arrays as charts (line, bar, scatter, heatmap) so humans can spot distributions, outliers, trends, and model behavior at a glance.</li>
+<li><b>Mental Model</b> — the <b>HTML Canvas API for data</b>. Figure = browser window. Axes = individual canvas element. You draw on each Axes with method calls. Style with parameters instead of CSS.</li>
+<li><b>AI Connection</b> — training blind is debugging without logs. Matplotlib is how you see overfitting, class imbalance, feature distributions, and model errors.</li>
+</ul>
+
+<h2>Where Matplotlib Fits</h2>
+<div class="diagram">
+<svg width="400" height="100" viewBox="0 0 400 100">
+<defs><marker id="arrM" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto"><path d="M0,0 L6,2 L0,4 Z" fill="#999"/></marker></defs>
+<rect x="10" y="30" width="80" height="35" rx="4" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="50" y="48" text-anchor="middle" font-size="6pt" font-weight="bold">Clean Data</text>
+<text x="50" y="58" text-anchor="middle" font-size="5pt" fill="#666">Pandas / NumPy</text>
+<line x1="90" y1="47" x2="115" y2="47" stroke="#999" stroke-width="1" marker-end="url(#arrM)"/>
+<rect x="115" y="25" width="90" height="45" rx="4" fill="#ede9fe" stroke="#4F46E5" stroke-width="1.5"/>
+<text x="160" y="42" text-anchor="middle" font-size="7pt" font-weight="bold" fill="#4F46E5">Matplotlib</text>
+<text x="160" y="53" text-anchor="middle" font-size="5.5pt" fill="#4F46E5">Visualize</text>
+<text x="160" y="63" text-anchor="middle" font-size="5pt" fill="#666">(you are here)</text>
+<line x1="205" y1="47" x2="230" y2="47" stroke="#999" stroke-width="1" marker-end="url(#arrM)"/>
+<rect x="230" y="25" width="150" height="45" rx="4" fill="#dcfce7" stroke="#22c55e"/>
+<text x="305" y="38" text-anchor="middle" font-size="6pt" font-weight="bold" fill="#166534">Human Insights</text>
+<text x="305" y="48" text-anchor="middle" font-size="5pt" fill="#666">• Is data balanced?</text>
+<text x="305" y="56" text-anchor="middle" font-size="5pt" fill="#666">• Is model overfitting?</text>
+<text x="305" y="64" text-anchor="middle" font-size="5pt" fill="#666">• Which features matter?</text>
+</svg>
+<div class="diagram-caption">Matplotlib is for human understanding — not computation. It sits between data and decisions.</div>
+</div>
+
+<h2>1. Figure & Axes — The Object Hierarchy</h2>
+<p class="section-intro">Everything in Matplotlib is a Figure containing Axes. Understanding this hierarchy is the key to avoiding pyplot spaghetti.</p>
+
+<div class="diagram">
+<svg width="350" height="100" viewBox="0 0 350 100">
+<rect x="10" y="5" width="330" height="90" rx="5" fill="#f8f9fa" stroke="#333" stroke-width="1.2"/>
+<text x="25" y="18" font-size="6.5pt" font-weight="bold">Figure (the window/page)</text>
+<rect x="20" y="25" width="145" height="60" rx="4" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="92" y="38" text-anchor="middle" font-size="6pt" font-weight="bold">Axes[0,0]</text>
+<text x="92" y="50" text-anchor="middle" font-size="5.5pt" fill="#666">title, xlabel, ylabel</text>
+<text x="92" y="60" text-anchor="middle" font-size="5.5pt" fill="#666">plot(), scatter(), bar()</text>
+<text x="92" y="70" text-anchor="middle" font-size="5.5pt" fill="#666">legend, grid, ticks</text>
+<rect x="180" y="25" width="145" height="60" rx="4" fill="#fef3c7" stroke="#f59e0b"/>
+<text x="252" y="38" text-anchor="middle" font-size="6pt" font-weight="bold">Axes[0,1]</text>
+<text x="252" y="50" text-anchor="middle" font-size="5.5pt" fill="#666">Independent drawing</text>
+<text x="252" y="60" text-anchor="middle" font-size="5.5pt" fill="#666">area — its own axis</text>
+<text x="252" y="70" text-anchor="middle" font-size="5.5pt" fill="#666">ranges and styles</text>
+</svg>
+<div class="diagram-caption">Figure = container. Axes = where you draw. One figure can have many axes (subplots).</div>
+</div>
+
+<div class="prompt"># ALWAYS use the OO interface (not plt.plot shortcut)
+fig, ax = plt.subplots(figsize=(10, 6))     # single plot
+fig, axes = plt.subplots(2, 3, figsize=(14, 8))  # 2×3 grid
+fig, (ax1, ax2) = plt.subplots(1, 2)        # 1×2 unpacked</div>
+
+<div class="tip"><b>Rule:</b> Never use <code>plt.plot()</code> for anything beyond a quick one-off. Always use <code>fig, ax = plt.subplots()</code> and draw on <code>ax</code>. This scales to complex layouts.</div>
+
+<h2>2. The Big 6 Plot Types</h2>
+<p class="section-intro">Six plot types cover 95% of ML visualization needs. Know when to use each one.</p>
+
+<table>
+<tr><th>Plot</th><th>Use When</th><th>ML Example</th><th>Code</th></tr>
+<tr><td><b>Line</b></td><td>Trends over ordered sequence</td><td>Loss over epochs</td><td><code>ax.plot(x, y)</code></td></tr>
+<tr><td><b>Scatter</b></td><td>Relationship between 2 variables</td><td>Feature vs target, embeddings in 2D</td><td><code>ax.scatter(x, y)</code></td></tr>
+<tr><td><b>Bar</b></td><td>Compare categories</td><td>Model accuracies, class counts</td><td><code>ax.bar(cats, vals)</code></td></tr>
+<tr><td><b>Histogram</b></td><td>Distribution of one variable</td><td>Feature distributions, prediction scores</td><td><code>ax.hist(data, bins)</code></td></tr>
+<tr><td><b>Heatmap</b></td><td>Matrix of values</td><td>Confusion matrix, correlation</td><td><code>ax.imshow(matrix)</code></td></tr>
+<tr><td><b>Box</b></td><td>Distribution summary + outliers</td><td>Feature spread by group</td><td><code>ax.boxplot(data)</code></td></tr>
+</table>
+
+<div class="diagram-row">
+<div class="diagram">
+<svg width="80" height="60" viewBox="0 0 80 60">
+<polyline points="5,50 20,35 35,40 50,20 65,15 75,10" fill="none" stroke="#4F46E5" stroke-width="1.5"/>
+<text x="40" y="58" text-anchor="middle" font-size="5.5pt">Line</text>
+</svg>
+</div>
+<div class="diagram">
+<svg width="80" height="60" viewBox="0 0 80 60">
+<circle cx="15" cy="40" r="3" fill="#4F46E5" opacity="0.6"/>
+<circle cx="30" cy="25" r="3" fill="#4F46E5" opacity="0.6"/>
+<circle cx="45" cy="35" r="3" fill="#4F46E5" opacity="0.6"/>
+<circle cx="55" cy="15" r="3" fill="#4F46E5" opacity="0.6"/>
+<circle cx="65" cy="20" r="3" fill="#4F46E5" opacity="0.6"/>
+<circle cx="25" cy="45" r="3" fill="#4F46E5" opacity="0.6"/>
+<text x="40" y="58" text-anchor="middle" font-size="5.5pt">Scatter</text>
+</svg>
+</div>
+<div class="diagram">
+<svg width="80" height="60" viewBox="0 0 80 60">
+<rect x="10" y="20" width="12" height="30" fill="#4F46E5" opacity="0.7"/>
+<rect x="27" y="10" width="12" height="40" fill="#4F46E5" opacity="0.7"/>
+<rect x="44" y="30" width="12" height="20" fill="#4F46E5" opacity="0.7"/>
+<rect x="61" y="25" width="12" height="25" fill="#4F46E5" opacity="0.7"/>
+<text x="40" y="58" text-anchor="middle" font-size="5.5pt">Bar</text>
+</svg>
+</div>
+<div class="diagram">
+<svg width="80" height="60" viewBox="0 0 80 60">
+<rect x="8" y="35" width="8" height="15" fill="#4F46E5" opacity="0.5"/>
+<rect x="17" y="25" width="8" height="25" fill="#4F46E5" opacity="0.5"/>
+<rect x="26" y="15" width="8" height="35" fill="#4F46E5" opacity="0.5"/>
+<rect x="35" y="10" width="8" height="40" fill="#4F46E5" opacity="0.5"/>
+<rect x="44" y="18" width="8" height="32" fill="#4F46E5" opacity="0.5"/>
+<rect x="53" y="28" width="8" height="22" fill="#4F46E5" opacity="0.5"/>
+<rect x="62" y="38" width="8" height="12" fill="#4F46E5" opacity="0.5"/>
+<text x="40" y="58" text-anchor="middle" font-size="5.5pt">Histogram</text>
+</svg>
+</div>
+<div class="diagram">
+<svg width="80" height="60" viewBox="0 0 80 60">
+<rect x="10" y="10" width="15" height="15" fill="#4F46E5" opacity="0.9"/>
+<rect x="25" y="10" width="15" height="15" fill="#4F46E5" opacity="0.3"/>
+<rect x="40" y="10" width="15" height="15" fill="#4F46E5" opacity="0.5"/>
+<rect x="10" y="25" width="15" height="15" fill="#4F46E5" opacity="0.3"/>
+<rect x="25" y="25" width="15" height="15" fill="#4F46E5" opacity="0.8"/>
+<rect x="40" y="25" width="15" height="15" fill="#4F46E5" opacity="0.4"/>
+<rect x="10" y="40" width="15" height="15" fill="#4F46E5" opacity="0.5"/>
+<rect x="25" y="40" width="15" height="15" fill="#4F46E5" opacity="0.4"/>
+<rect x="40" y="40" width="15" height="15" fill="#4F46E5" opacity="0.9"/>
+<text x="40" y="58" text-anchor="middle" font-size="5.5pt">Heatmap</text>
+</svg>
+</div>
+</div>
+
+<h2>3. Customization — Making Plots Professional</h2>
+<p class="section-intro">A chart without labels is useless. Every plot needs: title, axis labels, legend (if multiple series), and appropriate sizing.</p>
+
+<div class="prompt"># Essential customization (do this EVERY time)
+ax.set_title("Training Progress", fontsize=12, fontweight="bold")
+ax.set_xlabel("Epoch")
+ax.set_ylabel("Loss")
+ax.legend(loc="upper right")
+ax.grid(True, alpha=0.3)
+
+# Save high-quality output
+fig.savefig("plot.png", dpi=150, bbox_inches="tight")
+plt.tight_layout()  # fix overlapping labels between subplots</div>
+
+<h3>Colors, Lines, Markers</h3>
+<table>
+<tr><th>Element</th><th>Options</th><th>Example</th></tr>
+<tr><td>Line style</td><td><code>"-"</code> <code>"--"</code> <code>"-."</code> <code>":"</code></td><td><code>linestyle="--"</code></td></tr>
+<tr><td>Markers</td><td><code>"o"</code> <code>"s"</code> <code>"^"</code> <code>"D"</code> <code>"x"</code></td><td><code>marker="o", markersize=4</code></td></tr>
+<tr><td>Colors</td><td>names, hex, cycle (<code>"C0"</code>-<code>"C9"</code>)</td><td><code>color="#4F46E5"</code></td></tr>
+<tr><td>Transparency</td><td>0 (invisible) to 1 (solid)</td><td><code>alpha=0.6</code></td></tr>
+<tr><td>Line width</td><td>float</td><td><code>linewidth=2</code></td></tr>
+</table>
+
+<h3>Color Maps (cmap)</h3>
+<table>
+<tr><th>Type</th><th>Names</th><th>Use For</th></tr>
+<tr><td>Sequential</td><td>viridis, plasma, inferno</td><td>Ordered values (counts, intensity)</td></tr>
+<tr><td>Diverging</td><td>coolwarm, RdBu, seismic</td><td>Values with meaningful center (correlation)</td></tr>
+<tr><td>Categorical</td><td>tab10, Set2, Paired</td><td>Discrete categories (clusters, classes)</td></tr>
+</table>
+
+<h2>4. Common ML Plot Recipes</h2>
+<p class="section-intro">These 5 visualizations appear in almost every ML project. Memorize the patterns.</p>
+
+<h3>Training Loss Curve</h3>
+<div class="prompt">fig, ax = plt.subplots(figsize=(8, 5))
+ax.plot(epochs, train_loss, label="Train", color="#4F46E5")
+ax.plot(epochs, val_loss, label="Validation", color="#f59e0b")
+ax.set_xlabel("Epoch"); ax.set_ylabel("Loss")
+ax.set_title("Training Progress")
+ax.legend(); ax.grid(True, alpha=0.3)</div>
+<ul>
+<li><b>What to look for:</b> If val_loss rises while train_loss falls → overfitting. If both stay high → underfitting.</li>
+</ul>
+
+<h3>Confusion Matrix</h3>
+<div class="prompt">im = ax.imshow(cm, cmap="Blues")
+for i in range(cm.shape[0]):
+    for j in range(cm.shape[1]):
+        ax.text(j, i, str(cm[i,j]), ha="center", va="center")
+ax.set_xticks(range(n)); ax.set_yticks(range(n))
+ax.set_xticklabels(classes); ax.set_yticklabels(classes)
+ax.set_xlabel("Predicted"); ax.set_ylabel("Actual")</div>
+
+<h3>Feature Importance</h3>
+<div class="prompt">sorted_idx = importances.argsort()[::-1][:10]
+ax.barh(features[sorted_idx][::-1], importances[sorted_idx][::-1])
+ax.set_xlabel("Importance"); ax.set_title("Top Features")</div>
+
+<h3>Distribution Check</h3>
+<div class="prompt">ax.hist(data, bins=30, edgecolor="black", alpha=0.7)
+ax.axvline(data.mean(), color="red", linestyle="--", label="Mean")
+ax.legend()</div>
+
+<h3>Class Balance</h3>
+<div class="prompt">counts = df["target"].value_counts()
+ax.bar(counts.index.astype(str), counts.values)
+ax.set_title("Class Distribution")</div>
+
+<h2>5. Subplots & Layout</h2>
+
+<div class="prompt"># Grid of subplots
+fig, axes = plt.subplots(2, 3, figsize=(14, 8))
+axes[0, 0].plot(...)   # access by [row, col]
+axes[1, 2].bar(...)
+
+# Flatten for easy iteration
+axes = axes.flatten()
+for i, col in enumerate(columns):
+    axes[i].hist(df[col])
+
+# Always call at the end
+plt.tight_layout()
+fig.savefig("output.png", dpi=150, bbox_inches="tight")</div>
+
+<h2>6. AI/ML Connection — Detailed</h2>
+
+<table>
+<tr><th>Pipeline Stage</th><th>What You Plot</th><th>Why It Matters</th></tr>
+<tr><td>EDA (before training)</td><td>Histograms, scatter, box plots, correlation heatmap</td><td>Understand data distribution, spot outliers, check balance</td></tr>
+<tr><td>Feature Selection</td><td>Correlation matrix, feature importance bars</td><td>Identify which features to keep/drop</td></tr>
+<tr><td>During Training</td><td>Loss curves (train vs val over epochs)</td><td>Detect overfitting/underfitting in real-time</td></tr>
+<tr><td>After Training</td><td>Confusion matrix, ROC curve, precision-recall</td><td>Understand where the model succeeds and fails</td></tr>
+<tr><td>Model Comparison</td><td>Grouped bar charts of metrics</td><td>Pick the best model objectively</td></tr>
+<tr><td>Presentation</td><td>Multi-panel dashboard figures</td><td>Communicate results to stakeholders</td></tr>
+</table>
+
+<h3>IIT KGP Module Mapping</h3>
+<table>
+<tr><th>Module</th><th>Visualization Need</th></tr>
+<tr><td>Foundation Bridge</td><td>EDA plots, distribution checks, classification results</td></tr>
+<tr><td>Module 1: GenAI</td><td>Attention weight heatmaps, token probability distributions</td></tr>
+<tr><td>Module 2: RAG</td><td>Retrieval quality plots, similarity score distributions</td></tr>
+<tr><td>Module 3: Fine-Tuning</td><td>Training loss curves, before/after comparison charts</td></tr>
+<tr><td>Module 4: Multimodal</td><td>Embedding scatter plots (t-SNE/UMAP), cross-modal alignments</td></tr>
+<tr><td>Module 5: Capstone</td><td>Professional report figures for evaluation presentation</td></tr>
+</table>
+
+<h2>7. Common Mistakes</h2>
+<table>
+<tr><th>#</th><th>Mistake</th><th>Fix</th></tr>
+<tr><td>1</td><td>Using plt.plot() for complex figures (spaghetti)</td><td>Use OO: <code>fig, ax = plt.subplots()</code></td></tr>
+<tr><td>2</td><td>Labels/titles cut off or overlapping</td><td>Call <code>plt.tight_layout()</code> before save/show</td></tr>
+<tr><td>3</td><td>Default figsize too small</td><td>Start with <code>figsize=(10, 6)</code></td></tr>
+<tr><td>4</td><td>Using pie charts for comparison</td><td>Use bar charts — humans compare lengths better than angles</td></tr>
+<tr><td>5</td><td>Overplotting (too many dots overlapping)</td><td>Use <code>alpha=0.3</code> or hexbin/density</td></tr>
+<tr><td>6</td><td>Memory leak in loops (not closing figures)</td><td><code>plt.close(fig)</code> after savefig</td></tr>
+<tr><td>7</td><td>No axis labels — chart is uninterpretable</td><td>Always add xlabel, ylabel, title</td></tr>
+</table>
+
+<h2>8. When NOT to Use Matplotlib</h2>
+<table>
+<tr><th>Scenario</th><th>Use Instead</th><th>Why</th></tr>
+<tr><td>Interactive dashboards</td><td>Plotly, Dash</td><td>Matplotlib is static</td></tr>
+<tr><td>Quick statistical plots (less code)</td><td>Seaborn</td><td>Seaborn wraps Matplotlib with sensible defaults</td></tr>
+<tr><td>Web-based interactive</td><td>Plotly, Bokeh</td><td>Hover, zoom, pan in browser</td></tr>
+<tr><td>Real-time updating</td><td>Streamlit, Plotly Dash</td><td>Matplotlib redraws are slow</td></tr>
+<tr><td>3D visualization</td><td>Plotly, PyVista</td><td>Matplotlib 3D is limited and clunky</td></tr>
+<tr><td>Auto-generated EDA</td><td>pandas-profiling, sweetviz</td><td>One-line full report</td></tr>
+</table>
+
+<div class="tip"><b>Note:</b> Seaborn is NOT a replacement — it's a layer built ON TOP of Matplotlib. Learn the OO interface first; Seaborn then becomes a one-line shortcut for statistical plots.</div>
+
+<h2>Quick Reference — Functions by Task</h2>
+<div class="two-col">
+
+<h3>Create</h3>
+<div class="prompt">fig, ax = plt.subplots(figsize=(10,6))
+fig, axes = plt.subplots(2, 3)
+fig = plt.figure(figsize=(16, 10))
+ax = fig.add_subplot(gs[0, 0])</div>
+
+<h3>Plot Types</h3>
+<div class="prompt">ax.plot(x, y)        # line
+ax.scatter(x, y)     # scatter
+ax.bar(x, h)         # vertical bar
+ax.barh(x, h)        # horizontal bar
+ax.hist(data, bins)  # histogram
+ax.imshow(matrix)    # heatmap
+ax.boxplot(data)     # box plot
+ax.fill_between(x, y1, y2)  # shaded area</div>
+
+<h3>Labels & Style</h3>
+<div class="prompt">ax.set_title("Title")
+ax.set_xlabel("X")  ax.set_ylabel("Y")
+ax.legend()  ax.grid(True, alpha=0.3)
+ax.set_xlim(0, 100)  ax.set_ylim(0, 1)
+ax.axhline(y=0.5, linestyle="--")
+ax.annotate("Note", xy=(x,y))</div>
+
+<h3>Output</h3>
+<div class="prompt">plt.tight_layout()
+fig.savefig("f.png", dpi=150, bbox_inches="tight")
+plt.show()
+plt.close(fig)</div>
+
+<h3>Pandas Shortcut</h3>
+<div class="prompt">df["col"].hist(bins=20)
+df.plot(x="a", y="b", kind="line")
+df.plot.scatter(x="a", y="b")
+df.groupby("g")["v"].mean().plot(kind="bar")</div>
+
+</div>
+
+<h2>AI Translation Table</h2>
+<table>
+<tr><th>Matplotlib Concept</th><th>AI Interpretation</th><th>Example</th></tr>
+<tr><td>Line plot</td><td>Training progress / metrics over time</td><td>Loss curve, accuracy per epoch</td></tr>
+<tr><td>Scatter plot</td><td>Relationship or embedding visualization</td><td>t-SNE 2D plot of embeddings</td></tr>
+<tr><td>Bar chart</td><td>Category comparison</td><td>Model accuracy comparison, class counts</td></tr>
+<tr><td>Histogram</td><td>Feature distribution</td><td>Check if feature is normal, skewed, bimodal</td></tr>
+<tr><td>Heatmap (imshow)</td><td>Matrix visualization</td><td>Confusion matrix, attention weights, correlation</td></tr>
+<tr><td>Subplots grid</td><td>Multi-panel EDA dashboard</td><td>6 plots showing full data overview</td></tr>
+<tr><td>axhline/axvline</td><td>Reference thresholds</td><td>Target accuracy line, decision boundary</td></tr>
+<tr><td>colorbar</td><td>Value scale indicator</td><td>Similarity scores, attention intensity</td></tr>
+<tr><td>savefig (PDF)</td><td>Publication/presentation output</td><td>Capstone report, paper figures</td></tr>
+<tr><td>tight_layout</td><td>Auto-fix spacing</td><td>Always call before saving multi-panel figures</td></tr>
+</table>
+
+<h2>Mental Models Summary</h2>
+<div class="two-col">
+<ul>
+<li><b>Figure</b> — browser window / page</li>
+<li><b>Axes</b> — individual canvas element to draw on</li>
+<li><b>plot()</b> — draw a line (trends, time series)</li>
+<li><b>scatter()</b> — draw dots (relationships)</li>
+<li><b>bar()</b> — draw rectangles (comparisons)</li>
+<li><b>hist()</b> — draw distribution shape</li>
+<li><b>imshow()</b> — draw a colored grid (matrices)</li>
+<li><b>subplots()</b> — create a grid of drawing areas</li>
+<li><b>tight_layout()</b> — auto-fix spacing (call every time)</li>
+<li><b>savefig()</b> — export to file (PNG for web, PDF for print)</li>
+<li><b>OO interface</b> — work with DOM elements directly (more control)</li>
+<li><b>Seaborn</b> — jQuery on top of Matplotlib (shortcuts, defaults)</li>
+</ul>
+</div>
+
+<h2>Memory Map</h2>
+<div class="prompt">Figure & Axes (The Container)
+  ├── fig, ax = plt.subplots() — always start here
+  └── fig, axes = plt.subplots(rows, cols) — for grids
+        │
+        ▼
+Plot Types (Drawing Methods)
+  ├── ax.plot() — line (trends, loss curves)
+  ├── ax.scatter() — dots (relationships, embeddings)
+  ├── ax.bar() / barh() — categories (model comparison)
+  ├── ax.hist() — distribution (feature exploration)
+  ├── ax.imshow() — matrix (confusion, correlation)
+  └── ax.boxplot() — summary stats + outliers
+        │
+        ▼
+Customization (Making It Readable)
+  ├── Labels: set_title, set_xlabel, set_ylabel
+  ├── Legend: ax.legend()
+  ├── Grid: ax.grid(True, alpha=0.3)
+  ├── References: axhline, axvline, annotate
+  └── Style: color, linewidth, alpha, marker
+        │
+        ▼
+Output (Sharing Results)
+  ├── plt.tight_layout() — fix spacing
+  ├── fig.savefig() — export to file
+  └── plt.close() — free memory
+        │
+        ▼
+ML Workflow
+  ├── EDA: histograms + scatter + correlation heatmap
+  ├── Training: loss curves (train vs val)
+  ├── Evaluation: confusion matrix + ROC + importance
+  └── Reporting: multi-panel dashboard figure</div>
+
+<h2>Top Takeaways (Ranked)</h2>
+<table>
+<tr><th>#</th><th>Insight</th></tr>
+<tr><td>1</td><td>Always use OO interface (fig, ax = plt.subplots()) — never plt.plot() for real work</td></tr>
+<tr><td>2</td><td>Every plot needs: title, xlabel, ylabel, legend (if multiple). No exceptions.</td></tr>
+<tr><td>3</td><td>Loss curve (train vs val) is how you detect overfitting — the most important ML plot</td></tr>
+<tr><td>4</td><td>Confusion matrix heatmap shows exactly where your model makes mistakes</td></tr>
+<tr><td>5</td><td>tight_layout() fixes 90% of spacing issues — call it every time</td></tr>
+<tr><td>6</td><td>Histograms before training reveal skewness, outliers, and scaling needs</td></tr>
+<tr><td>7</td><td>figsize=(10,6) is a good default — stop using the tiny default</td></tr>
+<tr><td>8</td><td>Seaborn is not a replacement — it's a convenience layer on Matplotlib</td></tr>
+<tr><td>9</td><td>Save as PNG (dpi=150) for screens, PDF for print/papers</td></tr>
+<tr><td>10</td><td>Multi-panel figures (subplots) are how professionals present EDA and results</td></tr>
+</table>
+
+<h2>Ready to Move On?</h2>
+<div class="tip">
+<b>Self-Test Checklist:</b><br>
+☐ I can create a figure with subplots and draw line, scatter, bar, and histogram charts<br>
+☐ I can customize titles, labels, legends, colors, and save to file<br>
+☐ I can plot training loss curves (train vs validation over epochs)<br>
+☐ I can visualize a confusion matrix as a heatmap<br>
+☐ I know when to use Seaborn/Plotly instead of raw Matplotlib<br><br>
+<b>All checked → move to Scikit-Learn.</b>
+</div>
+
+</body>
+</html>

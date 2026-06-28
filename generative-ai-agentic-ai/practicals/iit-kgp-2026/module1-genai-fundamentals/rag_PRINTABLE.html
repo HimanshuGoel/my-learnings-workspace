@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>RAG (Retrieval-Augmented Generation) — Printable Notes</title>
+<style>
+  @page { margin: 0.5cm; size: A4; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 7.5pt; line-height: 1.2; color: #1a1a1a; margin: 0; padding: 0.3cm; }
+  h1 { font-size: 11pt; border-bottom: 1.5px solid #333; padding-bottom: 2px; margin-bottom: 4px; margin-top: 0; }
+  h2 { font-size: 8.5pt; background: #eee; padding: 1.5px 5px; margin-top: 5px; margin-bottom: 2px; border-left: 2.5px solid #4F46E5; break-after: avoid; }
+  h3 { font-size: 7.5pt; margin-top: 4px; margin-bottom: 1px; color: #4F46E5; break-after: avoid; font-weight: bold; }
+  ul { margin: 0 0 2px 12px; padding: 0; }
+  li { margin-bottom: 0.5px; }
+  .tip { background: #fffbe6; border-left: 2px solid #f59e0b; padding: 2px 5px; margin: 3px 0; font-size: 7pt; break-inside: avoid; }
+  .prompt { background: #f5f5f5; border: 1px solid #ddd; padding: 2px 5px; margin: 2px 0; font-family: 'Consolas', monospace; font-size: 6.5pt; white-space: pre-wrap; break-inside: avoid; line-height: 1.15; }
+  .two-col { column-count: 2; column-gap: 10px; }
+  code { background: #e5e7eb; padding: 0 2px; font-size: 6.5pt; }
+  table { border-collapse: collapse; width: 100%; margin: 2px 0; font-size: 6.5pt; }
+  th, td { border: 1px solid #ddd; padding: 1.5px 4px; text-align: left; }
+  th { background: #f3f4f6; font-weight: bold; }
+  .diagram { text-align: center; margin: 4px 0; break-inside: avoid; }
+  .diagram svg { max-width: 100%; }
+  .diagram-caption { font-size: 6.5pt; color: #666; margin-top: 1px; font-style: italic; }
+  .section-intro { font-style: italic; margin: 1px 0 2px 0; color: #444; }
+  @media print { body { margin: 0; padding: 0.2cm; } }
+</style>
+</head>
+<body>
+<h1>Topic 10 — RAG (Retrieval-Augmented Generation)</h1>
+<p><b>Summary:</b> RAG combines document retrieval with LLM generation — giving the model an open-book exam on YOUR data instead of relying on potentially outdated or hallucinated memory.</p>
+
+<h2>Why It Exists</h2>
+<ul>
+<li><b>Problem</b> — LLMs have a knowledge cutoff (don't know recent events), can't access your private data, and hallucinate confidently when they don't know something.</li>
+<li><b>Solution</b> — before asking the LLM to answer, FIRST retrieve relevant documents from your data, then pass them as context. Answer grounded in evidence.</li>
+<li><b>Mental Model</b> — <b>A developer answering questions using documentation.</b> Instead of guessing from memory (hallucination risk), they search docs, read relevant sections, formulate answer, cite sources.</li>
+<li><b>Or:</b> Like dependency injection for knowledge. Instead of hard-coding facts into the model (fine-tuning), you inject relevant context at runtime (RAG).</li>
+</ul>
+
+<h2>How It Works</h2>
+<p class="section-intro">Two phases: Ingestion (index once) and Query (every question). Embed → Retrieve → Augment → Generate.</p>
+
+<div class="diagram">
+<svg width="420" height="110" viewBox="0 0 420 110">
+<defs><marker id="arr" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto"><path d="M0,0 L6,2 L0,4 Z" fill="#4F46E5"/></marker></defs>
+<!-- Query flow -->
+<rect x="5" y="5" width="60" height="30" rx="3" fill="#dbeafe" stroke="#3b82f6"/>
+<text x="35" y="18" text-anchor="middle" font-size="5.5pt" font-weight="bold">User Query</text>
+<text x="35" y="27" text-anchor="middle" font-size="5pt" fill="#666">"How do I..."</text>
+<line x1="65" y1="20" x2="85" y2="20" stroke="#4F46E5" stroke-width="1" marker-end="url(#arr)"/>
+<rect x="85" y="5" width="62" height="30" rx="3" fill="#ede9fe" stroke="#4F46E5"/>
+<text x="116" y="16" text-anchor="middle" font-size="5.5pt" font-weight="bold" fill="#4F46E5">1. Embed</text>
+<text x="116" y="27" text-anchor="middle" font-size="5pt" fill="#666">query → vector</text>
+<line x1="147" y1="20" x2="167" y2="20" stroke="#4F46E5" stroke-width="1" marker-end="url(#arr)"/>
+<rect x="167" y="5" width="68" height="30" rx="3" fill="#fef3c7" stroke="#f59e0b"/>
+<text x="201" y="16" text-anchor="middle" font-size="5.5pt" font-weight="bold">2. Retrieve</text>
+<text x="201" y="27" text-anchor="middle" font-size="5pt" fill="#666">top-K from vector DB</text>
+<line x1="235" y1="20" x2="255" y2="20" stroke="#4F46E5" stroke-width="1" marker-end="url(#arr)"/>
+<rect x="255" y="5" width="68" height="30" rx="3" fill="#f3f4f6" stroke="#ddd"/>
+<text x="289" y="16" text-anchor="middle" font-size="5.5pt" font-weight="bold">3. Augment</text>
+<text x="289" y="27" text-anchor="middle" font-size="5pt" fill="#666">chunks → prompt</text>
+<line x1="323" y1="20" x2="343" y2="20" stroke="#4F46E5" stroke-width="1" marker-end="url(#arr)"/>
+<rect x="343" y="5" width="68" height="30" rx="3" fill="#dcfce7" stroke="#059669"/>
+<text x="377" y="16" text-anchor="middle" font-size="5.5pt" font-weight="bold" fill="#166534">4. Generate</text>
+<text x="377" y="27" text-anchor="middle" font-size="5pt" fill="#666">LLM answers</text>
+<!-- Ingestion flow -->
+<text x="5" y="52" font-size="5.5pt" font-weight="bold" fill="#4F46E5">Ingestion (done once):</text>
+<rect x="5" y="57" width="55" height="28" rx="3" fill="#f3f4f6" stroke="#ddd"/>
+<text x="32" y="69" text-anchor="middle" font-size="5pt">Documents</text>
+<text x="32" y="78" text-anchor="middle" font-size="4.5pt" fill="#666">PDFs, web, DB</text>
+<line x1="60" y1="71" x2="78" y2="71" stroke="#4F46E5" stroke-width="1" marker-end="url(#arr)"/>
+<rect x="78" y="57" width="55" height="28" rx="3" fill="#f3f4f6" stroke="#ddd"/>
+<text x="105" y="69" text-anchor="middle" font-size="5pt">Chunk</text>
+<text x="105" y="78" text-anchor="middle" font-size="4.5pt" fill="#666">500-1000 tokens</text>
+<line x1="133" y1="71" x2="151" y2="71" stroke="#4F46E5" stroke-width="1" marker-end="url(#arr)"/>
+<rect x="151" y="57" width="55" height="28" rx="3" fill="#ede9fe" stroke="#4F46E5"/>
+<text x="178" y="69" text-anchor="middle" font-size="5pt">Embed</text>
+<text x="178" y="78" text-anchor="middle" font-size="4.5pt" fill="#666">text → vectors</text>
+<line x1="206" y1="71" x2="224" y2="71" stroke="#4F46E5" stroke-width="1" marker-end="url(#arr)"/>
+<rect x="224" y="57" width="68" height="28" rx="3" fill="#fef3c7" stroke="#f59e0b"/>
+<text x="258" y="69" text-anchor="middle" font-size="5pt" font-weight="bold">Vector DB</text>
+<text x="258" y="78" text-anchor="middle" font-size="4.5pt" fill="#666">ChromaDB/Pinecone</text>
+<!-- Connection -->
+<line x1="258" y1="57" x2="201" y2="35" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3,2" marker-end="url(#arr)"/>
+<text x="210" y="105" text-anchor="middle" font-size="5.5pt" fill="#495057">Ingestion indexes your docs once. Query phase retrieves relevant chunks per question and feeds them to the LLM.</text>
+</svg>
+<div class="diagram-caption">RAG architecture: ingest docs into vector DB (once), then embed→retrieve→augment→generate per query</div>
+</div>
+
+<h3>RAG vs Fine-Tuning Decision Matrix</h3>
+<table>
+<tr><th>Factor</th><th>RAG</th><th>Fine-Tuning</th></tr>
+<tr><td>When data changes</td><td>Just re-index (minutes)</td><td>Retrain (hours/days)</td></tr>
+<tr><td>Source attribution</td><td>Built-in (show which docs)</td><td>Not possible</td></tr>
+<tr><td>Hallucination risk</td><td>Lower (grounded in docs)</td><td>Higher (may still hallucinate)</td></tr>
+<tr><td>Latency</td><td>Higher (retrieval step adds time)</td><td>Lower (direct answer)</td></tr>
+<tr><td>Private data handling</td><td>Data stays in your DB</td><td>Data baked into model weights</td></tr>
+<tr><td>Cost model</td><td>Per-query (retrieval + generation)</td><td>One-time training + cheap inference</td></tr>
+</table>
+<div class="tip"><b>Rule of thumb:</b> Use RAG when data changes frequently, attribution matters, or you can't afford fine-tuning. Use fine-tuning for consistent format/style with stable data. They're complementary — you can RAG with a fine-tuned model.</div>
+
+<h3>Key Design Decisions</h3>
+<table>
+<tr><th>Decision</th><th>Options</th><th>Trade-off</th></tr>
+<tr><td>Chunk size</td><td>256 / 512 / 1024 tokens</td><td>Smaller = precise retrieval, larger = more context per chunk</td></tr>
+<tr><td>Chunk overlap</td><td>0 / 50 / 100 tokens</td><td>More overlap = preserves boundary context, costs more storage</td></tr>
+<tr><td>Top-K retrieval</td><td>3 / 5 / 10 chunks</td><td>More = less risk missing info, but more noise and token cost</td></tr>
+<tr><td>Embedding model</td><td>MiniLM (384d) / mpnet (768d) / OpenAI (1536d)</td><td>Larger = better quality, slower + more expensive</td></tr>
+<tr><td>Retrieval strategy</td><td>Vector only / Hybrid / Re-ranking</td><td>More stages = better precision, more complexity</td></tr>
+</table>
+
+<h3>The RAG Prompt Pattern</h3>
+<div class="prompt">System: You are a helpful assistant. Answer ONLY based on the provided context.
+If the context doesn't contain the answer, say "I don't have that information."
+
+Context:
+{retrieved_chunk_1}
+{retrieved_chunk_2}
+{retrieved_chunk_3}
+
+Question: {user_question}
+
+Answer:</div>
+
+<div class="diagram">
+<svg width="380" height="80" viewBox="0 0 380 80">
+<defs><marker id="arr4" markerWidth="6" markerHeight="4" refX="6" refY="2" orient="auto"><path d="M0,0 L6,2 L0,4 Z" fill="#4F46E5"/></marker></defs>
+<!-- Without RAG -->
+<text x="95" y="10" text-anchor="middle" font-size="5.5pt" font-weight="bold" fill="#ef4444">Without RAG (closed-book)</text>
+<rect x="10" y="14" width="50" height="22" rx="3" fill="#fef2f2" stroke="#ef4444"/>
+<text x="35" y="28" text-anchor="middle" font-size="5pt">Question</text>
+<line x1="60" y1="25" x2="78" y2="25" stroke="#ef4444" stroke-width="1" marker-end="url(#arr4)"/>
+<rect x="78" y="14" width="50" height="22" rx="3" fill="#fef2f2" stroke="#ef4444"/>
+<text x="103" y="28" text-anchor="middle" font-size="5pt">LLM Memory</text>
+<line x1="128" y1="25" x2="146" y2="25" stroke="#ef4444" stroke-width="1" marker-end="url(#arr4)"/>
+<rect x="146" y="14" width="50" height="22" rx="3" fill="#fef2f2" stroke="#ef4444"/>
+<text x="171" y="25" text-anchor="middle" font-size="5pt">Answer</text>
+<text x="171" y="33" text-anchor="middle" font-size="4.5pt" fill="#ef4444">⚠️ may hallucinate</text>
+<!-- With RAG -->
+<text x="95" y="50" text-anchor="middle" font-size="5.5pt" font-weight="bold" fill="#059669">With RAG (open-book)</text>
+<rect x="10" y="54" width="50" height="22" rx="3" fill="#dcfce7" stroke="#059669"/>
+<text x="35" y="68" text-anchor="middle" font-size="5pt">Question</text>
+<line x1="60" y1="65" x2="78" y2="65" stroke="#059669" stroke-width="1" marker-end="url(#arr4)"/>
+<rect x="78" y="54" width="50" height="22" rx="3" fill="#dcfce7" stroke="#059669"/>
+<text x="103" y="65" text-anchor="middle" font-size="5pt">Retrieve Docs</text>
+<line x1="128" y1="65" x2="146" y2="65" stroke="#059669" stroke-width="1" marker-end="url(#arr4)"/>
+<rect x="146" y="54" width="55" height="22" rx="3" fill="#dcfce7" stroke="#059669"/>
+<text x="173" y="65" text-anchor="middle" font-size="5pt">LLM + Context</text>
+<line x1="201" y1="65" x2="219" y2="65" stroke="#059669" stroke-width="1" marker-end="url(#arr4)"/>
+<rect x="219" y="54" width="50" height="22" rx="3" fill="#dcfce7" stroke="#059669"/>
+<text x="244" y="63" text-anchor="middle" font-size="5pt">Answer</text>
+<text x="244" y="72" text-anchor="middle" font-size="4.5pt" fill="#059669">✓ grounded</text>
+</svg>
+<div class="diagram-caption">RAG = open-book exam. Model answers from retrieved evidence, not just memory. Reduces hallucination.</div>
+</div>
+
+<h2>IIT KGP Module Mapping</h2>
+<table>
+<tr><th>Module</th><th>How RAG Applies</th></tr>
+<tr><td>Module 2</td><td>THE entire module — build RAG pipelines with LangChain/LlamaIndex, ChromaDB</td></tr>
+<tr><td>Module 4</td><td>Agents use RAG as a tool to access knowledge bases alongside other tools</td></tr>
+<tr><td>Module 5</td><td>Capstone likely includes a RAG component; deploy with FastAPI</td></tr>
+</table>
+
+<h2>Common Misconceptions</h2>
+<table>
+<tr><th>Wrong</th><th>Correct</th></tr>
+<tr><td>"RAG = just copying text from documents"</td><td>The LLM synthesizes, summarizes, and reasons over retrieved context.</td></tr>
+<tr><td>"Bigger chunks = better"</td><td>Too big = noise dilutes signal. 500 tokens is a good starting point.</td></tr>
+<tr><td>"RAG eliminates hallucination"</td><td>Reduces it significantly but doesn't eliminate. Model can still misinterpret context.</td></tr>
+<tr><td>"RAG replaces fine-tuning"</td><td>They solve different problems. RAG = knowledge access. Fine-tuning = behavior change.</td></tr>
+<tr><td>"One retrieval step is enough"</td><td>Production systems often re-rank, filter, and multi-step retrieve for quality.</td></tr>
+</table>
+
+<h2>Connection Map</h2>
+<div class="prompt">Embeddings (similarity search powers retrieval)
+        ↓
+Fine-tuning (alternative approach to domain adaptation)
+        ↓
+RAG (THIS TOPIC — ground model in your private data at query time)
+        ↓
+    ├── Agents (RAG as one tool among many)
+    └── Evaluation (measure retrieval quality + generation faithfulness)</div>
+
+<h2>Key Terminology</h2>
+<table>
+<tr><th>Term</th><th>Meaning</th></tr>
+<tr><td>RAG</td><td>Retrieval-Augmented Generation — search docs first, then generate answer</td></tr>
+<tr><td>Vector DB</td><td>Database that stores embeddings and supports similarity search (ChromaDB, Pinecone)</td></tr>
+<tr><td>Chunking</td><td>Splitting documents into 500-1000 token pieces for indexing</td></tr>
+<tr><td>Embedding</td><td>Converting text to a dense vector that captures semantic meaning</td></tr>
+<tr><td>Top-K retrieval</td><td>Fetching the K most similar document chunks to the query</td></tr>
+<tr><td>Cosine similarity</td><td>Measure of how similar two vectors are (1 = identical, 0 = unrelated)</td></tr>
+<tr><td>Re-ranking</td><td>Second-pass scoring of retrieved chunks for better precision</td></tr>
+<tr><td>Hybrid search</td><td>Combining vector similarity with keyword matching for retrieval</td></tr>
+</table>
+
+<h2>Top Takeaways</h2>
+<table>
+<tr><th>#</th><th>Insight</th></tr>
+<tr><td>1</td><td>RAG = give the LLM an open-book exam. Retrieve relevant docs, pass as context, generate grounded answer.</td></tr>
+<tr><td>2</td><td>Solves three LLM limitations: knowledge cutoff, no private data access, hallucination.</td></tr>
+<tr><td>3</td><td>Two phases: ingestion (chunk + embed + store — done once) and query (retrieve + augment + generate — every question).</td></tr>
+<tr><td>4</td><td>Key design choices: chunk size (~500 tokens), top-K (3-5), embedding model quality.</td></tr>
+<tr><td>5</td><td>RAG and fine-tuning are complementary, not competing. RAG for knowledge, fine-tuning for behavior.</td></tr>
+<tr><td>6</td><td>Source attribution is built-in — you can show which documents the answer came from.</td></tr>
+<tr><td>7</td><td>When data changes, just re-index (minutes). No retraining needed.</td></tr>
+</table>
+
+<h2>Ready to Move On?</h2>
+<div class="tip">
+☐ I can explain the RAG pipeline: embed → retrieve → augment prompt → generate<br>
+☐ I understand why RAG exists (knowledge cutoff, private data, reduce hallucination)<br>
+☐ I know key design decisions (chunk size, top-k, embedding model)<br>
+☐ I can articulate when to use RAG vs fine-tuning<br><br>
+<b>Next → Agents (LLMs that use tools and reason in multi-step loops)</b>
+</div>
+
+</body>
+</html>
