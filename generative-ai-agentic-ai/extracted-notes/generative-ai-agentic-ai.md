@@ -19,6 +19,27 @@
 
 - In 2026 - models will improve drastically but very marginally, however the tools which use the models will be drastically improved.
 
+- 7 important concepts while understanding AI:
+
+| Concept             | Your Experience                               |
+| ------------------- | --------------------------------------------- |
+| Tokens              | Prompt engineering with ChatGPT, Claude, Kiro |
+| Context Engineering | XMS specifications, Kiro steering files       |
+| Agents              | Kiro Angular upgrade POC                      |
+| Evals               | Regression testing, unit testing, validation  |
+| RAG                 | Next logical learning step                    |
+| Embeddings          | Foundation needed before RAG                  |
+
+- Six Types of Context:
+  1. Instructions — Role, goals, responsibilities
+  2. Knowledge — Documentation, diagrams, business rules
+  3. Memory — Session history and persistent knowledge
+  4. Examples — Reference implementations and patterns
+  5. Tools — Available APIs, scripts, services
+  6. Guardrails — Safety and architectural constraints
+
+- Harness engineering — using LLM and building practicality (memory, observability, tools, agent loop, guard rails, security, context management) around it like around an engine we build a car (body, gearbox, cabin, etc.).
+
 ## AI Tools & Ecosystem
 
 ### Tool Landscape
@@ -190,6 +211,12 @@
 
 - Adding a layer of abstraction makes software development faster and focuses more on user problem.
 
+- The new SDLC shifts software engineering from "writing code" to "designing and governing AI-powered systems that produce code."
+
+- The future of software engineering is not about becoming better prompt writers. It is about becoming better system designers, context engineers, and quality arbiters. Agentic Engineering = AI works within specs, tests, guardrails, and feedback loops. Context Engineering is the new Prompt Engineering — the quality of context matters more than clever prompts.
+
+- Agentic Engineering adds: Formal specifications, Architecture documents, Automated testing, CI/CD gates, Evaluations (Evals), Human oversight. Characteristics: High reliability, Production-ready, Scalable. Good for: Enterprise software, Large teams, Regulated industries.
+
 ## AI & The Developer Role
 
 ### Evolution of the Developer
@@ -265,6 +292,8 @@
 
 - AI code review tools are proliferating rapidly, and while many promise improved speed or quality, the real game-changer will be independent, autonomous systems that genuinely integrate into dev workflows rather than just replicating human reviewer tasks.
 
+- The winners in the AI era won't be the people who use AI the most — they'll be the people who use AI to amplify their own thinking rather than replace it.
+
 ## AI Content & Creativity
 
 - AI may make low-quality content more abundant, but it also highlights the value of thoughtful, human craft. Rather than replacing deep understanding or creativity, AI could free space for more meaningful, human-driven work—if we choose to value and cultivate it.
@@ -274,6 +303,8 @@
 - AI hasn't yet replaced professional software development—but it has collapsed the cost of building "good enough" tools for yourself, and that alone is already reshaping the software landscape.
 
 - "Breadth first, depth later" is such an underrated mindset in the AI era.
+
+- AI may not destroy the internet directly, but by reducing the rewards for sharing content publicly, it could gradually push creators, artists, and open-source developers toward more closed and private ecosystems, weakening the culture of openness that built the web.
 
 ## AI Privacy & Ethics
 
@@ -331,60 +362,4 @@
 
 - Ten years ago: Know Angular = valuable. Today: Know Angular + Architecture = valuable. Tomorrow: Know Architecture + AI workflows + Product thinking = valuable. Framework knowledge is becoming a smaller percentage of total engineering value.
 
-## Rearrange
-
-You can ask AI:
-
-Why something works
-Alternative approaches
-Debugging help
-Personalized explanations
-
-7 important concept while understanding AI
-
-| Concept             | Your Experience                               |
-| ------------------- | --------------------------------------------- |
-| Tokens              | Prompt engineering with ChatGPT, Claude, Kiro |
-| Context Engineering | XMS specifications, Kiro steering files       |
-| Agents              | Kiro Angular upgrade POC                      |
-| Evals               | Regression testing, unit testing, validation  |
-| RAG                 | Next logical learning step                    |
-| Embeddings          | Foundation needed before RAG                  |
-
-The new SDLC shifts software engineering from "writing code" to "designing and governing AI-powered systems that produce code."
-
->AI may not destroy the internet directly, but by reducing the rewards for sharing content publicly, it could gradually push creators, artists, and open-source developers toward more closed and private ecosystems, weakening the culture of openness that built the web.
-
->The future of software engineering is not about becoming better prompt writers. It is about becoming better system designers, context engineers, and quality arbiters. Agentic Engineering = AI works within specs, tests, guardrails, and feedback loops. Context Engineering is the new Prompt Engineering as The quality of context matters more than clever prompts.
-
->Agentic Engineering adds: Formal specifications, Architecture documents, Automated testing, CI/CD gates, Evaluations (Evals), Human oversight. Characteristics: High reliability, Production-ready, Scalable. Good for: Enterprise software, Large teams, Regulated industries
-
-
-Six Types of Context
-1. Instructions
-
-Role, goals, responsibilities.
-
-2. Knowledge
-
-Documentation, diagrams, business rules.
-
-3. Memory
-
-Session history and persistent knowledge.
-
-4. Examples
-
-Reference implementations and patterns.
-
-5. Tools
-
-Available APIs, scripts, services.
-
-6. Guardrails
-
-Safety and architectural constraints.
-
->The winners in the AI era won't be the people who use AI the most—they'll be the people who use AI to amplify their own thinking rather than replace it.
-
-- harness engineering - using llm and building practicality (memory, observablity, tools agent loop guard rails, security, context management) around it like around engine we build car like body, gearbox, car cabing, etc.
+- You can ask AI: Why something works, Alternative approaches, Debugging help, Personalized explanations.
